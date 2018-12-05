@@ -1,10 +1,10 @@
 ---
 title: "Demonstrating STATIS normalization on a correlation matrix"
-output: github_document
+output: rmarkdown::github_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE,collapse=TRUE, comment="##")
 ```
 
 ## GitHub Documents
