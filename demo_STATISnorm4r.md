@@ -1,32 +1,59 @@
 Demonstrating STATIS normalization on a correlation matrix
 ================
 
-## GitHub Documents
+## Info
 
-This is an R Markdown format used for publishing markdown documents to
-GitHub. When you click the **Knit** button all R code chunks are run and
-a markdown file (.md) suitable for publishing to GitHub is generated.
+## STATIS-like normalization
 
-## Including Code
+## Fake data
 
-You can include R code in the document as follows:
+## Fake correlation
 
 ``` r
-summary(cars)
-##      speed           dist       
-##  Min.   : 4.0   Min.   :  2.00  
-##  1st Qu.:12.0   1st Qu.: 26.00  
-##  Median :15.0   Median : 36.00  
-##  Mean   :15.4   Mean   : 42.98  
-##  3rd Qu.:19.0   3rd Qu.: 56.00  
-##  Max.   :25.0   Max.   :120.00
+### fake correlation: 
+cor.X <- cor(X)
+dim(cor.X)
+## [1] 44 44
 ```
 
-## Including Plots
+Plot the heatmap
 
-You can also embed plots, for example:
+![](demo_STATISnorm4r_files/figure-gfm/show_cor-1.png)<!-- -->
 
-![](demo_STATISnorm4r_files/figure-gfm/pressure-1.png)<!-- -->
+### Double centering
 
-Note that the `echo = FALSE` parameter was added to the code chunk to
-prevent printing of the R code that generated the plot.
+``` r
+# center columns and rows
+corX.c <- cor.X %>% scale(scale = FALSE) %>% t %>% scale(scale = FALSE)
+```
+
+Plot the heatmap:
+
+![](demo_STATISnorm4r_files/figure-gfm/show_center-1.png)<!-- -->
+
+### Eigen decomposition
+
+``` r
+# get the first eigenvalue
+eig.res.corX <-eigen(corX.c)
+Lambda.corX <- eig.res.corX$`values`
+Q.corX <- eig.res.corX$vectors
+```
+
+Plot eigen vector
+
+![](demo_STATISnorm4r_files/figure-gfm/show_eig-1.png)<!-- -->
+
+### devided by the first eigenvalue
+
+``` r
+end.X <- cor.X/Lambda.corX[1]
+```
+
+Plot final result
+
+![](demo_STATISnorm4r_files/figure-gfm/show_endX-1.png)<!-- -->
+
+Plot the heatmap again
+
+![](demo_STATISnorm4r_files/figure-gfm/show_cor2-1.png)<!-- -->

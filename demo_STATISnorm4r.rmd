@@ -7,24 +7,107 @@ output: github_document
 knitr::opts_chunk$set(echo = TRUE,collapse=TRUE, comment="##")
 ```
 
-## GitHub Documents
+## Info
 
-This is an R Markdown format used for publishing markdown documents to GitHub. When you click the **Knit** button all R code chunks are run and a markdown file (.md) suitable for publishing to GitHub is generated.
 
-## Including Code
+## STATIS-like normalization
 
-You can include R code in the document as follows:
-
-```{r cars}
-summary(cars)
+```{r cars, echo = FALSE, include = FALSE}
+library(dplyr)
+library(tidyr)
+library(gridGraphics)
+library(grid)
+require(gplots)
 ```
 
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure) # An example
+## Fake data
+```{r pressure, echo = FALSE}
+X <- as.matrix(read.csv("BFIdata.csv"))
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+## Fake correlation
+```{r correlation}
+### fake correlation: 
+cor.X <- cor(X)
+dim(cor.X)
+```
+
+Plot the heatmap
+
+```{r show_cor, echo = FALSE}
+group.col <- RColorBrewer::brewer.pal(5,"Set1")[c(rep(x=1,8),rep(x=2,9),rep(x=3,9),rep(x=4,8),rep(x=5,10))]
+value.col <- colorRamps::blue2red(100)
+heatmap(cor.X,
+             scale = "none",
+             ColSideColors = group.col,
+             RowSideColors = group.col,
+             Rowv = NA, Colv = NA,
+             col = value.col)
+```
+
+### Double centering
+```{r double_center}
+# center columns and rows
+corX.c <- cor.X %>% scale(scale = FALSE) %>% t %>% scale(scale = FALSE)
+```
+
+Plot the heatmap:
+
+```{r show_center, echo = FALSE}
+heatmap(corX.c,
+             scale = "none",
+             ColSideColors = group.col,
+             RowSideColors = group.col,
+             Rowv = NA, Colv = NA,
+             col = value.col,
+             symm = TRUE)
+```
+
+### Eigen decomposition
+```{r eig}
+# get the first eigenvalue
+eig.res.corX <-eigen(corX.c)
+Lambda.corX <- eig.res.corX$`values`
+Q.corX <- eig.res.corX$vectors
+```
+
+Plot eigen vector
+
+```{r show_eig, echo = FALSE}
+heatmap(diag(Q.corX[,1]),
+             scale = "none",
+             RowSideColors = group.col,
+             Rowv = NA, Colv = NA,
+             col = value.col)
+
+```
+
+### devided by the first eigenvalue
+```{r d_eig}
+end.X <- cor.X/Lambda.corX[1]
+```
+
+Plot final result
+
+```{r show_endX, echo = FALSE}
+heatmap(end.X,
+        scale = "none",
+        ColSideColors = group.col,
+        RowSideColors = group.col,
+        Rowv = NA, Colv = NA,
+        col = value.col)
+```
+
+Plot the heatmap again
+
+```{r show_cor2, echo = FALSE}
+group.col <- RColorBrewer::brewer.pal(5,"Set1")[c(rep(x=1,8),rep(x=2,9),rep(x=3,9),rep(x=4,8),rep(x=5,10))]
+value.col <- colorRamps::blue2red(100)
+heatmap(cor.X,
+             scale = "none",
+             ColSideColors = group.col,
+             RowSideColors = group.col,
+             Rowv = NA, Colv = NA,
+             col = value.col)
+```
+
