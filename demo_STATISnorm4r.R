@@ -5,19 +5,23 @@
 #install.packages("colorRamps")
 #install.packages("gridGraphics")
 #install.packages("pheatmap")
+#install.packages("gridExtra")
 #devtools::install_github('HerveAbdi/PTCA4CATA')
 library(dplyr)
 library(tidyr)
 library(PTCA4CATA)
 library(ExPosition)
 library(pheatmap)
+library(gridExtra)
 ## create examplar data ---- 
 ### create a symmetric matrix with values resembles correlation
 ### fake data: 
 ####a rectangular matrix (need also to plan for blocks of high correlation)
 X <- as.matrix(read.csv("FakeData.csv"))
 ### fake correlation: changed to all positive 
-cor.X <- abs(cor(X))
+cor.X <- cor(X)
+cor.X[cor(X) < 0] <- 0
+cor.X
 dim(cor.X)
 #### check for blocks on diagonal
 group.col <- RColorBrewer::brewer.pal(5,"Set1")[c(rep(x=1,8),rep(x=2,9),rep(x=3,9),rep(x=4,8),rep(x=5,10))]
@@ -50,6 +54,8 @@ pheatmap(cor.X, color = value.col,
 ### double centering:
 #### center columns and rows
 corX.c <- cor.X %>% scale(scale = FALSE) %>% t %>% scale(scale = FALSE)
+colMeans(corX.c)
+rowMeans(corX.c)
 #### check heatmap
 pheatmap(corX.c, color = value.col,
          cluster_cols = FALSE, cluster_rows = FALSE,

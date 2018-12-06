@@ -24,6 +24,8 @@ suppressMessages(library(tidyr))
 suppressMessages(library(PTCA4CATA))
 suppressMessages(library(ExPosition))
 suppressMessages(library(pheatmap))
+suppressMessages(library(gridExtra))
+
 ```
 
 ### Fake data
@@ -39,8 +41,9 @@ Then, compute its correlation matrix.
 
 ```{r correlation}
 ### fake correlation:
-# changed to all positive values
-cor.X <- abs(cor(X))
+# substitue all negative correlations to 0
+cor.X <- cor(X)
+cor.X[cor(X) < 0] <- 0
 dim(cor.X)
 ```
 
@@ -165,6 +168,16 @@ pheatmap(ss_endX, color = value.col,
          annotation_names_row = FALSE,
          annotation_colors = group.des.col,
          breaks = seq(-0.1,0.1,by = 0.002))
+pheatmap(ss_endX, color = value.col,
+         cluster_cols = FALSE, cluster_rows = FALSE,
+         cellwidth = 35,cellheight = 35,
+         annotation_col = data.frame(group = group.des.df[c(1,9,18,27,35),]),
+         annotation_row = data.frame(group = group.des.df[c(1,9,18,27,35),]),
+         annotation_legend = FALSE,
+         annotation_names_col = FALSE,
+         annotation_names_row = FALSE,
+         annotation_colors = group.des.col,
+         breaks = seq(0.3,0.6,by = 0.003))
 ```
 
 With its normalized sums of squares:
@@ -184,6 +197,16 @@ pheatmap(NormSS_endX, color = value.col,
          annotation_names_row = FALSE,
          annotation_colors = group.des.col,
          breaks = seq(-0.002,0.002,by = 0.00004))
+pheatmap(NormSS_endX, color = value.col,
+         cluster_cols = FALSE, cluster_rows = FALSE,
+         cellwidth = 35,cellheight = 35,
+         annotation_col = data.frame(group = group.des.df[c(1,9,18,27,35),]),
+         annotation_row = data.frame(group = group.des.df[c(1,9,18,27,35),]),
+         annotation_legend = FALSE,
+         annotation_names_col = FALSE,
+         annotation_names_row = FALSE,
+         annotation_colors = group.des.col,
+         breaks = seq(0.004,0.009,by = 0.00005))
 ```
 
 With its block means:
@@ -203,6 +226,16 @@ pheatmap(mean_endX, color = value.col,
          annotation_names_row = FALSE,
          annotation_colors = group.des.col,
          breaks = seq(-0.03,0.03,by = 0.0006))
+pheatmap(mean_endX, color = value.col,
+         cluster_cols = FALSE, cluster_rows = FALSE,
+         cellwidth = 35,cellheight = 35,
+         annotation_col = data.frame(group = group.des.df[c(1,9,18,27,35),]),
+         annotation_row = data.frame(group = group.des.df[c(1,9,18,27,35),]),
+         annotation_legend = FALSE,
+         annotation_names_col = FALSE,
+         annotation_names_row = FALSE,
+         annotation_colors = group.des.col,
+         breaks = seq(0.03,0.08,by = 0.0005))
 
 ```
 
@@ -238,6 +271,16 @@ pheatmap(ss_corX, color = value.col,
          annotation_names_row = FALSE,
          annotation_colors = group.des.col,
          breaks = seq(-6,6,by = 0.12))
+pheatmap(ss_corX, color = value.col,
+         cluster_cols = FALSE, cluster_rows = FALSE,
+         cellwidth = 35,cellheight = 35,
+         annotation_col = data.frame(group = group.des.df[c(1,9,18,27,35),]),
+         annotation_row = data.frame(group = group.des.df[c(1,9,18,27,35),]),
+         annotation_legend = FALSE,
+         annotation_names_col = FALSE,
+         annotation_names_row = FALSE,
+         annotation_colors = group.des.col,
+         breaks = seq(11,26,by = 0.15))
 
 ```
 
@@ -258,7 +301,16 @@ pheatmap(NormSS_corX, color = value.col,
          annotation_names_row = FALSE,
          annotation_colors = group.des.col,
          breaks = seq(-0.1,0.1,by = 0.002))
-
+pheatmap(NormSS_corX, color = value.col,
+         cluster_cols = FALSE, cluster_rows = FALSE,
+         cellwidth = 35,cellheight = 35,
+         annotation_col = data.frame(group = group.des.df[c(1,9,18,27,35),]),
+         annotation_row = data.frame(group = group.des.df[c(1,9,18,27,35),]),
+         annotation_legend = FALSE,
+         annotation_names_col = FALSE,
+         annotation_names_row = FALSE,
+         annotation_colors = group.des.col,
+         breaks = seq(0.18,0.26,by = 0.0008))
 ```
 
 With its block means:
@@ -278,7 +330,16 @@ pheatmap(mean_corX, color = value.col,
          annotation_names_row = FALSE,
          annotation_colors = group.des.col,
          breaks = seq(-0.2,0.2,by = 0.004))
-
+pheatmap(mean_corX, color = value.col,
+         cluster_cols = FALSE, cluster_rows = FALSE,
+         cellwidth = 35,cellheight = 35,
+         annotation_col = data.frame(group = group.des.df[c(1,9,18,27,35),]),
+         annotation_row = data.frame(group = group.des.df[c(1,9,18,27,35),]),
+         annotation_legend = FALSE,
+         annotation_names_col = FALSE,
+         annotation_names_row = FALSE,
+         annotation_colors = group.des.col,
+         breaks = seq(0.3,0.5,by = 0.002))
 ```
 
 ## Try PCA
