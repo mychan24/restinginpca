@@ -66,6 +66,7 @@ plotting
 group.col <- RColorBrewer::brewer.pal(5,"Set1")[c(rep(x=1,8),rep(x=2,9),rep(x=3,9),rep(x=4,8),rep(x=5,10))]
 group.des <- c(rep("E",8),rep("A",9),rep("C",9),rep("N",8),rep("O",10))
 group.des.nominal <- makeNominalData(as.matrix(group.des))
+group.des.nomnorm <- group.des.nominal/c(rep(8,8),rep(9,9),rep(9,9),rep(8,8),rep(10,10))
 group.des.df <- data.frame(group = factor(group.des),row.names = colnames(X))
 group.des.col <- list(group = c(E = RColorBrewer::brewer.pal(5,"Set1")[1],
                                 A = RColorBrewer::brewer.pal(5,"Set1")[2],
@@ -135,6 +136,18 @@ t(group.des.nominal) %*% end.X %*% group.des.nominal
 ## .O -1.7734340 -0.07830909 -0.3151149 -1.8331780  4.00003598
 ```
 
+With its normalized sums of squares:
+
+``` r
+t(group.des.nomnorm) %*% end.X %*% group.des.nomnorm
+##             .E           .A           .C          .N           .O
+## .E  0.06604322 -0.011142400 -0.012748856 -0.01145565 -0.022167926
+## .A -0.01114240  0.035883800 -0.009714951 -0.01720993 -0.000870101
+## .C -0.01274886 -0.009714951  0.036019864 -0.01246758 -0.003501277
+## .N -0.01145565 -0.017209929 -0.012467576  0.07348625 -0.022914724
+## .O -0.02216793 -0.000870101 -0.003501277 -0.02291472  0.040000360
+```
+
 Plot the heatmap of the original matrix again to compare:
 
 ![](demo_STATISnorm4r_files/figure-gfm/show_cor2-1.png)<!-- -->
@@ -149,6 +162,18 @@ t(group.des.nominal) %*% cor.X %*% group.des.nominal
 ## .C  2.7640617  8.473558 32.498222 -2.865429 15.8910825
 ## .N -6.5715876 -6.437500 -2.865429 21.070764 -7.1412312
 ## .O -0.3906893 15.424437 15.891083 -7.141231 45.2153249
+```
+
+With its normalized sums of squares:
+
+``` r
+t(group.des.nomnorm) %*% cor.X %*% group.des.nomnorm
+##              .E          .A          .C          .N           .O
+## .E  0.444149064  0.02703063  0.03838975 -0.10268106 -0.004883617
+## .A  0.027030632  0.35831607  0.10461182 -0.08940973  0.171382635
+## .C  0.038389746  0.10461182  0.40121262 -0.03979763  0.176567584
+## .N -0.102681056 -0.08940973 -0.03979763  0.32923068 -0.089265390
+## .O -0.004883617  0.17138264  0.17656758 -0.08926539  0.452153249
 ```
 
 ## Try PCA
