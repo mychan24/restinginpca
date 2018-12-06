@@ -22,6 +22,7 @@ dim(cor.X)
 #### check for blocks on diagonal
 group.col <- RColorBrewer::brewer.pal(5,"Set1")[c(rep(x=1,8),rep(x=2,9),rep(x=3,9),rep(x=4,8),rep(x=5,10))]
 group.des <- c(rep("E",8),rep("A",9),rep("C",9),rep("N",8),rep("O",10))
+group.des.nominal <- makeNominalData(as.matrix(group.des))
 group.des.df <- data.frame(group = factor(group.des),row.names = colnames(X))
 group.des.col <- list(group = c(E = RColorBrewer::brewer.pal(5,"Set1")[1],
                                 A = RColorBrewer::brewer.pal(5,"Set1")[2],
@@ -107,6 +108,11 @@ pheatmap(end.X, color = value.col,
 #         RowSideColors = group.col,
 #         Rowv = NA, Colv = NA,
 #         col = value.col)
+
+#### check sums of squares of the correlation matrix
+t(group.des.nominal) %*% cor.X %*% group.des.nominal
+#### check sums of squares of the normalized matrix
+t(group.des.nominal) %*% end.X %*% group.des.nominal
 
 ### try PCA ----
 #### with original correlation matrix

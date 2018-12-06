@@ -65,6 +65,7 @@ plotting
 ``` r
 group.col <- RColorBrewer::brewer.pal(5,"Set1")[c(rep(x=1,8),rep(x=2,9),rep(x=3,9),rep(x=4,8),rep(x=5,10))]
 group.des <- c(rep("E",8),rep("A",9),rep("C",9),rep("N",8),rep("O",10))
+group.des.nominal <- makeNominalData(as.matrix(group.des))
 group.des.df <- data.frame(group = factor(group.des),row.names = colnames(X))
 group.des.col <- list(group = c(E = RColorBrewer::brewer.pal(5,"Set1")[1],
                                 A = RColorBrewer::brewer.pal(5,"Set1")[2],
@@ -122,9 +123,33 @@ Plot final result:
 
 ![](demo_STATISnorm4r_files/figure-gfm/show_endX-1.png)<!-- -->
 
+With its sums of squares:
+
+``` r
+t(group.des.nominal) %*% end.X %*% group.des.nominal
+##            .E          .A         .C         .N          .O
+## .E  4.2267663 -0.80225281 -0.9179176 -0.7331618 -1.77343404
+## .A -0.8022528  2.90658782 -0.7869110 -1.2391149 -0.07830909
+## .C -0.9179176 -0.78691100  2.9176090 -0.8976655 -0.31511490
+## .N -0.7331618 -1.23911492 -0.8976655  4.7031202 -1.83317795
+## .O -1.7734340 -0.07830909 -0.3151149 -1.8331780  4.00003598
+```
+
 Plot the heatmap of the original matrix again to compare:
 
 ![](demo_STATISnorm4r_files/figure-gfm/show_cor2-1.png)<!-- -->
+
+With its sums of squares:
+
+``` r
+t(group.des.nominal) %*% cor.X %*% group.des.nominal
+##            .E        .A        .C        .N         .O
+## .E 28.4255401  1.946205  2.764062 -6.571588 -0.3906893
+## .A  1.9462055 29.023602  8.473558 -6.437500 15.4244372
+## .C  2.7640617  8.473558 32.498222 -2.865429 15.8910825
+## .N -6.5715876 -6.437500 -2.865429 21.070764 -7.1412312
+## .O -0.3906893 15.424437 15.891083 -7.141231 45.2153249
+```
 
 ## Try PCA
 

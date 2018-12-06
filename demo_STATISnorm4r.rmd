@@ -47,6 +47,7 @@ Setting up colors for plotting
 ```{r color_setting}
 group.col <- RColorBrewer::brewer.pal(5,"Set1")[c(rep(x=1,8),rep(x=2,9),rep(x=3,9),rep(x=4,8),rep(x=5,10))]
 group.des <- c(rep("E",8),rep("A",9),rep("C",9),rep("N",8),rep("O",10))
+group.des.nominal <- makeNominalData(as.matrix(group.des))
 group.des.df <- data.frame(group = factor(group.des),row.names = colnames(X))
 group.des.col <- list(group = c(E = RColorBrewer::brewer.pal(5,"Set1")[1],
                                 A = RColorBrewer::brewer.pal(5,"Set1")[2],
@@ -145,6 +146,13 @@ pheatmap(end.X, color = value.col,
          breaks = seq(-0.2,0.2,by = 0.004))
 ```
 
+With its sums of squares:
+
+```{r ss_endX}
+t(group.des.nominal) %*% end.X %*% group.des.nominal
+```
+
+
 Plot the heatmap of the original matrix again to compare:
 
 ```{r show_cor2, echo = FALSE}
@@ -158,6 +166,12 @@ pheatmap(cor.X, color = value.col,
          annotation_names_row = FALSE,
          annotation_colors = group.des.col,
          breaks = seq(-1,1,by = 0.02))
+```
+
+With its sums of squares:
+
+```{r ss_corX}
+t(group.des.nominal) %*% cor.X %*% group.des.nominal
 ```
 
 ## Try PCA
