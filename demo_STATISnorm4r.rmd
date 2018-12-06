@@ -7,45 +7,76 @@ output: github_document
 knitr::opts_chunk$set(echo = TRUE,collapse=TRUE, comment="##")
 ```
 
-## Info
+## Idea
+Before starting this project, we were not sure how we should normalize our data to control for counding factors (e.g., voxel size and network size) and keep important signals. (But what is really the important information?) Since the correlation matrix we work on resemble a distance matrix. We came up with the idea of matrix preprocessing steps similar to that of DiSTATIS (i.e., STATIS for distance matrices). This type of preprocessing consists of two steps:
 
+* Double-center
+* Normalized by the first eigenvalue of the double-centered matrix
 
-## STATIS-like normalization
+## Objectives
+Here, we illustrate how data are changed along these steps and how the final singular value  decomposition (SVD) results are affected.
+
+## Start with an example data
 
 ```{r cars, echo = FALSE, include = FALSE}
-library(dplyr)
-library(tidyr)
-library(gridGraphics)
-library(grid)
-require(gplots)
+suppressMessages(library(dplyr))
+suppressMessages(library(tidyr))
+suppressMessages(library(PTCA4CATA))
+suppressMessages(library(ExPosition))
+suppressMessages(library(pheatmap))
 ```
 
-## Fake data
+### Fake data
+We start with a fake data with blocks of correlation.
+
 ```{r pressure, echo = FALSE}
-X <- as.matrix(read.csv("BFIdata.csv"))
+X <- as.matrix(read.csv("FakeData.csv"))
+head(X)
 ```
 
-## Fake correlation
+### Fake correlation
+Then, compute its correlation matrix.
+
 ```{r correlation}
 ### fake correlation: 
 cor.X <- cor(X)
 dim(cor.X)
 ```
 
-Plot the heatmap
-
-```{r show_cor, echo = FALSE}
+Setting up colors for plotting
+```{r color_setting}
 group.col <- RColorBrewer::brewer.pal(5,"Set1")[c(rep(x=1,8),rep(x=2,9),rep(x=3,9),rep(x=4,8),rep(x=5,10))]
+group.des <- c(rep("E",8),rep("A",9),rep("C",9),rep("N",8),rep("O",10))
+group.des.df <- data.frame(group = factor(group.des),row.names = colnames(X))
+group.des.col <- list(group = c(E = RColorBrewer::brewer.pal(5,"Set1")[1],
+                                A = RColorBrewer::brewer.pal(5,"Set1")[2],
+                                C = RColorBrewer::brewer.pal(5,"Set1")[3],
+                                N = RColorBrewer::brewer.pal(5,"Set1")[4],
+                                O = RColorBrewer::brewer.pal(5,"Set1")[5]))
 value.col <- colorRamps::blue2red(100)
-heatmap(cor.X,
-             scale = "none",
-             ColSideColors = group.col,
-             RowSideColors = group.col,
-             Rowv = NA, Colv = NA,
-             col = value.col)
 ```
 
-### Double centering
+
+Plot the heatmap:
+
+```{r show_cor, echo = FALSE}
+pheatmap(cor.X, color = value.col,
+         cluster_cols = FALSE, cluster_rows = FALSE,
+         cellwidth = 7,cellheight = 7,
+         annotation_col = group.des.df,
+         annotation_row = group.des.df,
+         annotation_legend = FALSE,
+         annotation_names_col = FALSE,
+         annotation_names_row = FALSE,
+         annotation_colors = group.des.col,
+         breaks = seq(-1,1,by = 0.02))
+```
+
+## STATIS-like normalization
+
+### STEP 1 : Double centering
+Centering across columns and rows so that each row and column has a mean of 0.
+
 ```{r double_center}
 # center columns and rows
 corX.c <- cor.X %>% scale(scale = FALSE) %>% t %>% scale(scale = FALSE)
@@ -54,60 +85,123 @@ corX.c <- cor.X %>% scale(scale = FALSE) %>% t %>% scale(scale = FALSE)
 Plot the heatmap:
 
 ```{r show_center, echo = FALSE}
-heatmap(corX.c,
-             scale = "none",
-             ColSideColors = group.col,
-             RowSideColors = group.col,
-             Rowv = NA, Colv = NA,
-             col = value.col,
-             symm = TRUE)
+pheatmap(corX.c, color = value.col,
+         cluster_cols = FALSE, cluster_rows = FALSE,
+         cellwidth = 7,cellheight = 7,
+         annotation_col = group.des.df,
+         annotation_row = group.des.df,
+         annotation_legend = FALSE,
+         annotation_names_col = FALSE,
+         annotation_names_row = FALSE,
+         annotation_colors = group.des.col,
+         breaks = seq(-1,1,by = 0.02))
 ```
 
-### Eigen decomposition
+### STEP 1.5: Eigen decomposition
+Perform an eigen decomposition and record the eigenvalues.
+
 ```{r eig}
 # get the first eigenvalue
 eig.res.corX <-eigen(corX.c)
 Lambda.corX <- eig.res.corX$`values`
 Q.corX <- eig.res.corX$vectors
+Q1 <- as.matrix(diag(Q.corX[,1]))
+rownames(Q1) <- colnames(X)
+colnames(Q1) <- colnames(X)
 ```
 
-Plot eigen vector
+Plot eigen vectors:
 
 ```{r show_eig, echo = FALSE}
-heatmap(diag(Q.corX[,1]),
-             scale = "none",
-             RowSideColors = group.col,
-             Rowv = NA, Colv = NA,
-             col = value.col)
-
+pheatmap(Q1, color = value.col,
+         cluster_cols = FALSE, cluster_rows = FALSE,
+         cellwidth = 7,cellheight = 7,
+         annotation_col = group.des.df,
+         annotation_row = group.des.df,
+         annotation_legend = FALSE,
+         annotation_names_col = FALSE,
+         annotation_names_row = FALSE,
+         annotation_colors = group.des.col,
+         )
 ```
 
-### devided by the first eigenvalue
+### STEP 2 : Devided the double-centered matrix by the first eigenvalue
 ```{r d_eig}
-end.X <- cor.X/Lambda.corX[1]
+end.X <- corX.c/Lambda.corX[1]
 ```
 
-Plot final result
+Plot final result:
 
 ```{r show_endX, echo = FALSE}
-heatmap(end.X,
-        scale = "none",
-        ColSideColors = group.col,
-        RowSideColors = group.col,
-        Rowv = NA, Colv = NA,
-        col = value.col)
+pheatmap(end.X, color = value.col,
+         cluster_cols = FALSE, cluster_rows = FALSE,
+         cellwidth = 7,cellheight = 7,
+         annotation_col = group.des.df,
+         annotation_row = group.des.df,
+         annotation_legend = FALSE,
+         annotation_names_col = FALSE,
+         annotation_names_row = FALSE,
+         annotation_colors = group.des.col,
+         breaks = seq(-0.2,0.2,by = 0.004))
 ```
 
-Plot the heatmap again
+Plot the heatmap of the original matrix again to compare:
 
 ```{r show_cor2, echo = FALSE}
-group.col <- RColorBrewer::brewer.pal(5,"Set1")[c(rep(x=1,8),rep(x=2,9),rep(x=3,9),rep(x=4,8),rep(x=5,10))]
-value.col <- colorRamps::blue2red(100)
-heatmap(cor.X,
-             scale = "none",
-             ColSideColors = group.col,
-             RowSideColors = group.col,
-             Rowv = NA, Colv = NA,
-             col = value.col)
+pheatmap(cor.X, color = value.col,
+         cluster_cols = FALSE, cluster_rows = FALSE,
+         cellwidth = 7,cellheight = 7,
+         annotation_col = group.des.df,
+         annotation_row = group.des.df,
+         annotation_legend = FALSE,
+         annotation_names_col = FALSE,
+         annotation_names_row = FALSE,
+         annotation_colors = group.des.col,
+         breaks = seq(-1,1,by = 0.02))
 ```
+
+## Try PCA
+Let's see how the PCA results are changed after the STATIS-like normalization.
+
+```{r pca_set}
+# Group design
+group.des <- c(rep(x=1,8),rep(x=2,9),rep(x=3,9),rep(x=4,8),rep(x=5,10))
+# PCA with original correlation matrix
+corX.pca.res <- epPCA(cor.X, center = FALSE, scale = FALSE, DESIGN = group.des, make_design_nominal = TRUE, graphs = FALSE)
+# PCA with the STATIS-normalized matrix
+endX.pca.res <- epPCA(end.X, center = FALSE, scale = FALSE, DESIGN = group.des, make_design_nominal = TRUE, graphs = FALSE)
+
+```
+
+#### PCA results with original correlation matrix
+```{r pcaRes_corX, echo = FALSE}
+par(mfrow=c(1,2))
+corX.p <- createFactorMap(corX.pca.res$ExPosition.Data$fi,
+                          col.points = group.col,
+                          col.labels = group.col,
+                          display.points = TRUE,
+                          display.labels = TRUE
+)
+labels4corX <- createxyLabels.gen(
+  lambda = corX.pca.res$ExPosition.Data$eigs ,
+  tau = corX.pca.res$ExPosition.Data$t,
+  axisName = "Dimension ")
+print(corX.p$zeMap + labels4corX)
+```
+
+#### PCA results with STATIS-normalized matrix
+```{r pcaRes_endX, echo = FALSE}
+endX.p <- createFactorMap(endX.pca.res$ExPosition.Data$fi,
+                          col.points = group.col,
+                          col.labels = group.col,
+                          display.points = TRUE,
+                          display.labels = TRUE
+)
+labels4endX <- createxyLabels.gen(
+  lambda = endX.pca.res$ExPosition.Data$eigs ,
+  tau = endX.pca.res$ExPosition.Data$t,
+  axisName = "Dimension ")
+print(endX.p$zeMap + labels4endX)
+```
+
 
