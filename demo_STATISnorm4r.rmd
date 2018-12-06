@@ -149,14 +149,60 @@ pheatmap(end.X, color = value.col,
 
 With its sums of squares:
 
-```{r ss_endX}
-t(group.des.nominal) %*% end.X %*% group.des.nominal
+```{r ss_endX, echo = FALSE}
+ss_endX <- t(group.des.nominal) %*% end.X^2 %*% group.des.nominal
+rownames(ss_endX) <- c("E","A","C","N","O")
+colnames(ss_endX) <- c("E","A","C","N","O")
+ss_endX
+pheatmap(ss_endX, color = value.col,
+         cluster_cols = FALSE, cluster_rows = FALSE,
+         cellwidth = 35,cellheight = 35,
+         annotation_col = data.frame(group = group.des.df[c(1,9,18,27,35),]),
+         annotation_row = data.frame(group = group.des.df[c(1,9,18,27,35),]),
+         annotation_legend = FALSE,
+         annotation_names_col = FALSE,
+         annotation_names_row = FALSE,
+         annotation_colors = group.des.col,
+         breaks = seq(-0.1,0.1,by = 0.002))
 ```
 
 With its normalized sums of squares:
 
-```{r NormSS_endX}
-t(group.des.nomnorm) %*% end.X %*% group.des.nomnorm
+```{r NormSS_endX,echo = FALSE}
+NormSS_endX <- t(group.des.nomnorm) %*% end.X^2 %*% group.des.nomnorm
+rownames(NormSS_endX) <- c("E","A","C","N","O")
+colnames(NormSS_endX) <- c("E","A","C","N","O")
+NormSS_endX
+pheatmap(NormSS_endX, color = value.col,
+         cluster_cols = FALSE, cluster_rows = FALSE,
+         cellwidth = 35,cellheight = 35,
+         annotation_col = data.frame(group = group.des.df[c(1,9,18,27,35),]),
+         annotation_row = data.frame(group = group.des.df[c(1,9,18,27,35),]),
+         annotation_legend = FALSE,
+         annotation_names_col = FALSE,
+         annotation_names_row = FALSE,
+         annotation_colors = group.des.col,
+         breaks = seq(-0.001,0.001,by = 0.00002))
+```
+
+With its block means:
+
+```{r mean_endX, echo = FALSE}
+mean_endX <- t(group.des.nomnorm) %*% end.X %*% group.des.nomnorm
+rownames(mean_endX) <- c("E","A","C","N","O")
+colnames(mean_endX) <- c("E","A","C","N","O")
+mean_endX
+pheatmap(mean_endX, color = value.col,
+         cluster_cols = FALSE, cluster_rows = FALSE,
+         cellwidth = 35,cellheight = 35,
+         annotation_col = data.frame(group = group.des.df[c(1,9,18,27,35),]),
+         annotation_row = data.frame(group = group.des.df[c(1,9,18,27,35),]),
+         annotation_legend = FALSE,
+         annotation_names_col = FALSE,
+         annotation_names_row = FALSE,
+         annotation_colors = group.des.col,
+         breaks = seq(-0.03,0.03,by = 0.0006))
+
 ```
 
 Plot the heatmap of the original matrix again to compare:
@@ -176,14 +222,62 @@ pheatmap(cor.X, color = value.col,
 
 With its sums of squares:
 
-```{r ss_corX}
-t(group.des.nominal) %*% cor.X %*% group.des.nominal
+```{r ss_corX,echo = FALSE}
+ss_corX <- t(group.des.nominal) %*% cor.X^2 %*% group.des.nominal
+rownames(ss_corX) <- c("E","A","C","N","O")
+colnames(ss_corX) <- c("E","A","C","N","O")
+ss_corX
+pheatmap(ss_corX, color = value.col,
+         cluster_cols = FALSE, cluster_rows = FALSE,
+         cellwidth = 35,cellheight = 35,
+         annotation_col = data.frame(group = group.des.df[c(1,9,18,27,35),]),
+         annotation_row = data.frame(group = group.des.df[c(1,9,18,27,35),]),
+         annotation_legend = FALSE,
+         annotation_names_col = FALSE,
+         annotation_names_row = FALSE,
+         annotation_colors = group.des.col,
+         breaks = seq(-6,6,by = 0.12))
+
 ```
 
 With its normalized sums of squares:
 
-```{r NormSS_corX}
-t(group.des.nomnorm) %*% cor.X %*% group.des.nomnorm
+```{r NormSS_corX,echo = FALSE}
+NormSS_corX <- t(group.des.nomnorm) %*% cor.X^2 %*% group.des.nomnorm
+rownames(NormSS_corX) <- c("E","A","C","N","O")
+colnames(NormSS_corX) <- c("E","A","C","N","O")
+NormSS_corX
+pheatmap(NormSS_corX, color = value.col,
+         cluster_cols = FALSE, cluster_rows = FALSE,
+         cellwidth = 35,cellheight = 35,
+         annotation_col = data.frame(group = group.des.df[c(1,9,18,27,35),]),
+         annotation_row = data.frame(group = group.des.df[c(1,9,18,27,35),]),
+         annotation_legend = FALSE,
+         annotation_names_col = FALSE,
+         annotation_names_row = FALSE,
+         annotation_colors = group.des.col,
+         breaks = seq(-0.1,0.1,by = 0.002))
+
+```
+
+With its block means:
+
+```{r mean_corX,echo = FALSE}
+mean_corX <- t(group.des.nomnorm) %*% cor.X %*% group.des.nomnorm
+rownames(mean_corX) <- c("E","A","C","N","O")
+colnames(mean_corX) <- c("E","A","C","N","O")
+mean_corX
+pheatmap(mean_corX, color = value.col,
+         cluster_cols = FALSE, cluster_rows = FALSE,
+         cellwidth = 35,cellheight = 35,
+         annotation_col = data.frame(group = group.des.df[c(1,9,18,27,35),]),
+         annotation_row = data.frame(group = group.des.df[c(1,9,18,27,35),]),
+         annotation_legend = FALSE,
+         annotation_names_col = FALSE,
+         annotation_names_row = FALSE,
+         annotation_colors = group.des.col,
+         breaks = seq(-0.2,0.2,by = 0.004))
+
 ```
 
 ## Try PCA

@@ -111,12 +111,16 @@ pheatmap(end.X, color = value.col,
 #         col = value.col)
 
 #### check sums of squares of the correlation matrix
-t(group.des.nominal) %*% cor.X %*% group.des.nominal
+t(group.des.nominal) %*% cor.X^2 %*% group.des.nominal
 #### check sums of squares of the normalized matrix
-t(group.des.nominal) %*% end.X %*% group.des.nominal
+t(group.des.nominal) %*% end.X^2 %*% group.des.nominal
 #### check normalized sums of squares of the correlation matrix
-t(group.des.nomnorm) %*% cor.X %*% group.des.nomnorm
+t(group.des.nomnorm) %*% cor.X^2 %*% group.des.nomnorm
 #### check normalized sums of squares of the normalized matrix
+t(group.des.nomnorm) %*% end.X^2 %*% group.des.nomnorm
+#### check block means of the correlation matrix
+t(group.des.nomnorm) %*% cor.X %*% group.des.nomnorm
+#### check block means of the normalized matrix
 t(group.des.nomnorm) %*% end.X %*% group.des.nomnorm
 
 ### try PCA ----
