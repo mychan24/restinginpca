@@ -212,7 +212,7 @@ endX.pca.res <- epPCA(end.X, center = FALSE, scale = FALSE, DESIGN = group.des, 
 
 #### PCA results with original correlation matrix
 
-![](demo_STATISnorm4r_files/figure-gfm/pcaRes_corX-1.png)<!-- -->
+![](demo_STATISnorm4r_files/figure-gfm/pcaRes_corX-1.png)<!-- -->![](demo_STATISnorm4r_files/figure-gfm/pcaRes_corX-2.png)<!-- -->
 
 #### PCA results with STATIS-normalized matrix
 

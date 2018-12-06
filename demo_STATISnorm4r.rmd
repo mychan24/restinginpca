@@ -303,11 +303,24 @@ corX.p <- createFactorMap(corX.pca.res$ExPosition.Data$fi,
                           display.points = TRUE,
                           display.labels = TRUE
 )
+corX.p23 <- createFactorMap(corX.pca.res$ExPosition.Data$fi,
+                            axis1 = 2,
+                            axis2 = 3,
+                            col.points = group.col,
+                            col.labels = group.col,
+                            display.points = TRUE,
+                            display.labels = TRUE
+)
 labels4corX <- createxyLabels.gen(
   lambda = corX.pca.res$ExPosition.Data$eigs ,
   tau = corX.pca.res$ExPosition.Data$t,
   axisName = "Dimension ")
+labels4corX23 <- createxyLabels.gen(
+  lambda = corX.pca.res$ExPosition.Data$eigs[c(2:3)],
+  tau = corX.pca.res$ExPosition.Data$t[c(2:3)],
+  axisName = "Dimension ")
 print(corX.p$zeMap + labels4corX)
+print(corX.p23$zeMap + labels4corX23)
 ```
 
 #### PCA results with STATIS-normalized matrix
