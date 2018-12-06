@@ -16,8 +16,8 @@ library(pheatmap)
 ### fake data: 
 ####a rectangular matrix (need also to plan for blocks of high correlation)
 X <- as.matrix(read.csv("FakeData.csv"))
-### fake correlation: 
-cor.X <- cor(X)
+### fake correlation: changed to all positive 
+cor.X <- abs(cor(X))
 dim(cor.X)
 #### check for blocks on diagonal
 group.col <- RColorBrewer::brewer.pal(5,"Set1")[c(rep(x=1,8),rep(x=2,9),rep(x=3,9),rep(x=4,8),rep(x=5,10))]

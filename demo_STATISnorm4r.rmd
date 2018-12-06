@@ -38,8 +38,9 @@ head(X)
 Then, compute its correlation matrix.
 
 ```{r correlation}
-### fake correlation: 
-cor.X <- cor(X)
+### fake correlation:
+# changed to all positive values
+cor.X <- abs(cor(X))
 dim(cor.X)
 ```
 
@@ -182,7 +183,7 @@ pheatmap(NormSS_endX, color = value.col,
          annotation_names_col = FALSE,
          annotation_names_row = FALSE,
          annotation_colors = group.des.col,
-         breaks = seq(-0.001,0.001,by = 0.00002))
+         breaks = seq(-0.002,0.002,by = 0.00004))
 ```
 
 With its block means:
