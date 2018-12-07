@@ -116,9 +116,11 @@ Plot eigen vectors:
 end.X <- corX.c/Lambda.corX[1]
 ```
 
-Plot final result (normalized matrix):
+Plot original matrix & normalized matrix:
 
 ![](demo_STATISnorm4r_mc_files/figure-markdown_github/show_endX-1.png)
+
+![](demo_STATISnorm4r_mc_files/figure-markdown_github/unnamed-chunk-1-1.png)
 
 With its sums of squares:
 
@@ -147,13 +149,7 @@ With its block means:
     ## N -0.008992446 -0.013845716 -0.01506332  0.070261870 -0.022997402
     ## O -0.024358873 -0.005534707 -0.00495646 -0.022997402  0.047327070
 
-![](demo_STATISnorm4r_mc_files/figure-markdown_github/unnamed-chunk-1-1.png)
-
-Plot the heatmap of the original matrix again to compare:
-
-![](demo_STATISnorm4r_mc_files/figure-markdown_github/show_cor2-1.png)
-
-With its sums of squares:
+Original matrix's sums of squares:
 
     ##            E          A         C          N          O
     ## E 16.4088161  1.3515739  1.208547  0.1473785  0.8902429
@@ -162,9 +158,7 @@ With its sums of squares:
     ## N  0.1473785  0.3742935  0.548349 12.4913467  0.1941629
     ## O  0.8902429  4.4188633  5.499667  0.1941629 25.9770096
 
-![](demo_STATISnorm4r_mc_files/figure-markdown_github/ss_corX-1.png)
-
-With its normalized sums of squares:
+Original matrix's normalized sums of squares:
 
     ##             E          A           C           N           O
     ## E 0.256387752 0.01877186 0.016785380 0.002302789 0.011128036
@@ -173,9 +167,7 @@ With its normalized sums of squares:
     ## N 0.002302789 0.00519852 0.007615958 0.195177292 0.002427037
     ## O 0.011128036 0.04909848 0.061107411 0.002427037 0.259770096
 
-![](demo_STATISnorm4r_mc_files/figure-markdown_github/NormSS_corX-1.png)
-
-With its block means:
+Original matrix's block means:
 
     ##            E          A          C          N          O
     ## E 0.44414906 0.07641620 0.08008157 0.02061252 0.05683041
@@ -184,7 +176,7 @@ With its block means:
     ## N 0.02061252 0.03335369 0.04136409 0.34365785 0.01968514
     ## O 0.05683041 0.17906033 0.19537509 0.01968514 0.45215325
 
-![](demo_STATISnorm4r_mc_files/figure-markdown_github/mean_corX-1.png)
+![](demo_STATISnorm4r_mc_files/figure-markdown_github/grid_small_mats-1.png)
 
 Try PCA
 -------
