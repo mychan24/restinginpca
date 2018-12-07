@@ -88,10 +88,6 @@ Centering across columns and rows so that each row and column has a mean of 0.
 corX.c <- cor.X %>% scale(scale = FALSE) %>% t %>% scale(scale = FALSE)
 ```
 
-Plot the double-centered heatmap:
-
-![](demo_STATISnorm4r_mc_files/figure-markdown_github/show_center-1.png)
-
 ### STEP 1.5: Eigen decomposition
 
 Perform an eigen decomposition and record the eigenvalues.
@@ -106,9 +102,9 @@ rownames(Q1) <- colnames(X)
 colnames(Q1) <- colnames(X)
 ```
 
-Plot eigen vectors:
+Plot double-centered matrix & eigen vectors:
 
-![](demo_STATISnorm4r_mc_files/figure-markdown_github/show_eig-1.png)
+![](demo_STATISnorm4r_mc_files/figure-markdown_github/plot_dc_ev-1.png)
 
 ### STEP 2 : Devided the double-centered matrix by the first eigenvalue
 
@@ -118,9 +114,7 @@ end.X <- corX.c/Lambda.corX[1]
 
 Plot original matrix & normalized matrix:
 
-![](demo_STATISnorm4r_mc_files/figure-markdown_github/show_endX-1.png)
-
-![](demo_STATISnorm4r_mc_files/figure-markdown_github/unnamed-chunk-1-1.png)
+![](demo_STATISnorm4r_mc_files/figure-markdown_github/o_n_mat-1.png)
 
 With its sums of squares:
 

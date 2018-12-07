@@ -88,9 +88,7 @@ Centering across columns and rows so that each row and column has a mean of 0.
 corX.c <- cor.X %>% scale(scale = FALSE) %>% t %>% scale(scale = FALSE)
 ```
 
-Plot the double-centered heatmap:
-
-```{r show_center, echo = FALSE}
+```{r show_center, echo = FALSE, fig.show='hide'}
 p_dc <- pheatmap(corX.c, color = value.col,
          cluster_cols = FALSE, cluster_rows = FALSE,
          cellwidth = 7,cellheight = 7,
@@ -117,9 +115,9 @@ rownames(Q1) <- colnames(X)
 colnames(Q1) <- colnames(X)
 ```
 
-Plot eigen vectors:
+Plot double-centered matrix & eigen vectors:
 
-```{r show_eig, echo = FALSE}
+```{r show_eig, echo = FALSE, fig.show='hide'}
 p_e <- pheatmap(Q1, color = value.col,
          cluster_cols = FALSE, cluster_rows = FALSE,
          cellwidth = 7,cellheight = 7,
@@ -132,6 +130,12 @@ p_e <- pheatmap(Q1, color = value.col,
          main="eigan vectors")
 ```
 
+```{r plot_dc_ev, echo=F, fig.height=8, fig.width=14}
+gridExtra::grid.arrange(as.grob(p_dc), as.grob(p_e), ncol=2)
+```
+
+
+
 ### STEP 2 : Devided the double-centered matrix by the first eigenvalue
 ```{r d_eig}
 end.X <- corX.c/Lambda.corX[1]
@@ -139,7 +143,7 @@ end.X <- corX.c/Lambda.corX[1]
 
 Plot original matrix & normalized matrix:
 
-```{r show_endX, echo = FALSE, fig.show='hid'}
+```{r show_endX, echo = FALSE, fig.show='hide'}
 p_n <- pheatmap(end.X, color = value.col,
          cluster_cols = FALSE, cluster_rows = FALSE,
          cellwidth = 7,cellheight = 7,
@@ -153,7 +157,7 @@ p_n <- pheatmap(end.X, color = value.col,
          main="STATIS-like normalized matrix")
 ```
 
-```{r, echo=F, fig.width=14}
+```{r o_n_mat, echo=F, fig.width=14}
 gridExtra::grid.arrange(as.grob(p_o), as.grob(p_n), nrow=1)
 ```
 
