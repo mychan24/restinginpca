@@ -129,8 +129,6 @@ With its sums of squares:
     ## N 0.01211016 0.02935305 0.04340758 0.54467836 0.05296631
     ## O 0.07531015 0.05395297 0.05685418 0.05296631 0.45944721
 
-![](demo_STATISnorm4r_mc_files/figure-markdown_github/ss_endX-1.png)
-
 With its normalized sums of squares:
 
     ##              E            A            C            N            O
@@ -139,8 +137,6 @@ With its normalized sums of squares:
     ## C 0.0007297789 0.0007085246 0.0050745196 0.0006028830 0.0006317131
     ## N 0.0001892212 0.0004076812 0.0006028830 0.0085105994 0.0006620789
     ## O 0.0009413769 0.0005994775 0.0006317131 0.0006620789 0.0045944721
-
-![](demo_STATISnorm4r_mc_files/figure-markdown_github/NormSS_endX-1.png)
 
 With its block means:
 
@@ -151,7 +147,7 @@ With its block means:
     ## N -0.008992446 -0.013845716 -0.01506332  0.070261870 -0.022997402
     ## O -0.024358873 -0.005534707 -0.00495646 -0.022997402  0.047327070
 
-![](demo_STATISnorm4r_mc_files/figure-markdown_github/mean_endX-1.png)![](demo_STATISnorm4r_mc_files/figure-markdown_github/mean_endX-2.png)
+![](demo_STATISnorm4r_mc_files/figure-markdown_github/unnamed-chunk-1-1.png)
 
 Plot the heatmap of the original matrix again to compare:
 

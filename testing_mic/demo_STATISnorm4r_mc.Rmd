@@ -152,7 +152,7 @@ pheatmap(end.X, color = value.col,
 
 With its sums of squares:
 
-```{r ss_endX, echo = FALSE}
+```{r ss_endX, echo = FALSE, fig.show='hide'}
 ss_endX <- t(group.des.nominal) %*% end.X^2 %*% group.des.nominal
 rownames(ss_endX) <- c("E","A","C","N","O")
 colnames(ss_endX) <- c("E","A","C","N","O")
@@ -172,7 +172,7 @@ p_s2 <- pheatmap(ss_endX, color = value.col,
 
 With its normalized sums of squares:
 
-```{r NormSS_endX,echo = FALSE}
+```{r NormSS_endX,echo = F,  fig.show='hide'}
 NormSS_endX <- t(group.des.nomnorm) %*% end.X^2 %*% group.des.nomnorm
 rownames(NormSS_endX) <- c("E","A","C","N","O")
 colnames(NormSS_endX) <- c("E","A","C","N","O")
@@ -191,7 +191,7 @@ p_ns2 <- pheatmap(NormSS_endX, color = value.col,
 
 With its block means:
 
-```{r mean_endX, echo = FALSE}
+```{r mean_endX, echo = F, fig.show='hide'}
 mean_endX <- t(group.des.nomnorm) %*% end.X %*% group.des.nomnorm
 rownames(mean_endX) <- c("E","A","C","N","O")
 colnames(mean_endX) <- c("E","A","C","N","O")
@@ -206,10 +206,13 @@ p_m <- pheatmap(mean_endX, color = value.col,
          annotation_names_row = FALSE,
          annotation_colors = group.des.col,
          breaks = seq(-0.03,0.03,by = 0.0006))
+```
 
+```{r, echo=F, fig.width=14}
 gridExtra::grid.arrange(as.grob(p_s2), as.grob(p_ns2), as.grob(p_m), ncol=3)
 
 ```
+
 
 Plot the heatmap of the original matrix again to compare:
 
