@@ -157,7 +157,7 @@ p_n <- pheatmap(end.X, color = value.col,
          main="STATIS-like normalized matrix")
 ```
 
-```{r o_n_mat, echo=F, fig.width=14}
+```{r o_n_mat, echo=F, fig.width=14, fig.height=8}
 gridExtra::grid.arrange(as.grob(p_o), as.grob(p_n), nrow=1)
 ```
 
@@ -285,7 +285,7 @@ p_om <- pheatmap(mean_corX, color = value.col,
 
 ```
 
-```{r grid_small_mats, echo=F, fig.width=14}
+```{r grid_small_mats, echo=F, fig.width=14, fig.height=8}
 gridExtra::grid.arrange(as.grob(p_os2), as.grob(p_ons2), as.grob(p_om),
                         as.grob(p_ns2), as.grob(p_nns2), as.grob(p_nm), 
                         ncol=3)
