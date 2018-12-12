@@ -96,8 +96,6 @@ corX.c <- cor.X %>% scale(scale = FALSE) %>% t %>% scale(scale = FALSE)
 
 Plot the heatmap:
 
-![](demo_STATISnorm4r_files/figure-gfm/show_center-1.png)<!-- -->
-
 ### STEP 1.5: Eigen decomposition
 
 Perform an eigen decomposition and record the eigenvalues.
@@ -114,7 +112,7 @@ colnames(Q1) <- colnames(X)
 
 Plot eigen vectors:
 
-![](demo_STATISnorm4r_files/figure-gfm/show_eig-1.png)<!-- -->
+![](demo_STATISnorm4r_files/figure-gfm/plot_dc_ev-1.png)<!-- -->
 
 ### STEP 2 : Devided the double-centered matrix by the first eigenvalue
 
@@ -122,11 +120,11 @@ Plot eigen vectors:
 end.X <- corX.c/Lambda.corX[1]
 ```
 
-Plot final result:
+Compared the STATIS-like normalized matrix to the original matrix:
 
-![](demo_STATISnorm4r_files/figure-gfm/show_endX-1.png)<!-- -->
+![](demo_STATISnorm4r_files/figure-gfm/o_n_mat-1.png)<!-- -->
 
-With its sums of squares:
+Sums of squares of the normalized matrix:
 
     ##            E          A          C          N          O
     ## E 0.53756572 0.06035231 0.05254408 0.01211016 0.07531015
@@ -135,10 +133,8 @@ With its sums of squares:
     ## N 0.01211016 0.02935305 0.04340758 0.54467836 0.05296631
     ## O 0.07531015 0.05395297 0.05685418 0.05296631 0.45944721
 
-![](demo_STATISnorm4r_files/figure-gfm/ss_endX-1.png)<!-- -->![](demo_STATISnorm4r_files/figure-gfm/ss_endX-2.png)<!-- -->
-
-With its normalized sums of
-    squares:
+Normalized sums of squares of the normalized
+    matrix:
 
     ##              E            A            C            N            O
     ## E 0.0083994644 0.0008382265 0.0007297789 0.0001892212 0.0009413769
@@ -147,9 +143,7 @@ With its normalized sums of
     ## N 0.0001892212 0.0004076812 0.0006028830 0.0085105994 0.0006620789
     ## O 0.0009413769 0.0005994775 0.0006317131 0.0006620789 0.0045944721
 
-![](demo_STATISnorm4r_files/figure-gfm/NormSS_endX-1.png)<!-- -->![](demo_STATISnorm4r_files/figure-gfm/NormSS_endX-2.png)<!-- -->
-
-With its block means:
+Block means:
 
     ##              E            A           C            N            O
     ## E  0.073204940 -0.013927558 -0.01608480 -0.008992446 -0.024358873
@@ -158,13 +152,7 @@ With its block means:
     ## N -0.008992446 -0.013845716 -0.01506332  0.070261870 -0.022997402
     ## O -0.024358873 -0.005534707 -0.00495646 -0.022997402  0.047327070
 
-![](demo_STATISnorm4r_files/figure-gfm/mean_endX-1.png)<!-- -->![](demo_STATISnorm4r_files/figure-gfm/mean_endX-2.png)<!-- -->
-
-Plot the heatmap of the original matrix again to compare:
-
-![](demo_STATISnorm4r_files/figure-gfm/show_cor2-1.png)<!-- -->
-
-With its sums of squares:
+Sums of squares of the original matrix:
 
     ##            E          A         C          N          O
     ## E 16.4088161  1.3515739  1.208547  0.1473785  0.8902429
@@ -173,9 +161,7 @@ With its sums of squares:
     ## N  0.1473785  0.3742935  0.548349 12.4913467  0.1941629
     ## O  0.8902429  4.4188633  5.499667  0.1941629 25.9770096
 
-![](demo_STATISnorm4r_files/figure-gfm/ss_corX-1.png)<!-- -->![](demo_STATISnorm4r_files/figure-gfm/ss_corX-2.png)<!-- -->
-
-With its normalized sums of squares:
+Normalized sums of squares:
 
     ##             E          A           C           N           O
     ## E 0.256387752 0.01877186 0.016785380 0.002302789 0.011128036
@@ -184,9 +170,7 @@ With its normalized sums of squares:
     ## N 0.002302789 0.00519852 0.007615958 0.195177292 0.002427037
     ## O 0.011128036 0.04909848 0.061107411 0.002427037 0.259770096
 
-![](demo_STATISnorm4r_files/figure-gfm/NormSS_corX-1.png)<!-- -->![](demo_STATISnorm4r_files/figure-gfm/NormSS_corX-2.png)<!-- -->
-
-With its block means:
+Plot them:
 
     ##            E          A          C          N          O
     ## E 0.44414906 0.07641620 0.08008157 0.02061252 0.05683041
@@ -195,12 +179,9 @@ With its block means:
     ## N 0.02061252 0.03335369 0.04136409 0.34365785 0.01968514
     ## O 0.05683041 0.17906033 0.19537509 0.01968514 0.45215325
 
-![](demo_STATISnorm4r_files/figure-gfm/mean_corX-1.png)<!-- -->![](demo_STATISnorm4r_files/figure-gfm/mean_corX-2.png)<!-- -->
-
-## Try PCA
-
-Let’s see how the PCA results are changed after the STATIS-like
-normalization.
+![](demo_STATISnorm4r_files/figure-gfm/grid_small_mats-1.png)<!-- -->
+\#\# Try PCA Let’s see how the PCA results are changed after the
+STATIS-like normalization.
 
 ``` r
 # Group design
