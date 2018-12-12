@@ -25,7 +25,8 @@ suppressMessages(library(PTCA4CATA))
 suppressMessages(library(ExPosition))
 suppressMessages(library(pheatmap))
 suppressMessages(library(gridExtra))
-
+suppressMessages(library(ggplotify))
+suppressMessages(library(grid))
 ```
 
 ### Fake data
@@ -66,7 +67,7 @@ value.col <- colorRamps::blue2red(100)
 Plot the heatmap:
 
 ```{r show_cor, echo = FALSE}
-pheatmap(cor.X, color = value.col,
+p_o <- pheatmap(cor.X, color = value.col,
          cluster_cols = FALSE, cluster_rows = FALSE,
          cellwidth = 7,cellheight = 7,
          annotation_col = group.des.df,
@@ -75,7 +76,8 @@ pheatmap(cor.X, color = value.col,
          annotation_names_col = FALSE,
          annotation_names_row = FALSE,
          annotation_colors = group.des.col,
-         breaks = seq(-1,1,by = 0.02))
+         breaks = seq(-1,1,by = 0.02),
+         main="original matrix")
 ```
 
 ## STATIS-like normalization
@@ -90,8 +92,8 @@ corX.c <- cor.X %>% scale(scale = FALSE) %>% t %>% scale(scale = FALSE)
 
 Plot the heatmap:
 
-```{r show_center, echo = FALSE}
-pheatmap(corX.c, color = value.col,
+```{r show_center, echo = FALSE, fig.show='hide'}
+p_dc <- pheatmap(corX.c, color = value.col,
          cluster_cols = FALSE, cluster_rows = FALSE,
          cellwidth = 7,cellheight = 7,
          annotation_col = group.des.df,
@@ -100,7 +102,8 @@ pheatmap(corX.c, color = value.col,
          annotation_names_col = FALSE,
          annotation_names_row = FALSE,
          annotation_colors = group.des.col,
-         breaks = seq(-1,1,by = 0.02))
+         breaks = seq(-1,1,by = 0.02),
+         main="double-centered matrix")
 ```
 
 ### STEP 1.5: Eigen decomposition
@@ -118,8 +121,8 @@ colnames(Q1) <- colnames(X)
 
 Plot eigen vectors:
 
-```{r show_eig, echo = FALSE}
-pheatmap(Q1, color = value.col,
+```{r show_eig, echo = FALSE, fig.show='hide'}
+p_e <- pheatmap(Q1, color = value.col,
          cluster_cols = FALSE, cluster_rows = FALSE,
          cellwidth = 7,cellheight = 7,
          annotation_col = group.des.df,
@@ -128,7 +131,12 @@ pheatmap(Q1, color = value.col,
          annotation_names_col = FALSE,
          annotation_names_row = FALSE,
          annotation_colors = group.des.col,
+         main="eigan vectors"
          )
+```
+
+```{r plot_dc_ev, echo=F, fig.height=8, fig.width=14}
+gridExtra::grid.arrange(as.grob(p_dc$gtable), as.grob(p_e$gtable), ncol=2)
 ```
 
 ### STEP 2 : Devided the double-centered matrix by the first eigenvalue
@@ -136,10 +144,8 @@ pheatmap(Q1, color = value.col,
 end.X <- corX.c/Lambda.corX[1]
 ```
 
-Plot final result:
-
-```{r show_endX, echo = FALSE}
-pheatmap(end.X, color = value.col,
+```{r show_endX, echo = FALSE, fig.show='hide'}
+p_n <- pheatmap(end.X, color = value.col,
          cluster_cols = FALSE, cluster_rows = FALSE,
          cellwidth = 7,cellheight = 7,
          annotation_col = group.des.df,
@@ -148,17 +154,24 @@ pheatmap(end.X, color = value.col,
          annotation_names_col = FALSE,
          annotation_names_row = FALSE,
          annotation_colors = group.des.col,
-         breaks = seq(-0.2,0.2,by = 0.004))
+         breaks = seq(-0.2,0.2,by = 0.004),
+         main="STATIS-like normalized matrix")
 ```
 
-With its sums of squares:
+Compared the STATIS-like normalized matrix to the original matrix:
 
-```{r ss_endX, echo = FALSE}
+```{r o_n_mat, echo=F, fig.width=14, fig.height=8}
+gridExtra::grid.arrange(as.grob(p_n$gtable), as.grob(p_o$gtable), nrow=1)
+```
+
+Sums of squares of the normalized matrix:
+
+```{r ss_endX, echo = FALSE, fig.show='hide'}
 ss_endX <- t(group.des.nominal) %*% end.X^2 %*% group.des.nominal
 rownames(ss_endX) <- c("E","A","C","N","O")
 colnames(ss_endX) <- c("E","A","C","N","O")
 ss_endX
-pheatmap(ss_endX, color = value.col,
+p_ns2 <- pheatmap(ss_endX, color = value.col,
          cluster_cols = FALSE, cluster_rows = FALSE,
          cellwidth = 35,cellheight = 35,
          annotation_col = data.frame(group = group.des.df[c(1,9,18,27,35),]),
@@ -167,8 +180,9 @@ pheatmap(ss_endX, color = value.col,
          annotation_names_col = FALSE,
          annotation_names_row = FALSE,
          annotation_colors = group.des.col,
-         breaks = seq(-0.1,0.1,by = 0.002))
-pheatmap(ss_endX, color = value.col,
+         breaks = seq(-0.1,0.1,by = 0.002),
+         main = "sums of squares")
+p_ns2_d <- pheatmap(ss_endX, color = value.col,
          cluster_cols = FALSE, cluster_rows = FALSE,
          cellwidth = 35,cellheight = 35,
          annotation_col = data.frame(group = group.des.df[c(1,9,18,27,35),]),
@@ -177,17 +191,18 @@ pheatmap(ss_endX, color = value.col,
          annotation_names_col = FALSE,
          annotation_names_row = FALSE,
          annotation_colors = group.des.col,
-         breaks = seq(0.3,0.6,by = 0.003))
+         breaks = seq(0.3,0.6,by = 0.003),
+         main = "diagonal of sums of squares")
 ```
 
-With its normalized sums of squares:
+Normalized sums of squares of the normalized matrix:
 
-```{r NormSS_endX,echo = FALSE}
+```{r NormSS_endX,echo = FALSE, fig.show='hide'}
 NormSS_endX <- t(group.des.nomnorm) %*% end.X^2 %*% group.des.nomnorm
 rownames(NormSS_endX) <- c("E","A","C","N","O")
 colnames(NormSS_endX) <- c("E","A","C","N","O")
 NormSS_endX
-pheatmap(NormSS_endX, color = value.col,
+p_nns2 <- pheatmap(NormSS_endX, color = value.col,
          cluster_cols = FALSE, cluster_rows = FALSE,
          cellwidth = 35,cellheight = 35,
          annotation_col = data.frame(group = group.des.df[c(1,9,18,27,35),]),
@@ -196,8 +211,9 @@ pheatmap(NormSS_endX, color = value.col,
          annotation_names_col = FALSE,
          annotation_names_row = FALSE,
          annotation_colors = group.des.col,
-         breaks = seq(-0.002,0.002,by = 0.00004))
-pheatmap(NormSS_endX, color = value.col,
+         breaks = seq(-0.002,0.002,by = 0.00004),
+         main = "normalized sums of squares")
+p_nns2_d <- pheatmap(NormSS_endX, color = value.col,
          cluster_cols = FALSE, cluster_rows = FALSE,
          cellwidth = 35,cellheight = 35,
          annotation_col = data.frame(group = group.des.df[c(1,9,18,27,35),]),
@@ -206,17 +222,18 @@ pheatmap(NormSS_endX, color = value.col,
          annotation_names_col = FALSE,
          annotation_names_row = FALSE,
          annotation_colors = group.des.col,
-         breaks = seq(0.004,0.009,by = 0.00005))
+         breaks = seq(0.004,0.009,by = 0.00005),
+         main = "diagonal of normalized sums of squares")
 ```
 
-With its block means:
+Block means:
 
-```{r mean_endX, echo = FALSE}
+```{r mean_endX, echo = FALSE, fig.show='hide'}
 mean_endX <- t(group.des.nomnorm) %*% end.X %*% group.des.nomnorm
 rownames(mean_endX) <- c("E","A","C","N","O")
 colnames(mean_endX) <- c("E","A","C","N","O")
 mean_endX
-pheatmap(mean_endX, color = value.col,
+p_nm <- pheatmap(mean_endX, color = value.col,
          cluster_cols = FALSE, cluster_rows = FALSE,
          cellwidth = 35,cellheight = 35,
          annotation_col = data.frame(group = group.des.df[c(1,9,18,27,35),]),
@@ -225,8 +242,9 @@ pheatmap(mean_endX, color = value.col,
          annotation_names_col = FALSE,
          annotation_names_row = FALSE,
          annotation_colors = group.des.col,
-         breaks = seq(-0.03,0.03,by = 0.0006))
-pheatmap(mean_endX, color = value.col,
+         breaks = seq(-0.03,0.03,by = 0.0006),
+         main="mean")
+p_nm_d <- pheatmap(mean_endX, color = value.col,
          cluster_cols = FALSE, cluster_rows = FALSE,
          cellwidth = 35,cellheight = 35,
          annotation_col = data.frame(group = group.des.df[c(1,9,18,27,35),]),
@@ -235,33 +253,19 @@ pheatmap(mean_endX, color = value.col,
          annotation_names_col = FALSE,
          annotation_names_row = FALSE,
          annotation_colors = group.des.col,
-         breaks = seq(0.03,0.08,by = 0.0005))
+         breaks = seq(0.03,0.08,by = 0.0005),
+         mean = "diagonal of mean")
 
 ```
 
-Plot the heatmap of the original matrix again to compare:
+Sums of squares of the original matrix:
 
-```{r show_cor2, echo = FALSE}
-pheatmap(cor.X, color = value.col,
-         cluster_cols = FALSE, cluster_rows = FALSE,
-         cellwidth = 7,cellheight = 7,
-         annotation_col = group.des.df,
-         annotation_row = group.des.df,
-         annotation_legend = FALSE,
-         annotation_names_col = FALSE,
-         annotation_names_row = FALSE,
-         annotation_colors = group.des.col,
-         breaks = seq(-1,1,by = 0.02))
-```
-
-With its sums of squares:
-
-```{r ss_corX,echo = FALSE}
+```{r ss_corX,echo = FALSE, fig.show='hide'}
 ss_corX <- t(group.des.nominal) %*% cor.X^2 %*% group.des.nominal
 rownames(ss_corX) <- c("E","A","C","N","O")
 colnames(ss_corX) <- c("E","A","C","N","O")
 ss_corX
-pheatmap(ss_corX, color = value.col,
+p_os2 <- pheatmap(ss_corX, color = value.col,
          cluster_cols = FALSE, cluster_rows = FALSE,
          cellwidth = 35,cellheight = 35,
          annotation_col = data.frame(group = group.des.df[c(1,9,18,27,35),]),
@@ -270,8 +274,9 @@ pheatmap(ss_corX, color = value.col,
          annotation_names_col = FALSE,
          annotation_names_row = FALSE,
          annotation_colors = group.des.col,
-         breaks = seq(-6,6,by = 0.12))
-pheatmap(ss_corX, color = value.col,
+         breaks = seq(-6,6,by = 0.12),
+         main="original mat SS")
+p_os2_d <- pheatmap(ss_corX, color = value.col,
          cluster_cols = FALSE, cluster_rows = FALSE,
          cellwidth = 35,cellheight = 35,
          annotation_col = data.frame(group = group.des.df[c(1,9,18,27,35),]),
@@ -280,18 +285,19 @@ pheatmap(ss_corX, color = value.col,
          annotation_names_col = FALSE,
          annotation_names_row = FALSE,
          annotation_colors = group.des.col,
-         breaks = seq(11,26,by = 0.15))
+         breaks = seq(11,26,by = 0.15),
+         main="diagonal of original mat SS")
 
 ```
 
-With its normalized sums of squares:
+Normalized sums of squares:
 
-```{r NormSS_corX,echo = FALSE}
+```{r NormSS_corX,echo = FALSE, fig.show='hide'}
 NormSS_corX <- t(group.des.nomnorm) %*% cor.X^2 %*% group.des.nomnorm
 rownames(NormSS_corX) <- c("E","A","C","N","O")
 colnames(NormSS_corX) <- c("E","A","C","N","O")
 NormSS_corX
-pheatmap(NormSS_corX, color = value.col,
+p_ons2 <- pheatmap(NormSS_corX, color = value.col,
          cluster_cols = FALSE, cluster_rows = FALSE,
          cellwidth = 35,cellheight = 35,
          annotation_col = data.frame(group = group.des.df[c(1,9,18,27,35),]),
@@ -300,8 +306,9 @@ pheatmap(NormSS_corX, color = value.col,
          annotation_names_col = FALSE,
          annotation_names_row = FALSE,
          annotation_colors = group.des.col,
-         breaks = seq(-0.1,0.1,by = 0.002))
-pheatmap(NormSS_corX, color = value.col,
+         breaks = seq(-0.1,0.1,by = 0.002),
+         main="original mat normalized-SS")
+p_ons2_d <- pheatmap(NormSS_corX, color = value.col,
          cluster_cols = FALSE, cluster_rows = FALSE,
          cellwidth = 35,cellheight = 35,
          annotation_col = data.frame(group = group.des.df[c(1,9,18,27,35),]),
@@ -310,17 +317,18 @@ pheatmap(NormSS_corX, color = value.col,
          annotation_names_col = FALSE,
          annotation_names_row = FALSE,
          annotation_colors = group.des.col,
-         breaks = seq(0.18,0.26,by = 0.0008))
+         breaks = seq(0.18,0.26,by = 0.0008),
+         main="diagonal of original mat normalized-SS")
 ```
 
-With its block means:
+Plot them:
 
-```{r mean_corX,echo = FALSE}
+```{r mean_corX,echo = FALSE, fig.show='hide'}
 mean_corX <- t(group.des.nomnorm) %*% cor.X %*% group.des.nomnorm
 rownames(mean_corX) <- c("E","A","C","N","O")
 colnames(mean_corX) <- c("E","A","C","N","O")
 mean_corX
-pheatmap(mean_corX, color = value.col,
+p_om <- pheatmap(mean_corX, color = value.col,
          cluster_cols = FALSE, cluster_rows = FALSE,
          cellwidth = 35,cellheight = 35,
          annotation_col = data.frame(group = group.des.df[c(1,9,18,27,35),]),
@@ -329,8 +337,9 @@ pheatmap(mean_corX, color = value.col,
          annotation_names_col = FALSE,
          annotation_names_row = FALSE,
          annotation_colors = group.des.col,
-         breaks = seq(-0.2,0.2,by = 0.004))
-pheatmap(mean_corX, color = value.col,
+         breaks = seq(-0.2,0.2,by = 0.004),
+         main="original mat mean")
+p_om_d <- pheatmap(mean_corX, color = value.col,
          cluster_cols = FALSE, cluster_rows = FALSE,
          cellwidth = 35,cellheight = 35,
          annotation_col = data.frame(group = group.des.df[c(1,9,18,27,35),]),
@@ -339,10 +348,21 @@ pheatmap(mean_corX, color = value.col,
          annotation_names_col = FALSE,
          annotation_names_row = FALSE,
          annotation_colors = group.des.col,
-         breaks = seq(0.3,0.5,by = 0.002))
+         breaks = seq(0.3,0.5,by = 0.002),
+         main="diagonal of original mat mean")
 ```
 
+```{r grid_small_mats, echo=F, fig.width=14, fig.height=16}
+gridExtra::grid.arrange(as.grob(p_os2$gtable), as.grob(p_ons2$gtable), as.grob(p_om$gtable),
+                        as.grob(p_ns2$gtable), as.grob(p_nns2$gtable), as.grob(p_nm$gtable), 
+                        as.grob(p_os2_d$gtable), as.grob(p_ons2_d$gtable), as.grob(p_om_d$gtable),
+                        as.grob(p_ns2_d$gtable), as.grob(p_nns2_d$gtable), as.grob(p_nm_d$gtable),
+                        ncol=3)
+```
+#### PCA results with STATIS-normalized and original matrix
+
 ## Try PCA
+
 Let's see how the PCA results are changed after the STATIS-like normalization.
 
 ```{r pca_set}
@@ -355,14 +375,14 @@ endX.pca.res <- epPCA(end.X, center = FALSE, scale = FALSE, DESIGN = group.des, 
 
 ```
 
-#### PCA results with original correlation matrix
 ```{r pcaRes_corX, echo = FALSE}
 par(mfrow=c(1,2))
 corX.p <- createFactorMap(corX.pca.res$ExPosition.Data$fi,
                           col.points = group.col,
                           col.labels = group.col,
                           display.points = TRUE,
-                          display.labels = TRUE
+                          display.labels = TRUE,
+                          title = "PCA on original matrix _ component 1 & 2"
 )
 corX.p23 <- createFactorMap(corX.pca.res$ExPosition.Data$fi,
                             axis1 = 2,
@@ -370,7 +390,8 @@ corX.p23 <- createFactorMap(corX.pca.res$ExPosition.Data$fi,
                             col.points = group.col,
                             col.labels = group.col,
                             display.points = TRUE,
-                            display.labels = TRUE
+                            display.labels = TRUE,
+                            title = "PCA on original matirx _ component 2 & 3"
 )
 labels4corX <- createxyLabels.gen(
   lambda = corX.pca.res$ExPosition.Data$eigs ,
@@ -380,23 +401,28 @@ labels4corX23 <- createxyLabels.gen(
   lambda = corX.pca.res$ExPosition.Data$eigs[c(2:3)],
   tau = corX.pca.res$ExPosition.Data$t[c(2:3)],
   axisName = "Dimension ")
-print(corX.p$zeMap + labels4corX)
-print(corX.p23$zeMap + labels4corX23)
+pca.o.12 <- corX.p$zeMap + labels4corX
+pca.o.23 <- corX.p23$zeMap + labels4corX23
 ```
 
-#### PCA results with STATIS-normalized matrix
 ```{r pcaRes_endX, echo = FALSE}
 endX.p <- createFactorMap(endX.pca.res$ExPosition.Data$fi,
                           col.points = group.col,
                           col.labels = group.col,
                           display.points = TRUE,
-                          display.labels = TRUE
+                          display.labels = TRUE,
+                          title = "PCA on the STATIS-like normalized matrix"
 )
 labels4endX <- createxyLabels.gen(
   lambda = endX.pca.res$ExPosition.Data$eigs ,
   tau = endX.pca.res$ExPosition.Data$t,
   axisName = "Dimension ")
-print(endX.p$zeMap + labels4endX)
+pca.n <- endX.p$zeMap + labels4endX
 ```
 
-
+Compare
+```{r grid_pca, echo=F, fig.width=14, fig.height=16}
+gridExtra::grid.arrange(as.grob(pca.n), as.grob(pca.o.12),
+                        as.grob(pca.n), as.grob(pca.o.23),
+                        ncol=2)
+```
