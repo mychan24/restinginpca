@@ -359,7 +359,10 @@ gridExtra::grid.arrange(as.grob(p_os2$gtable), as.grob(p_ons2$gtable), as.grob(p
                         as.grob(p_ns2_d$gtable), as.grob(p_nns2_d$gtable), as.grob(p_nm_d$gtable),
                         ncol=3)
 ```
+#### PCA results with STATIS-normalized and original matrix
+
 ## Try PCA
+
 Let's see how the PCA results are changed after the STATIS-like normalization.
 
 ```{r pca_set}
@@ -372,14 +375,14 @@ endX.pca.res <- epPCA(end.X, center = FALSE, scale = FALSE, DESIGN = group.des, 
 
 ```
 
-#### PCA results with original correlation matrix
 ```{r pcaRes_corX, echo = FALSE}
 par(mfrow=c(1,2))
 corX.p <- createFactorMap(corX.pca.res$ExPosition.Data$fi,
                           col.points = group.col,
                           col.labels = group.col,
                           display.points = TRUE,
-                          display.labels = TRUE
+                          display.labels = TRUE,
+                          title = "PCA on original matrix _ component 1 & 2"
 )
 corX.p23 <- createFactorMap(corX.pca.res$ExPosition.Data$fi,
                             axis1 = 2,
@@ -387,7 +390,8 @@ corX.p23 <- createFactorMap(corX.pca.res$ExPosition.Data$fi,
                             col.points = group.col,
                             col.labels = group.col,
                             display.points = TRUE,
-                            display.labels = TRUE
+                            display.labels = TRUE,
+                            title = "PCA on original matirx _ component 2 & 3"
 )
 labels4corX <- createxyLabels.gen(
   lambda = corX.pca.res$ExPosition.Data$eigs ,
@@ -397,23 +401,28 @@ labels4corX23 <- createxyLabels.gen(
   lambda = corX.pca.res$ExPosition.Data$eigs[c(2:3)],
   tau = corX.pca.res$ExPosition.Data$t[c(2:3)],
   axisName = "Dimension ")
-print(corX.p$zeMap + labels4corX)
-print(corX.p23$zeMap + labels4corX23)
+pca.o.12 <- corX.p$zeMap + labels4corX
+pca.o.23 <- corX.p23$zeMap + labels4corX23
 ```
 
-#### PCA results with STATIS-normalized matrix
 ```{r pcaRes_endX, echo = FALSE}
 endX.p <- createFactorMap(endX.pca.res$ExPosition.Data$fi,
                           col.points = group.col,
                           col.labels = group.col,
                           display.points = TRUE,
-                          display.labels = TRUE
+                          display.labels = TRUE,
+                          title = "PCA on the STATIS-like normalized matrix"
 )
 labels4endX <- createxyLabels.gen(
   lambda = endX.pca.res$ExPosition.Data$eigs ,
   tau = endX.pca.res$ExPosition.Data$t,
   axisName = "Dimension ")
-print(endX.p$zeMap + labels4endX)
+pca.n <- endX.p$zeMap + labels4endX
 ```
 
-
+Compare
+```{r grid_pca, echo=F, fig.width=14, fig.height=16}
+gridExtra::grid.arrange(as.grob(pca.n), as.grob(pca.o.12),
+                        as.grob(pca.n), as.grob(pca.o.23),
+                        ncol=2)
+```

@@ -180,8 +180,12 @@ Plot them:
     ## O 0.05683041 0.17906033 0.19537509 0.01968514 0.45215325
 
 ![](demo_STATISnorm4r_files/figure-gfm/grid_small_mats-1.png)<!-- -->
-\#\# Try PCA Let’s see how the PCA results are changed after the
-STATIS-like normalization.
+\#\#\#\# PCA results with STATIS-normalized and original matrix
+
+## Try PCA
+
+Let’s see how the PCA results are changed after the STATIS-like
+normalization.
 
 ``` r
 # Group design
@@ -192,10 +196,4 @@ corX.pca.res <- epPCA(cor.X, center = FALSE, scale = FALSE, DESIGN = group.des, 
 endX.pca.res <- epPCA(end.X, center = FALSE, scale = FALSE, DESIGN = group.des, make_design_nominal = TRUE, graphs = FALSE)
 ```
 
-#### PCA results with original correlation matrix
-
-![](demo_STATISnorm4r_files/figure-gfm/pcaRes_corX-1.png)<!-- -->![](demo_STATISnorm4r_files/figure-gfm/pcaRes_corX-2.png)<!-- -->
-
-#### PCA results with STATIS-normalized matrix
-
-![](demo_STATISnorm4r_files/figure-gfm/pcaRes_endX-1.png)<!-- -->
+Compare ![](demo_STATISnorm4r_files/figure-gfm/grid_pca-1.png)<!-- -->
