@@ -83,8 +83,11 @@ value.col <- colorRamps::blue2red(100)
 Given that all networks have strong within connection, we want to
 differentiate networks that:
 
-  - have low between-network connection (an isolate network) – E and N
-  - have strong connection with one other network – A and C
+  - have low between-network connection (an isolated network) – E and N
+  - have strong connection with one other network – A and C (Note: These
+    two networks also have strong connections to two other networks, but
+    these connections are not as evenly strong as the O network, and
+    they both have smaller SS.)
   - have strong connection with two (or more) other network – O
 
 ![](demo_STATISnorm4r_files/figure-gfm/show_cor-1.png)<!-- -->
@@ -215,7 +218,11 @@ endX.pca.res <- epPCA(end.X, center = FALSE, scale = FALSE, DESIGN = group.des, 
 
   - The network with the largest size will dominate the first component.
   - The first component gives the frequency of connections for each
-    network.
+    network. (Isolated -\> Connected)
+  - The first component might give a combination of two features of
+    networks:
+      - sums of squares
+      - frequency of connectivity.
   - The second component differentiates different isolated networks.
 
 When compared to PCA of the original matrix, the STATIS-like
