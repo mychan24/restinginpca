@@ -211,14 +211,7 @@ endX.pca.res <- epPCA(end.X, center = FALSE, scale = FALSE, DESIGN = group.des, 
 
 #### Compare
 
-    ## [1] "It is estimated that your iterations will take 0.07 minutes."
-    ## [1] "R is not in interactive() mode. Resample-based tests will be conducted. Please take note of the progress bar."
-    ## ===========================================================================
-    ## [1] "It is estimated that your iterations will take 0 minutes."
-    ## [1] "R is not in interactive() mode. Resample-based tests will be conducted. Please take note of the progress bar."
-    ## ===========================================================================
-
-![](demo_STATISnorm4r_files/figure-gfm/grid_scree-1.png)<!-- -->
+![](demo_STATISnorm4r_files/figure-gfm/plot_scree-1.png)<!-- -->
 
   - The network with the largest size will dominate the first component.
   - The first component gives the frequency of connections for each

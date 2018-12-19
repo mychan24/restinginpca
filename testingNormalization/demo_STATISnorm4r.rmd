@@ -429,10 +429,12 @@ pca.n <- endX.p$zeMap + labels4endX
 ```
 
 #### Compare
-```{r grid_scree, echo=F, fig.width=14, fig.height=5}
+```{r pca_inf, echo=F, include = F}
 corX.pca.inf.res <- epPCA.inference.battery(cor.X, center = FALSE, scale = FALSE, DESIGN = group.des, make_design_nominal = TRUE, graphs = FALSE)
 # PCA with the STATIS-normalized matrix
 endX.pca.inf.res <- epPCA.inference.battery(end.X, center = FALSE, scale = FALSE, DESIGN = group.des, make_design_nominal = TRUE, graphs = FALSE)
+```
+```{r plot_scree, echo = F, fig.width=14, fig.height=5}
 # Set plotting parameters to 2 columns
 par(mfrow=c(1,2))
 
@@ -444,6 +446,7 @@ PlotScree(ev = corX.pca.res$ExPosition.Data$eigs, p.ev = corX.pca.inf.res$Infere
 # Reset the plotting parameter to default
 par(mfrow=c(1,1))
 ```
+
 
 * The network with the largest size will dominate the first component.
 * The first component gives the frequency of connections for each network.
