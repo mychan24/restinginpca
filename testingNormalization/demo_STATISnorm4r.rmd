@@ -459,4 +459,9 @@ gridExtra::grid.arrange(as.grob(p_o$gtable),as.grob(pca.n), as.grob(pca.o.12),
 
 #### Question?
 
-* The first two components seem to capture what we care about. The question now is: Will these first two components survive if we reshape this normalized matrix and do PCA on the its rectangular form?   ........to be continued
+* The first two components seem to capture what we care about. The question now is: Will these first two components survive if we reshape this normalized matrix and do PCA on the its rectangular form?   
+
+
+### To be continued...
+
+
