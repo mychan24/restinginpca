@@ -211,7 +211,7 @@ endX.pca.res <- epPCA(end.X, center = FALSE, scale = FALSE, DESIGN = group.des, 
 
 #### Compare
 
-    ## [1] "It is estimated that your iterations will take 0.1 minutes."
+    ## [1] "It is estimated that your iterations will take 0.08 minutes."
     ## [1] "R is not in interactive() mode. Resample-based tests will be conducted. Please take note of the progress bar."
     ## ===========================================================================
     ## [1] "It is estimated that your iterations will take 0.1 minutes."
@@ -230,3 +230,10 @@ normalization is similar to a rotation for components 1 and 2. The third
 component is not making much sense.
 
 ![](demo_STATISnorm4r_files/figure-gfm/grid_pca-1.png)<!-- -->
+
+#### Question?
+
+  - The first two components seem to capture what we care about. The
+    question now is: Will these first two components survive if we
+    reshape this normalized matrix and do PCA on the its rectangular
+    form? ……..to be continued
