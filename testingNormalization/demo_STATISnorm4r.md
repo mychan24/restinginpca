@@ -78,7 +78,14 @@ group.des.col <- list(group = c(E = RColorBrewer::brewer.pal(5,"Set1")[1],
 value.col <- colorRamps::blue2red(100)
 ```
 
-Plot the heatmap:
+### The heatmap:
+
+Given that all networks have strong within connection, we want to
+differentiate networks that:
+
+  - have low between-network connection (an isolate network) – E and N
+  - have strong connection with one other network – A and C
+  - have strong connection with two (or more) other network – O
 
 ![](demo_STATISnorm4r_files/figure-gfm/show_cor-1.png)<!-- -->
 
@@ -93,8 +100,6 @@ of 0.
 # center columns and rows
 corX.c <- cor.X %>% scale(scale = FALSE) %>% t %>% scale(scale = FALSE)
 ```
-
-Plot the heatmap:
 
 ### STEP 1.5: Eigen decomposition
 
@@ -114,13 +119,20 @@ Plot eigen vectors:
 
 ![](demo_STATISnorm4r_files/figure-gfm/plot_dc_ev-1.png)<!-- -->
 
+Double-centering subtracts the most from the network that connects most
+to other networks.
+
 ### STEP 2 : Devided the double-centered matrix by the first eigenvalue
 
 ``` r
 end.X <- corX.c/Lambda.corX[1]
 ```
 
-Compared the STATIS-like normalized matrix to the original matrix:
+#### Compared the STATIS-like normalized matrix to the original matrix:
+
+As mentioned above, when we double-center the matrix, the value
+subtracted from the most connected network will be large, and thus the
+value will become smaller than those who connect less to other networks.
 
 ![](demo_STATISnorm4r_files/figure-gfm/o_n_mat-1.png)<!-- -->
 
@@ -180,9 +192,10 @@ Plot them:
     ## O 0.05683041 0.17906033 0.19537509 0.01968514 0.45215325
 
 ![](demo_STATISnorm4r_files/figure-gfm/grid_small_mats-1.png)<!-- -->
-\#\#\#\# PCA results with STATIS-normalized and original matrix
 
 ## Try PCA
+
+### PCA results with STATIS-normalized and original matrix
 
 Let’s see how the PCA results are changed after the STATIS-like
 normalization.
@@ -196,4 +209,24 @@ corX.pca.res <- epPCA(cor.X, center = FALSE, scale = FALSE, DESIGN = group.des, 
 endX.pca.res <- epPCA(end.X, center = FALSE, scale = FALSE, DESIGN = group.des, make_design_nominal = TRUE, graphs = FALSE)
 ```
 
-Compare ![](demo_STATISnorm4r_files/figure-gfm/grid_pca-1.png)<!-- -->
+#### Compare
+
+    ## [1] "It is estimated that your iterations will take 0.1 minutes."
+    ## [1] "R is not in interactive() mode. Resample-based tests will be conducted. Please take note of the progress bar."
+    ## ===========================================================================
+    ## [1] "It is estimated that your iterations will take 0.1 minutes."
+    ## [1] "R is not in interactive() mode. Resample-based tests will be conducted. Please take note of the progress bar."
+    ## ===========================================================================
+
+![](demo_STATISnorm4r_files/figure-gfm/grid_scree-1.png)<!-- -->
+
+  - The network with the largest size will dominate the first component.
+  - The first component gives the frequency of connections for each
+    network.
+  - The second component differentiates different isolated networks.
+
+When compared to PCA of the original matrix, the STATIS-like
+normalization is similar to a rotation for components 1 and 2. The third
+component is not making much sense.
+
+![](demo_STATISnorm4r_files/figure-gfm/grid_pca-1.png)<!-- -->

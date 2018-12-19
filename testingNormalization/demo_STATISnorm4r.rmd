@@ -23,6 +23,7 @@ suppressMessages(library(dplyr))
 suppressMessages(library(tidyr))
 suppressMessages(library(PTCA4CATA))
 suppressMessages(library(ExPosition))
+suppressMessages(library(InPosition))
 suppressMessages(library(pheatmap))
 suppressMessages(library(gridExtra))
 suppressMessages(library(ggplotify))
@@ -64,7 +65,12 @@ value.col <- colorRamps::blue2red(100)
 ```
 
 
-Plot the heatmap:
+### The heatmap:
+Given that all networks have strong within connection, we want to differentiate networks that:
+
+* have low between-network connection (an isolate network) -- E and N
+* have strong connection with one other network -- A and C
+* have strong connection with two (or more) other network -- O
 
 ```{r show_cor, echo = FALSE}
 p_o <- pheatmap(cor.X, color = value.col,
@@ -89,8 +95,6 @@ Centering across columns and rows so that each row and column has a mean of 0.
 # center columns and rows
 corX.c <- cor.X %>% scale(scale = FALSE) %>% t %>% scale(scale = FALSE)
 ```
-
-Plot the heatmap:
 
 ```{r show_center, echo = FALSE, fig.show='hide'}
 p_dc <- pheatmap(corX.c, color = value.col,
@@ -139,6 +143,8 @@ p_e <- pheatmap(Q1, color = value.col,
 gridExtra::grid.arrange(as.grob(p_dc$gtable), as.grob(p_e$gtable), ncol=2)
 ```
 
+Double-centering subtracts the most from the network that connects most to other networks.
+
 ### STEP 2 : Devided the double-centered matrix by the first eigenvalue
 ```{r d_eig}
 end.X <- corX.c/Lambda.corX[1]
@@ -154,11 +160,13 @@ p_n <- pheatmap(end.X, color = value.col,
          annotation_names_col = FALSE,
          annotation_names_row = FALSE,
          annotation_colors = group.des.col,
-         breaks = seq(-0.2,0.2,by = 0.004),
+         breaks = seq(-0.25,0.25,by = 0.005),
          main="STATIS-like normalized matrix")
 ```
 
-Compared the STATIS-like normalized matrix to the original matrix:
+#### Compared the STATIS-like normalized matrix to the original matrix:
+
+As mentioned above, when we double-center the matrix, the value subtracted from the most connected network will be large, and thus the value will become smaller than those who connect less to other networks.
 
 ```{r o_n_mat, echo=F, fig.width=14, fig.height=8}
 gridExtra::grid.arrange(as.grob(p_n$gtable), as.grob(p_o$gtable), nrow=1)
@@ -254,7 +262,7 @@ p_nm_d <- pheatmap(mean_endX, color = value.col,
          annotation_names_row = FALSE,
          annotation_colors = group.des.col,
          breaks = seq(0.03,0.08,by = 0.0005),
-         mean = "diagonal of mean")
+         main = "diagonal of mean")
 
 ```
 
@@ -359,9 +367,9 @@ gridExtra::grid.arrange(as.grob(p_os2$gtable), as.grob(p_ons2$gtable), as.grob(p
                         as.grob(p_ns2_d$gtable), as.grob(p_nns2_d$gtable), as.grob(p_nm_d$gtable),
                         ncol=3)
 ```
-#### PCA results with STATIS-normalized and original matrix
 
 ## Try PCA
+### PCA results with STATIS-normalized and original matrix
 
 Let's see how the PCA results are changed after the STATIS-like normalization.
 
@@ -420,9 +428,31 @@ labels4endX <- createxyLabels.gen(
 pca.n <- endX.p$zeMap + labels4endX
 ```
 
-Compare
-```{r grid_pca, echo=F, fig.width=14, fig.height=16}
-gridExtra::grid.arrange(as.grob(pca.n), as.grob(pca.o.12),
-                        as.grob(pca.n), as.grob(pca.o.23),
-                        ncol=2)
+#### Compare
+```{r grid_scree, echo=F, fig.width=14, fig.height=5}
+corX.pca.inf.res <- epPCA.inference.battery(cor.X, center = FALSE, scale = FALSE, DESIGN = group.des, make_design_nominal = TRUE, graphs = FALSE)
+# PCA with the STATIS-normalized matrix
+endX.pca.inf.res <- epPCA.inference.battery(end.X, center = FALSE, scale = FALSE, DESIGN = group.des, make_design_nominal = TRUE, graphs = FALSE)
+# Set plotting parameters to 2 columns
+par(mfrow=c(1,2))
+
+# Scree plot of PCA on the STATIS-like normalized matrix
+PlotScree(ev = endX.pca.res$ExPosition.Data$eigs, p.ev = corX.pca.inf.res$Inference.Data$components$p.vals,title = "PCA on the STATIS-like normalized matrix")
+
+# Scree plot of PCA on the original matrix
+PlotScree(ev = corX.pca.res$ExPosition.Data$eigs, p.ev = corX.pca.inf.res$Inference.Data$components$p.vals, title = "PCA on the original matrix")
+# Reset the plotting parameter to default
+par(mfrow=c(1,1))
+```
+
+* The network with the largest size will dominate the first component.
+* The first component gives the frequency of connections for each network.
+* The second component differentiates different isolated networks.
+
+When compared to PCA of the original matrix, the STATIS-like normalization is similar to a rotation for components 1 and 2. The third component is not making much sense.
+
+```{r grid_pca, echo=F, fig.width=18, fig.height=16}
+gridExtra::grid.arrange(as.grob(p_o$gtable),as.grob(pca.n), as.grob(pca.o.12),
+                        as.grob(p_o$gtable),as.grob(pca.n), as.grob(pca.o.23),
+                        ncol=3)
 ```
