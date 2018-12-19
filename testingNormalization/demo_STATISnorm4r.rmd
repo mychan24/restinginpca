@@ -453,7 +453,7 @@ par(mfrow=c(1,1))
 * The first component gives the frequency of connections for each network. (Isolated -> Connected)
 * The first component might give a combination of two features of networks: 
   + sums of squares 
-  + frequency of connectivity.
+  + frequency of connectivity
 * The second component differentiates different isolated networks.
 
 When compared to PCA of the original matrix, the STATIS-like normalization is similar to a rotation for components 1 and 2. The third component is not making much sense.

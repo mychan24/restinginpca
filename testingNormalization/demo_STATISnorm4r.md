@@ -222,7 +222,7 @@ endX.pca.res <- epPCA(end.X, center = FALSE, scale = FALSE, DESIGN = group.des, 
   - The first component might give a combination of two features of
     networks:
       - sums of squares
-      - frequency of connectivity.
+      - frequency of connectivity
   - The second component differentiates different isolated networks.
 
 When compared to PCA of the original matrix, the STATIS-like
