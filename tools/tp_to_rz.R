@@ -1,11 +1,12 @@
 # DESCRIPTION:
-#     load TP and ouptut z & r matrix
+#     Load TP (node x timepoint matrix) and ouptut correlation matrix (z or r matrix).
+#     Defaults to outputting Fisher's Z-transformed z matrix.
 # Inputs:   tp,		   roi x time matrix
 #           fisherz, z-transformed output correlation matrix 
 #                    (DEFAULT = TRUE)
 # Ouput:    x,       roi x roi correlation matrix
 # #########################################################################
-# myc 20181212
+# myc, UTD 2018/12/12 - Initial
 # #########################################################################
 tp_to_rz <- function(tp, fisherz=TRUE){
   
