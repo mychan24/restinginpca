@@ -12,11 +12,12 @@
 ## devtools::install_github('HerveAbdi/DistatisR')
 ## devtools::install_github('HerveAbdi/PTCA4CATA')
 library(psych)
-library(DistatisR)
 library(tidyr)
 library(magrittr)
 library(DistatisR)
 library(PTCA4CATA)
+library(ExPosition) # myc added to use "makeNominalData"
+library(pheatmap) # myc added to use "pheatmap"
 # Read data  ---------------------------------------
 zmat.path <- "data/zmat"
 load(paste0(zmat.path,"/sub-MSC01_zcube_rcube.RData"))
