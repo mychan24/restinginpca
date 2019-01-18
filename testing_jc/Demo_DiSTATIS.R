@@ -19,6 +19,9 @@ library(DistatisR)
 library(PTCA4CATA)
 library(ExPosition) # myc added to use "makeNominalData"
 library(superheat)
+# Read functions -----------------------------------
+tool.path <- "tools/"
+source(paste0(tool.path,"SScomm.R"))
 # Read data  ---------------------------------------
 zmat.path <- "data/zmat"
 load(paste0(zmat.path,"/sub-MSC01_zcube_rcube.RData"))
@@ -34,6 +37,10 @@ for(i in 1:nrow(CommName)){
   vox.des$Comm.Col[vox.des$Comm==CommName$Comm[i]] <- as.character(CommName$CommColor[i])
   vox.des$Comm.rcd[vox.des$Comm==CommName$Comm[i]] <- as.character(CommName$CommLabel.short[i])
 }
+# Create design matrix for communities
+vox.des.mat <- makeNominalData(as.matrix(vox.des$Comm.rcd))
+colnames(vox.des.mat) <- sub(".","",colnames(vox.des.mat))
+
 # Check data ---------------------------------------
 ## They are called cubes
 dim(cubes$rcube) # correlations
@@ -48,6 +55,13 @@ dim(vox.des)
 # Transform into distances--------------------------
 dcube <- cor2dist(cubes$rcube)
 dcube
+
+# Compute SS of each community----------------------
+## SS of correlation
+ss_rcube <- SScomm(cubes$rcube,vox.des.mat)
+## SS of distance
+ss_dcube <- SScomm(dcube,vox.des.mat)
+
 
 # Plot heatmap--------------------------------------
 ## Specify color for each node and create color list for ExPosition
@@ -72,6 +86,40 @@ superheat(cubes$rcube[,,1],
           bottom.label.text.col = c(rep("black",8),rep("white",2),rep("black",3),"white",rep("black",3),rep("white",2)),
           left.label.text.alignment = "left"
           )
+
+# Plot heatmap (SS)---------------------------------
+superheat(ss_rcube[,,1],
+          membership.cols = rownames(ss_rcube[,,1]),
+          membership.rows = colnames(ss_rcube[,,1]),
+          clustering.method = NULL,
+          heat.col.scheme = "viridis",
+          left.label.size = 0.08,
+          bottom.label.size = 0.05,
+          y.axis.reverse = TRUE,
+          left.label.col = Comm.col$gc[order(rownames(Comm.col$gc))], # order by community name
+          bottom.label.col = Comm.col$gc[order(rownames(Comm.col$gc))],
+          left.label.text.size = 3,
+          bottom.label.text.size = 2,
+          left.label.text.col = c(rep("black",8),rep("white",2),rep("black",3),"white",rep("black",3),rep("white",2)),
+          bottom.label.text.col = c(rep("black",8),rep("white",2),rep("black",3),"white",rep("black",3),rep("white",2)),
+          left.label.text.alignment = "left"
+)
+superheat(ss_dcube[,,1],
+          membership.cols = rownames(ss_dcube[,,1]),
+          membership.rows = colnames(ss_dcube[,,1]),
+          clustering.method = NULL,
+          heat.col.scheme = "viridis",
+          left.label.size = 0.08,
+          bottom.label.size = 0.05,
+          y.axis.reverse = TRUE,
+          left.label.col = Comm.col$gc[order(rownames(Comm.col$gc))], # order by community name
+          bottom.label.col = Comm.col$gc[order(rownames(Comm.col$gc))],
+          left.label.text.size = 3,
+          bottom.label.text.size = 2,
+          left.label.text.col = c(rep("black",8),rep("white",2),rep("black",3),"white",rep("black",3),rep("white",2)),
+          bottom.label.text.col = c(rep("black",8),rep("white",2),rep("black",3),"white",rep("black",3),rep("white",2)),
+          left.label.text.alignment = "left"
+)
 
 # DiSTATIS in R-------------------------------------
 distatis.res <- distatis(dcube)

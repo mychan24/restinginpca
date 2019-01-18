@@ -32,6 +32,8 @@ dim(dcube)
 ## [1] 602 602  10
 ```
 
+## Compute SS of each community
+
 Get community information and create colors for different
 communities
 
@@ -44,6 +46,14 @@ rownames(Comm.col$gc) <- CommName$CommLabel.short
 ## Check data with heatmap for the 1st session
 
 ![](Demo_DiSTATIS_files/figure-gfm/show_heatmap-1.png)<!-- -->
+
+## Check the sums of squares (of correlation matrix) of the 1st session
+
+![](Demo_DiSTATIS_files/figure-gfm/SS_heatR_1-1.png)<!-- -->
+
+## Check the sums of squares (of distance matrix) of the 1st session
+
+![](Demo_DiSTATIS_files/figure-gfm/SS_heatD_1-1.png)<!-- -->
 
 ## Run DiSTATIS
 
@@ -113,17 +123,22 @@ Rv factor scores:
 
 ![](Demo_DiSTATIS_files/figure-gfm/RvAgain-1.png)<!-- -->
 
-Heap
-    maps:
+Heap maps of correlation matrices:
 
 ![](Demo_DiSTATIS_files/figure-gfm/plot_fig_10hmap-1.png)<!-- -->
+
+Heap maps of SS of correlation matrices:
+
+![](Demo_DiSTATIS_files/figure-gfm/plot_fig_10rSShmap-1.png)<!-- -->
+
+Heap maps of SS of distance matrices:
+
+![](Demo_DiSTATIS_files/figure-gfm/plot_fig_10dSShmap-1.png)<!-- -->
 
 ##### Component 1 & 2
 
 ![](Demo_DiSTATIS_files/figure-gfm/plot_fig12_mean-1.png)<!-- -->
 
 ##### Component 2 & 3
-
-    ## Warning: Removed 2 rows containing non-finite values (stat_ellipse).
 
 ![](Demo_DiSTATIS_files/figure-gfm/plot_fig23_mean-1.png)<!-- -->
