@@ -122,8 +122,8 @@ superheat(ss_rcube[,,1],
           y.axis.reverse = TRUE,
           left.label.col = Comm.col$gc[order(rownames(Comm.col$gc))], # order by community name
           bottom.label.col = Comm.col$gc[order(rownames(Comm.col$gc))],
-          left.label.text.size = 3,
-          bottom.label.text.size = 2,
+          left.label.text.size = 6,
+          bottom.label.text.size = 4,
           left.label.text.col = c(rep("black",8),rep("white",2),rep("black",3),"white",rep("black",3),rep("white",2)),
           bottom.label.text.col = c(rep("black",8),rep("white",2),rep("black",3),"white",rep("black",3),rep("white",2)),
           left.label.text.alignment = "left"
@@ -143,8 +143,8 @@ superheat(ss_dcube[,,1],
           y.axis.reverse = TRUE,
           left.label.col = Comm.col$gc[order(rownames(Comm.col$gc))], # order by community name
           bottom.label.col = Comm.col$gc[order(rownames(Comm.col$gc))],
-          left.label.text.size = 3,
-          bottom.label.text.size = 2,
+          left.label.text.size = 6,
+          bottom.label.text.size = 4,
           left.label.text.col = c(rep("black",8),rep("white",2),rep("black",3),"white",rep("black",3),rep("white",2)),
           bottom.label.text.col = c(rep("black",8),rep("white",2),rep("black",3),"white",rep("black",3),rep("white",2)),
           left.label.text.alignment = "left"
