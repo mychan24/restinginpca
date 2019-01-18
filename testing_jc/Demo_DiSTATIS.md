@@ -68,7 +68,7 @@ vox.order.col <- list(Comm = c("A" = Comm.col$gc[1],
 value.col <- colorRamps::blue2red(100)
 ```
 
-## Check data with heatmap
+## Check data with heatmap for the first session
 
 ![](Demo_DiSTATIS_files/figure-gfm/show_heatmap-1.png)<!-- -->
 
@@ -134,10 +134,16 @@ BootCube.Comm <- Boot4Mean(distatis.res$res4Splus$F,
 
 #### Plot
 
+##### All heat maps
+
+![](Demo_DiSTATIS_files/figure-gfm/plot_fig_10hmap-1.png)<!-- -->
+
 ##### Component 1 & 2
 
 ![](Demo_DiSTATIS_files/figure-gfm/plot_fig12_mean-1.png)<!-- -->
 
 ##### Component 2 & 3
+
+    ## Warning: Removed 2 rows containing non-finite values (stat_ellipse).
 
 ![](Demo_DiSTATIS_files/figure-gfm/plot_fig23_mean-1.png)<!-- -->
