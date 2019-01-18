@@ -1,4 +1,4 @@
-0, Border, D3D3D3
+0, Border, DCDCDC
 1, Default, FF0000
 2, LatVis, 0000FF
 3, FrontoPar, FFFF00
@@ -16,3 +16,8 @@
 15, ParMemory, 0080FF
 16, Context, DFD9D9
 17, FootSM, 287D36
+21, Unknown_1, D3D3D3
+25, Unknown_2, C0C0C0
+29, Unknown_3, A9A9A9
+34, Unknown_4, 808080
+37, Unknown_5, 696969
