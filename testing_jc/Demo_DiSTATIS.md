@@ -32,43 +32,16 @@ dim(dcube)
 ## [1] 602 602  10
 ```
 
-Get community information and create colors for different communities
+Get community information and create colors for different
+communities
 
 ``` r
-## order nodes according to community
-vox.order <- vox.des[order(vox.des$Comm.recode),]
-rcube.order <- cubes$rcube[vox.order$NodeID,vox.order$NodeID,]
-rownames(rcube.order) <- vox.order$NodeID
-colnames(rcube.order) <- vox.order$NodeID
-## Create colors from the community assignment vector
-Comm.col <- vox.des$Comm.recode %>% as.data.frame %>% makeNominalData %>% createColorVectorsByDesign(hsv = FALSE, offset = 25)
-## rename the rows and take away the first two periods
-rownames(Comm.col$gc) %<>% sub("..", "", .)
-## design matrix
-vox.order.df <- data.frame(Comm = factor(vox.order$Comm.recode), row.names = rownames(rcube.order[,,1]))
-vox.order.col <- list(Comm = c("A" = Comm.col$gc[1],
-                               "B" = Comm.col$gc[2],
-                               "C" = Comm.col$gc[3],
-                               "D" = Comm.col$gc[4],
-                               "E" = Comm.col$gc[5],
-                               "F" = Comm.col$gc[6],
-                               "G" = Comm.col$gc[7],
-                               "H" = Comm.col$gc[8],
-                               "I" = Comm.col$gc[9],
-                               "J" = Comm.col$gc[10],
-                               "K" = Comm.col$gc[11],
-                               "L" = Comm.col$gc[12],
-                               "M" = Comm.col$gc[13],
-                               "N" = Comm.col$gc[14],
-                               "O" = Comm.col$gc[15],
-                               "P" = Comm.col$gc[16],
-                               "Q" = Comm.col$gc[17],
-                               "R" = Comm.col$gc[18],
-                               "S" = Comm.col$gc[19]))
-value.col <- colorRamps::blue2red(100)
+Comm.col <- list(oc = as.matrix(vox.des$Comm.Col), gc = as.matrix(CommName$CommColor))
+rownames(Comm.col$oc) <- vox.des$NodeID
+rownames(Comm.col$gc) <- CommName$CommLabel.short
 ```
 
-## Check data with heatmap for the first session
+## Check data with heatmap for the 1st session
 
 ![](Demo_DiSTATIS_files/figure-gfm/show_heatmap-1.png)<!-- -->
 
@@ -127,14 +100,21 @@ y_cp <- 2
 
 ``` r
 BootCube.Comm <- Boot4Mean(distatis.res$res4Splus$F,
-                         design = vox.des$Comm.recode,
+                         design = vox.des$Comm.rcd,
                          niter = 100,
                          suppressProgressBar = TRUE)
 ```
 
 #### Plot
 
-##### All heat maps
+##### All heat maps and Rv
+
+Rv factor scores:
+
+![](Demo_DiSTATIS_files/figure-gfm/RvAgain-1.png)<!-- -->
+
+Heap
+    maps:
 
 ![](Demo_DiSTATIS_files/figure-gfm/plot_fig_10hmap-1.png)<!-- -->
 

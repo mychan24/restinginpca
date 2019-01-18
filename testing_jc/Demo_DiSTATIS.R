@@ -11,13 +11,14 @@
 ## install.packages("psych")
 ## devtools::install_github('HerveAbdi/DistatisR')
 ## devtools::install_github('HerveAbdi/PTCA4CATA')
+## devtools::install_github('mychan24/superheat')
 library(psych)
 library(tidyr)
 library(magrittr)
 library(DistatisR)
 library(PTCA4CATA)
 library(ExPosition) # myc added to use "makeNominalData"
-library(pheatmap) # myc added to use "pheatmap"
+library(superheat)
 # Read data  ---------------------------------------
 zmat.path <- "data/zmat"
 load(paste0(zmat.path,"/sub-MSC01_zcube_rcube.RData"))
@@ -25,9 +26,14 @@ load(paste0(zmat.path,"/sub-MSC01_zcube_rcube.RData"))
 parcel.comm.path <- "data/parcel_community"
 vox.des <- read.table(paste0(parcel.comm.path,"/sub-MSC01_node_parcel_comm.txt"),sep = ",")
 colnames(vox.des) <- c("NodeID","VertexID","Comm")
-# recode communities with alphabets
-vox.des$Comm.recode  <- dplyr::recode(vox.des$Comm, "0" = "A", "1" = "B", "2" = "C", "3" = "D", "4" = "E", "5" = "F", "6" = "G", "7" = "H", "8" = "I", "9" = "J", "10" = "K", "11" = "L", "12" = "M", "13" = "N", "14" = "O", "15" = "P", "16" = "Q", "17" = "R", "29" = "S")
-
+# rename communities
+CommName <- read.csv(paste0(parcel.comm.path,"/systemlabel.txt"),sep = ",",header = FALSE)
+colnames(CommName) <- c("Comm","CommLabel","CommColor","CommLabel.short")
+for(i in 1:nrow(CommName)){
+  vox.des$Comm.recode[vox.des$Comm==CommName$Comm[i]] <- as.character(CommName$CommLabel[i])
+  vox.des$Comm.Col[vox.des$Comm==CommName$Comm[i]] <- as.character(CommName$CommColor[i])
+  vox.des$Comm.rcd[vox.des$Comm==CommName$Comm[i]] <- as.character(CommName$CommLabel.short[i])
+}
 # Check data ---------------------------------------
 ## They are called cubes
 dim(cubes$rcube) # correlations
@@ -44,49 +50,28 @@ dcube <- cor2dist(cubes$rcube)
 dcube
 
 # Plot heatmap--------------------------------------
-## order nodes according to community
-vox.order <- vox.des[order(vox.des$Comm.recode),]
-rcube.order <- cubes$rcube[vox.order$NodeID,vox.order$NodeID,]
-rownames(rcube.order) <- vox.order$NodeID
-colnames(rcube.order) <- vox.order$NodeID
-## Create colors from the community assignment vector
-Comm.col <- vox.des$Comm %>% as.data.frame %>% makeNominalData %>% createColorVectorsByDesign(hsv = FALSE, offset = 25)
-## rename the rows and take away the first two periods
-rownames(Comm.col$gc) %<>% sub("..", "", .)
-## design matrix
-vox.order.df <- data.frame(Comm = factor(vox.order$Comm.recode), row.names = rownames(rcube.order[,,1]))
-vox.order.col <- list(Comm = c("A" = Comm.col$gc[1],
-                               "B" = Comm.col$gc[2],
-                               "C" = Comm.col$gc[3],
-                               "D" = Comm.col$gc[4],
-                               "E" = Comm.col$gc[5],
-                               "F" = Comm.col$gc[6],
-                               "G" = Comm.col$gc[7],
-                               "H" = Comm.col$gc[8],
-                               "I" = Comm.col$gc[9],
-                               "J" = Comm.col$gc[10],
-                               "K" = Comm.col$gc[11],
-                               "L" = Comm.col$gc[12],
-                               "M" = Comm.col$gc[13],
-                               "N" = Comm.col$gc[14],
-                               "O" = Comm.col$gc[15],
-                               "P" = Comm.col$gc[16],
-                               "Q" = Comm.col$gc[17],
-                               "R" = Comm.col$gc[18],
-                               "S" = Comm.col$gc[19]))
-value.col <- colorRamps::blue2red(100)
+## Specify color for each node and create color list for ExPosition
+Comm.col <- list(oc = as.matrix(vox.des$Comm.Col), gc = as.matrix(CommName$CommColor))
+rownames(Comm.col$oc) <- vox.des$NodeID
+rownames(Comm.col$gc) <- CommName$CommLabel.short
+
 ## heapmat
-pheatmap(rcube.order[,,1],color = value.col,
-         cluster_cols = FALSE, cluster_rows = FALSE,
-         cellwidth = 0.5, cellheight = 0.5,
-         annotation_col = vox.order.df,
-         annotation_row = vox.order.df,
-         annotation_legend = FALSE,
-         annotation_names_col = FALSE,
-         annotation_names_row = FALSE,
-         annotation_colors = vox.order.col,
-         breaks = seq(-1,1,by = 0.02),
-         main="original correlation matrix")
+superheat(cubes$rcube[,,1],
+          membership.cols = vox.des$Comm.rcd,
+          membership.rows = vox.des$Comm.rcd,
+          clustering.method = NULL,
+          heat.col.scheme = "viridis",
+          left.label.size = 0.08,
+          bottom.label.size = 0.05,
+          y.axis.reverse = TRUE,
+          left.label.col = Comm.col$gc[order(rownames(Comm.col$gc))], # order by community name
+          bottom.label.col = Comm.col$gc[order(rownames(Comm.col$gc))],
+          left.label.text.size = 3,
+          bottom.label.text.size = 2,
+          left.label.text.col = c(rep("black",8),rep("white",2),rep("black",3),"white",rep("black",3),rep("white",2)),
+          bottom.label.text.col = c(rep("black",8),rep("white",2),rep("black",3),"white",rep("black",3),rep("white",2)),
+          left.label.text.alignment = "left"
+          )
 
 # DiSTATIS in R-------------------------------------
 distatis.res <- distatis(dcube)
@@ -119,7 +104,7 @@ f.graph <- createFactorMap(distatis.res$res4Splus$F,
                            axis1 = x_cp, axis2 = y_cp,
                            title = "Compromise - Factor scores (nodes)",
                            col.points = Comm.col$oc,
-                           alpha.points = .4, cex = .9)
+                           alpha.points = .4, cex = 4)
 f.labels <- createxyLabels.gen(x_axis = x_cp, y_axis = y_cp,
                                lambda = distatis.res$res4Splus$eigValues,
                                tau = distatis.res$res4Splus$tau,
@@ -131,7 +116,7 @@ print(f01.Fi.noLabel)
 ## Compromise map with means, confidence intervals, and tolerance intervals ----
 ### Compute means for communities
 BootCube.Comm <- Boot4Mean(distatis.res$res4Splus$F,
-                         design = vox.des$Comm.recode,
+                         design = vox.des$Comm.rcd,
                          niter = 100,
                          suppressProgressBar = TRUE)
 
@@ -142,6 +127,7 @@ f.mean.graph <- createFactorMap(BootCube.Comm$GroupMeans,
                                 constraints = f.graph$constraints,
                                 col.labels = Comm.col$gc[rownames(BootCube.Comm$GroupMeans),],
                                 alpha.points = .8,
+                                pch = 15,
                                 cex = 4)
 ### Plot bootstrapped confidence intervals for means
 f.CI.graph <- MakeCIEllipses(BootCube.Comm$BootCube[,c(x_cp,y_cp),],
@@ -150,7 +136,7 @@ f.CI.graph <- MakeCIEllipses(BootCube.Comm$BootCube[,c(x_cp,y_cp),],
                                     p.level = .95)
 ### Plot tolerance intervals of each community
 f.TI.graph <- MakeToleranceIntervals(distatis.res$res4Splus$F,
-                                     axis1 = 1, axis2 = 2,
+                                     axis1 = x_cp, axis2 = y_cp,
                                      design = vox.des$Comm,
                                      names.of.factors = c("Dim1", "Dim2"),
                                      col = Comm.col$gc[rownames(BootCube.Comm$GroupMeans),],

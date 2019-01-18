@@ -22,7 +22,7 @@ suppressMessages(library(DistatisR))
 suppressMessages(library(PTCA4CATA))
 suppressMessages(library(ExPosition))
 suppressMessages(library(InPosition))
-suppressMessages(library(pheatmap))
+suppressMessages(library(superheat))
 suppressMessages(library(gridExtra))
 suppressMessages(library(ggplotify))
 suppressMessages(library(grid))
@@ -34,12 +34,18 @@ suppressMessages(library(grid))
 ```{r data, echo = FALSE, include = FALSE}
 zmat.path <- "../data/zmat"
 load(paste0(zmat.path,"/sub-MSC01_zcube_rcube.RData"))
-
+# read parcel labels
 parcel.comm.path <- "../data/parcel_community"
 vox.des <- read.table(paste0(parcel.comm.path,"/sub-MSC01_node_parcel_comm.txt"),sep = ",")
 colnames(vox.des) <- c("NodeID","VertexID","Comm")
-vox.des$Comm.recode  <- dplyr::recode(vox.des$Comm, "0" = "A", "1" = "B", "2" = "C", "3" = "D", "4" = "E", "5" = "F", "6" = "G", "7" = "H", "8" = "I", "9" = "J", "10" = "K", "11" = "L", "12" = "M", "13" = "N", "14" = "O", "15" = "P", "16" = "Q", "17" = "R", "29" = "S")
-
+# rename communities
+CommName <- read.csv(paste0(parcel.comm.path,"/systemlabel.txt"),sep = ",",header = FALSE)
+colnames(CommName) <- c("Comm","CommLabel","CommColor","CommLabel.short")
+for(i in 1:nrow(CommName)){
+  vox.des$Comm.recode[vox.des$Comm==CommName$Comm[i]] <- as.character(CommName$CommLabel[i])
+  vox.des$Comm.Col[vox.des$Comm==CommName$Comm[i]] <- as.character(CommName$CommColor[i])
+  vox.des$Comm.rcd[vox.des$Comm==CommName$Comm[i]] <- as.character(CommName$CommLabel.short[i])
+}
 ```
 
 This is a data cube of correlation: ROIs x ROIs x 10 sessions
@@ -61,66 +67,30 @@ dim(dcube)
 
 Get community information and create colors for different communities
 ```{r comm}
-## order nodes according to community
-vox.order <- vox.des[order(vox.des$Comm.recode),]
-rcube.order <- cubes$rcube[vox.order$NodeID,vox.order$NodeID,]
-rownames(rcube.order) <- vox.order$NodeID
-colnames(rcube.order) <- vox.order$NodeID
-## Create colors from the community assignment vector
-Comm.col <- vox.des$Comm.recode %>% as.data.frame %>% makeNominalData %>% createColorVectorsByDesign(hsv = FALSE, offset = 25)
-## rename the rows and take away the first two periods
-rownames(Comm.col$gc) %<>% sub("..", "", .)
-## design matrix
-vox.order.df <- data.frame(Comm = factor(vox.order$Comm.recode), row.names = rownames(rcube.order[,,1]))
-vox.order.col <- list(Comm = c("A" = Comm.col$gc[1],
-                               "B" = Comm.col$gc[2],
-                               "C" = Comm.col$gc[3],
-                               "D" = Comm.col$gc[4],
-                               "E" = Comm.col$gc[5],
-                               "F" = Comm.col$gc[6],
-                               "G" = Comm.col$gc[7],
-                               "H" = Comm.col$gc[8],
-                               "I" = Comm.col$gc[9],
-                               "J" = Comm.col$gc[10],
-                               "K" = Comm.col$gc[11],
-                               "L" = Comm.col$gc[12],
-                               "M" = Comm.col$gc[13],
-                               "N" = Comm.col$gc[14],
-                               "O" = Comm.col$gc[15],
-                               "P" = Comm.col$gc[16],
-                               "Q" = Comm.col$gc[17],
-                               "R" = Comm.col$gc[18],
-                               "S" = Comm.col$gc[19]))
-value.col <- colorRamps::blue2red(100)
+Comm.col <- list(oc = as.matrix(vox.des$Comm.Col), gc = as.matrix(CommName$CommColor))
+rownames(Comm.col$oc) <- vox.des$NodeID
+rownames(Comm.col$gc) <- CommName$CommLabel.short
 ```
 
-## Check data with heatmap for the first session
-```{r show_heatmap, echo = FALSE}
-pheatmap(rcube.order[,,1],color = value.col,
-         cluster_cols = FALSE, cluster_rows = FALSE,
-         cellwidth = 0.5, cellheight = 0.5,
-         annotation_col = vox.order.df,
-         annotation_row = vox.order.df,
-         annotation_legend = FALSE,
-         annotation_names_col = FALSE,
-         annotation_names_row = FALSE,
-         annotation_colors = vox.order.col,
-         breaks = seq(-1,1,by = 0.02),
-         main="original correlation matrix")
-```
-
-```{r heatmap, echo = FALSE, fig.show = 'hide'}
-hmap <- pheatmap(rcube.order[,,1],color = value.col,
-         cluster_cols = FALSE, cluster_rows = FALSE,
-         cellwidth = 0.8, cellheight = 0.8,
-         annotation_col = vox.order.df,
-         annotation_row = vox.order.df,
-         annotation_legend = FALSE,
-         annotation_names_col = FALSE,
-         annotation_names_row = FALSE,
-         annotation_colors = vox.order.col,
-         breaks = seq(-1,1,by = 0.02),
-         main="original correlation matrix")
+## Check data with heatmap for the 1st session
+```{r show_heatmap, echo = FALSE, fig.height= 16, fig.width = 16}
+superheat(cubes$rcube[,,1],
+          membership.cols = vox.des$Comm.rcd,
+          membership.rows = vox.des$Comm.rcd,
+          clustering.method = NULL,
+          heat.col.scheme = "viridis",
+          left.label.size = 0.08,
+          bottom.label.size = 0.05,
+          y.axis.reverse = TRUE,
+          left.label.col = Comm.col$gc[order(rownames(Comm.col$gc))], # order by community name
+          bottom.label.col = Comm.col$gc[order(rownames(Comm.col$gc))],
+          left.label.text.size = c(rep(6,4), rep(3,3),6,3,  rep(6,2),3,rep(6,5),3,3),
+          bottom.label.text.size = 2,
+          left.label.text.col = c(rep("black",8),rep("white",2),rep("black",3),"white",rep("black",3),rep("white",2)),
+          bottom.label.text.col = c(rep("black",8),rep("white",2),rep("black",3),"white",rep("black",3),rep("white",2)),
+          left.label.text.alignment = "left",
+          title = "Correlation matric of the 1st session"
+)
 ```
 
 ## Run DiSTATIS
@@ -205,7 +175,7 @@ gridExtra::grid.arrange(as.grob(f01.Fi.noLabel), as.grob(f02.Fi.noLabel), ncol=2
 #### Compute means for each network
 ```{r com.mean}
 BootCube.Comm <- Boot4Mean(distatis.res$res4Splus$F,
-                         design = vox.des$Comm.recode,
+                         design = vox.des$Comm.rcd,
                          niter = 100,
                          suppressProgressBar = TRUE)
 ```
@@ -221,7 +191,8 @@ f.mean.graph <- createFactorMap(BootCube.Comm$GroupMeans,
                                 constraints = f.graph$constraints,
                                 col.labels = Comm.col$gc[rownames(BootCube.Comm$GroupMeans),],
                                 alpha.points = .8,
-                                cex = 6)
+                                pch = 15,
+                                cex = 5)
 ### Plot means with its own constraints
 f.mean.graph.owncon <- createFactorMap(BootCube.Comm$GroupMeans,
                                 axis1 = x_cp, axis2 = y_cp,
@@ -229,7 +200,8 @@ f.mean.graph.owncon <- createFactorMap(BootCube.Comm$GroupMeans,
                                 col.points = Comm.col$gc[rownames(BootCube.Comm$GroupMeans),],
                                 col.labels = Comm.col$gc[rownames(BootCube.Comm$GroupMeans),],
                                 alpha.points = .8,
-                                cex = 6)
+                                pch = 15,
+                                cex = 5)
 ### Plot bootstrapped confidence intervals for means
 f.CI.graph <- MakeCIEllipses(BootCube.Comm$BootCube[,c(x_cp,y_cp),],
                                     names.of.factors = c(sprintf("Factor %s",x_cp),sprintf("Factor %s",y_cp)),
@@ -237,7 +209,7 @@ f.CI.graph <- MakeCIEllipses(BootCube.Comm$BootCube[,c(x_cp,y_cp),],
                                     p.level = .95)
 ### Plot tolerance intervals of each community
 f.TI.graph <- MakeToleranceIntervals(distatis.res$res4Splus$F,
-                                     axis1 = 1, axis2 = 2,
+                                     axis1 = x_cp, axis2 = y_cp,
                                      design = vox.des$Comm,
                                      names.of.factors = c("Dim1", "Dim2"),
                                      col = Comm.col$gc[rownames(BootCube.Comm$GroupMeans),],
@@ -246,11 +218,12 @@ f.TI.graph <- MakeToleranceIntervals(distatis.res$res4Splus$F,
                                      alpha.ellipse = .2,
                                      alpha.line = .4,
                                      p.level =.95)
+# With TI only
+f01b.Fi.Ti <- f.graph$zeMap_background + f.TI.graph + f.graph$zeMap_dots + f.labels
 # With CI and TI
-f01b.Fi.CiTiMean <- f.graph$zeMap_background + f.TI.graph + f.graph$zeMap_dots + f.CI.graph + f.mean.graph$zeMap_dots + f.mean.graph$zeMap_text + f.labels
-
-# With CI only
-f01c.Fi.CiMean <- f.mean.graph.owncon$zeMap_background + f.mean.graph.owncon$zeMap_dots + f.CI.graph + f.labels + f.mean.graph.owncon$zeMap_text
+f01c.Fi.CiTiMean <- f.graph$zeMap_background + f.TI.graph + f.graph$zeMap_dots + f.CI.graph + f.mean.graph$zeMap_dots + f.mean.graph$zeMap_text + f.labels
+# CI only
+f01d.Fi.CiMean <- f.mean.graph.owncon$zeMap_background + f.mean.graph.owncon$zeMap_dots + f.CI.graph + f.labels + f.mean.graph.owncon$zeMap_text
 ```
 
 ```{r makefig.cp23, echo = FALSE, include = FALSE}
@@ -262,7 +235,8 @@ f.mean.graph.23 <- createFactorMap(BootCube.Comm$GroupMeans,
                                 constraints = f.graph$constraints,
                                 col.labels = Comm.col$gc[rownames(BootCube.Comm$GroupMeans),],
                                 alpha.points = .8,
-                                cex = T)
+                                pch = 15,
+                                cex = 5)
 ### Plot means with its own constraints
 f.mean.graph.owncon.23 <- createFactorMap(BootCube.Comm$GroupMeans,
                                 axis1 = 2, axis2 = 3,
@@ -270,147 +244,68 @@ f.mean.graph.owncon.23 <- createFactorMap(BootCube.Comm$GroupMeans,
                                 col.points = Comm.col$gc[rownames(BootCube.Comm$GroupMeans),],
                                 col.labels = Comm.col$gc[rownames(BootCube.Comm$GroupMeans),],
                                 alpha.points = .8,
-                                cex = 6)
+                                pch = 15,
+                                cex = 5)
 ### Plot bootstrapped confidence intervals for means
 f.CI.graph.23 <- MakeCIEllipses(BootCube.Comm$BootCube[,c(2,3),],
                                     names.of.factors = c(sprintf("Factor %s",2),sprintf("Factor %s",3)),
                                     col = Comm.col$gc[rownames(BootCube.Comm$GroupMeans),],
                                     p.level = .95)
 # With mean
-f02b.Fi.Mean <- f.graph.23$zeMap_background + f.graph.23$zeMap_dots + f.CI.graph.23 + f.mean.graph.23$zeMap_dots + f.mean.graph.23$zeMap_text + f.labels.23 
+f02b.Fi.Mean <- f.graph.23$zeMap_background + f.graph.23$zeMap_dots + f.CI.graph.23 + f.mean.graph.23$zeMap_dots + f.mean.graph.23$zeMap_text + f.labels.23
+
 # With CI
 f02c.Fi.CiMean <- f.mean.graph.owncon.23$zeMap_background + f.mean.graph.owncon.23$zeMap_dots + f.CI.graph.23 + f.labels.23 + f.mean.graph.owncon.23$zeMap_text
 ```
 
-##### All heat maps
+##### All heat maps and Rv
 ```{r all_hmap, echo = FALSE, fig.show = 'hide'}
-hmap1 <- pheatmap(rcube.order[,,1],color = value.col,
-         cluster_cols = FALSE, cluster_rows = FALSE,
-         cellwidth = 0.8, cellheight = 0.8,
-         annotation_col = vox.order.df,
-         annotation_row = vox.order.df,
-         annotation_legend = FALSE,
-         annotation_names_col = FALSE,
-         annotation_names_row = FALSE,
-         annotation_colors = vox.order.col,
-         breaks = seq(-1,1,by = 0.02),
-         main="CorMat: 1st session")
-hmap2 <- pheatmap(rcube.order[,,2],color = value.col,
-         cluster_cols = FALSE, cluster_rows = FALSE,
-         cellwidth = 0.8, cellheight = 0.8,
-         annotation_col = vox.order.df,
-         annotation_row = vox.order.df,
-         annotation_legend = FALSE,
-         annotation_names_col = FALSE,
-         annotation_names_row = FALSE,
-         annotation_colors = vox.order.col,
-         breaks = seq(-1,1,by = 0.02),
-         main="CorMat: 2nd session")
-hmap3 <- pheatmap(rcube.order[,,3],color = value.col,
-         cluster_cols = FALSE, cluster_rows = FALSE,
-         cellwidth = 0.8, cellheight = 0.8,
-         annotation_col = vox.order.df,
-         annotation_row = vox.order.df,
-         annotation_legend = FALSE,
-         annotation_names_col = FALSE,
-         annotation_names_row = FALSE,
-         annotation_colors = vox.order.col,
-         breaks = seq(-1,1,by = 0.02),
-         main="CorMat: 3rd session")
-hmap4 <- pheatmap(rcube.order[,,4],color = value.col,
-         cluster_cols = FALSE, cluster_rows = FALSE,
-         cellwidth = 0.8, cellheight = 0.8,
-         annotation_col = vox.order.df,
-         annotation_row = vox.order.df,
-         annotation_legend = FALSE,
-         annotation_names_col = FALSE,
-         annotation_names_row = FALSE,
-         annotation_colors = vox.order.col,
-         breaks = seq(-1,1,by = 0.02),
-         main="CorMat: 4th session")
-hmap5 <- pheatmap(rcube.order[,,5],color = value.col,
-         cluster_cols = FALSE, cluster_rows = FALSE,
-         cellwidth = 0.8, cellheight = 0.8,
-         annotation_col = vox.order.df,
-         annotation_row = vox.order.df,
-         annotation_legend = FALSE,
-         annotation_names_col = FALSE,
-         annotation_names_row = FALSE,
-         annotation_colors = vox.order.col,
-         breaks = seq(-1,1,by = 0.02),
-         main="CorMat: 5th session")
-hmap6 <- pheatmap(rcube.order[,,6],color = value.col,
-         cluster_cols = FALSE, cluster_rows = FALSE,
-         cellwidth = 0.8, cellheight = 0.8,
-         annotation_col = vox.order.df,
-         annotation_row = vox.order.df,
-         annotation_legend = FALSE,
-         annotation_names_col = FALSE,
-         annotation_names_row = FALSE,
-         annotation_colors = vox.order.col,
-         breaks = seq(-1,1,by = 0.02),
-         main="CorMat: 6th session")
-hmap7 <- pheatmap(rcube.order[,,7],color = value.col,
-         cluster_cols = FALSE, cluster_rows = FALSE,
-         cellwidth = 0.8, cellheight = 0.8,
-         annotation_col = vox.order.df,
-         annotation_row = vox.order.df,
-         annotation_legend = FALSE,
-         annotation_names_col = FALSE,
-         annotation_names_row = FALSE,
-         annotation_colors = vox.order.col,
-         breaks = seq(-1,1,by = 0.02),
-         main="CorMat: 7th session")
-hmap8 <- pheatmap(rcube.order[,,8],color = value.col,
-         cluster_cols = FALSE, cluster_rows = FALSE,
-         cellwidth = 0.8, cellheight = 0.8,
-         annotation_col = vox.order.df,
-         annotation_row = vox.order.df,
-         annotation_legend = FALSE,
-         annotation_names_col = FALSE,
-         annotation_names_row = FALSE,
-         annotation_colors = vox.order.col,
-         breaks = seq(-1,1,by = 0.02),
-         main="CorMat: 8th session")
-hmap9 <- pheatmap(rcube.order[,,9],color = value.col,
-         cluster_cols = FALSE, cluster_rows = FALSE,
-         cellwidth = 0.8, cellheight = 0.8,
-         annotation_col = vox.order.df,
-         annotation_row = vox.order.df,
-         annotation_legend = FALSE,
-         annotation_names_col = FALSE,
-         annotation_names_row = FALSE,
-         annotation_colors = vox.order.col,
-         breaks = seq(-1,1,by = 0.02),
-         main="CorMat: 9th session")
-hmap10 <- pheatmap(rcube.order[,,10],color = value.col,
-         cluster_cols = FALSE, cluster_rows = FALSE,
-         cellwidth = 0.8, cellheight = 0.8,
-         annotation_col = vox.order.df,
-         annotation_row = vox.order.df,
-         annotation_legend = FALSE,
-         annotation_names_col = FALSE,
-         annotation_names_row = FALSE,
-         annotation_colors = vox.order.col,
-         breaks = seq(-1,1,by = 0.02),
-         main="CorMat: 10th session")
+for(session.count in 1:dim(cubes$rcube)[3]){
+  hmap.name <- sprintf("hmap%s",session.count)
+  assign(hmap.name, superheat(cubes$rcube[,,session.count],
+                              membership.cols = vox.des$Comm.rcd,
+                              membership.rows = vox.des$Comm.rcd,
+                              clustering.method = NULL,
+                              heat.col.scheme = "viridis",
+                              left.label.size = 0.08,
+                              bottom.label.size = 0.05,
+                              y.axis.reverse = TRUE,
+                              left.label.col = Comm.col$gc[order(rownames(Comm.col$gc))], # order by community name
+                              bottom.label.col = Comm.col$gc[order(rownames(Comm.col$gc))],
+                              left.label.text.size = 3,
+                              bottom.label.text.size = 2,
+                              left.label.text.col = c(rep("black",8),rep("white",2),rep("black",3),"white",rep("black",3),rep("white",2)),
+                              bottom.label.text.col = c(rep("black",8),rep("white",2),rep("black",3),"white",rep("black",3),rep("white",2)),
+                              left.label.text.alignment = "left",
+                              title = sprintf("Correlation matrix of #%s session",session.count)
+  )
+  )
+}
+```
+Rv factor scores:
+
+```{r RvAgain, echo = FALSE}
+print(Rvmap)
 ```
 
+Heap maps:
+
 ```{r plot_fig_10hmap, echo=F, fig.height=16, fig.width= 40}
-gridExtra::grid.arrange(as.grob(hmap1$gtable),as.grob(hmap2$gtable),as.grob(hmap3$gtable),
-                        as.grob(hmap4$gtable),as.grob(hmap5$gtable),as.grob(hmap6$gtable),
-                        as.grob(hmap7$gtable),as.grob(hmap8$gtable),as.grob(hmap9$gtable),
-                        as.grob(hmap10$gtable),ncol=5)
+gridExtra::grid.arrange(as.grob(hmap1$plot),as.grob(hmap2$plot),as.grob(hmap3$plot),
+                        as.grob(hmap4$plot),as.grob(hmap5$plot),as.grob(hmap6$plot),
+                        as.grob(hmap7$plot),as.grob(hmap8$plot),as.grob(hmap9$plot),
+                        as.grob(hmap10$plot),ncol=5)
 ```
 
 ##### Component 1 & 2
-```{r plot_fig12_mean, echo=F, fig.height=16, fig.width= 16}
-gridExtra::grid.arrange(as.grob(hmap$gtable), as.grob(f01b.Fi.CiTiMean), 
-                        as.grob(hmap$gtable), as.grob(f01c.Fi.CiMean), ncol=2)
+```{r plot_fig12_mean, echo=F, fig.height=24, fig.width= 16}
+gridExtra::grid.arrange(as.grob(hmap1$plot), as.grob(f01b.Fi.Ti),
+                        as.grob(hmap1$plot), as.grob(f01c.Fi.CiTiMean), 
+                        as.grob(hmap1$plot), as.grob(f01d.Fi.CiMean), ncol=2)
 ```
 
 ##### Component 2 & 3
 ```{r plot_fig23_mean, echo=F, fig.height=16, fig.width= 16}
-gridExtra::grid.arrange(as.grob(hmap$gtable), as.grob(f02b.Fi.Mean),
-                        as.grob(hmap$gtable), as.grob(f02c.Fi.CiMean), ncol=2)
+gridExtra::grid.arrange(as.grob(hmap1$plot), as.grob(f02b.Fi.Mean),
+                        as.grob(hmap1$plot), as.grob(f02c.Fi.CiMean), ncol=2)
 ```
