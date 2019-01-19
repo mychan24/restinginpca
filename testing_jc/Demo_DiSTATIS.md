@@ -131,14 +131,60 @@ Heap maps of SS of correlation matrices:
 
 ![](Demo_DiSTATIS_files/figure-gfm/plot_fig_10rSShmap-1.png)<!-- -->
 
-Heap maps of SS of distance matrices:
+Heap maps of SS of distance
+    matrices:
 
 ![](Demo_DiSTATIS_files/figure-gfm/plot_fig_10dSShmap-1.png)<!-- -->
 
 ##### Component 1 & 2
 
+    ## Warning: Removed 1 rows containing non-finite values (stat_ellipse).
+
 ![](Demo_DiSTATIS_files/figure-gfm/plot_fig12_mean-1.png)<!-- -->
 
 ##### Component 2 & 3
 
+    ## Warning: Removed 1 rows containing non-finite values (stat_ellipse).
+
 ![](Demo_DiSTATIS_files/figure-gfm/plot_fig23_mean-1.png)<!-- -->
+
+## Interpretation
+
+#### From JCY:
+
+  - Distance in the factor score maps illustrate the relationship
+    between two networks with a shorter distance reflecting a stronger
+    correlation
+
+  - Component 1: Defult mode (DMN) VS Cingulo-opercular (CON)
+    
+      - DMN and CON have almost opposite pattern in several big networks
+        (i.e., lateral Visual (lVis), DMN, CON, ventral attention
+        (vATN), Salience(SLC))
+    
+      - Stronger correlation to DMN: vATN,
+    
+      - Stronger correlation to CON: lVis, mVis, CON, SLC
+
+  - Component 2: DMN -\> CON -\> Fronto-parietal (FPN) & dorsal
+    attention (dATN)
+    
+      - FPN is the network with the most SS of correlation, CON is the
+        second most, and DMN is the third most
+    
+      - FPN is not does not share pattern with either DMN or CON and
+        only connects to these two networks moderately
+    
+      - FPN is stronly correlated only to dATN
+
+  - Component 3: Sensorimotor networds VS Salience, medial temporal
+    (MTL)
+    
+      - All sensorimotor networks have small correlation to salience,
+        parietal memory (PMN) and mVis networks
+    
+      - Salience, PMN, and mVis all have small correlation to
+        sensorimotor, attention, PMN, Auditory, and MTL networks
+    
+      - These are seen in both the correlation matrix and the SS of
+        correlation

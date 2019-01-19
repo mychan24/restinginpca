@@ -1,4 +1,4 @@
-## Compute Sums of Squares of each network (community)
+## For each table along the third dimension of an array, compute sums of squares of each category according to a design matrix and output as an array
 ## Created by Ju-Chi Yu, 01/18/2019
 ##====================================================
 ## Function name: SScomm
