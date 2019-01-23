@@ -147,8 +147,6 @@ Heap maps of SS of distance matrices:
 
 ##### Component 2 & 3
 
-    ## Warning: Removed 2 rows containing non-finite values (stat_ellipse).
-
 ![](Demo_DiSTATIS_files/figure-markdown_github/plot_fig23_mean-1.png)
 
 Interpretation
@@ -185,10 +183,9 @@ Interpretation
 #### from MYC:
 
 -   Factor 1:
--   I agree with your observation.
--   Default Mode (DMN) and Cingular-Opercular Network (CON) being opposite is not surprising. CON is the top-down processing attentional network that is quite different from frontal-parietal network (FPN), which shares more similarity with DMN. So along Factor 1, we see DMN, FP and its cousin DAN on one side, and CON on the other (along with Salience \[SAN\]).
--   **One thing to note is that there are very few nodes in some of these networks. The normalization allows them to give a bigger contribution despite their smaller size, but they are also just less consistent (thus the a larger confidence interval for networks like Salience).** &lt;- correct me if this is a wrong way to view how network-size interacts with normalization and therefore the interpretation.
-
+    -   I agree with your observation.
+    -   Default Mode (DMN) and Cingular-Opercular Network (CON) being opposite is not surprising. CON is the top-down processing attentional network that is quite different from frontal-parietal network (FPN), which shares more similarity with DMN. So along Factor 1, we see DMN, FP and its cousin DAN on one side, and CON on the other (along with Salience \[SAN\]).
+    -   **One thing to note is that there are very few nodes in some of these networks. The normalization allows them to give a bigger contribution despite their smaller size, but they are also just less consistent (thus the a larger confidence interval for networks like Salience).** &lt;- correct me if this is a wrong way to view how network-size interacts with normalization and therefore the interpretation.
 -   Factor 2:
     -   Here we have Frontal Parietal (FPN) and its cousin Dorsal Attention Network (DAN) pulling weight on one side, and essentially the rest of the stuff along the middle, and maybe DMN, Ventral Attention Network (VAN), and Auditory (AUD) on the other.
     -   The VAN is topographically (physically) located close to Auditory areas, and has decent connection to DMN. VAN and DAN are sort of opposite in their connection pattern, so that may be why they are on opposite sides.
