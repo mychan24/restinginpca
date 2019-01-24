@@ -1,7 +1,7 @@
 This folder stores functions we wrote for this project.
----
-Edited by JCY, 01/18/2019
----
+
+>Edited by JCY, 01/18/2019
+
 
 * *label_edge*:
 ---Take a community label vector and output a vector of label for edges
