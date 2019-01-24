@@ -22,10 +22,10 @@ condition x (voxel x participants)
 + Run DiSTATIS on an examplar sample and use this results as a sample of what we want to replicate
 + Try different normalization with subject 1:
 
-⋅⋅⋅1. No normalization -> plain SVD
+⋅⋅1. No normalization -> plain SVD
 
-⋅⋅⋅2. SVD on STATIS-like preprocessed rectangular matrix
+⋅⋅2. SVD on STATIS-like preprocessed rectangular matrix
 
-⋅⋅⋅3. Subject(table)-centered, block (network) MFA-normalized rectangular matrix
+⋅⋅3. Subject(table)-centered, block (network) MFA-normalized rectangular matrix
 
 + Try different normalization with multiple subjects (1-3):
