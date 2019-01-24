@@ -12,4 +12,4 @@ This folder stores all attempts of different normalizations.
 	- Only the positive correlations are kept
 	- Analyze with DiSTATIS (sessions as tables) 
 	- Get the DiSTATIS results with these 10 sessions of one participant
-	- Use this result as the standard results (of multivariate analysis on resting-state data) to be compared with later with other normalizations
+	- Use this result as the standard results (of multivariate analysis on resting-state data) to be compared with other normalizations later
