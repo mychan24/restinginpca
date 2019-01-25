@@ -8,7 +8,7 @@ This folder stores all attempts of different normalizations.
 	- Test what this normalization does
 2. Demo_DiSTATIS\*:
 	- Use data in zmat\: Ten resting-state session data of one participant from a public data set
-	- The original data is ROI\*ROI\*10 sessions correlation data
+	- The original data is ROI\*ROI\*10 sessions correlation data (Fisher's Z transformed)
 	- Only the positive correlations are kept
 	- Analyze with DiSTATIS (sessions as tables) 
 	- Get the DiSTATIS results with these 10 sessions of one participant

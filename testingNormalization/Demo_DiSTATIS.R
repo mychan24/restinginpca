@@ -1,8 +1,8 @@
 ######################################
 ### DiSTATIS on resting state data ###
 ######################################
-# We are using a toy data
-# Edited by Ju-Chi Yu on Dec. 26th, 2018
+# We are using the MSC data
+# Edited by Ju-Chi Yu on Jan. 16th, 2019
 
 # Procedure outline:-------------------------------
 # Correlation matrix >> distance matrix >> DiSTATIS 
@@ -23,6 +23,9 @@ library(superheat)
 tool.path <- "tools/"
 source(paste0(tool.path,"SScomm.R"))
 # Read data  ---------------------------------------
+## resting-state data:
+#--- dimensions: voxel x voxel x 10 sessions
+#--- data in each cell: Fisher's Z-transformed correlation (r)
 zmat.path <- "data/zmat"
 load(paste0(zmat.path,"/sub-MSC01_zcube_rcube.RData"))
 
