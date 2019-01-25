@@ -61,11 +61,10 @@ colnames(vox.des.mat) <- sub(".","",colnames(vox.des.mat))
 # Check data ---------------------------------------
 ## They are called cubes
 dim(cubes$rcube) # correlations
-r.dat <- cubes$rcube
 dim(cubes$zcube) # Fisher's z-transformed correlations
 
 ## Exclude negative correlations
-cubes$rcube[cubes$rcube < 0] <- 0
+r.dat <- cubes$rcube[cubes$rcube < 0] <- 0
 ## Community assignment
 head(vox.des)
 dim(vox.des)
