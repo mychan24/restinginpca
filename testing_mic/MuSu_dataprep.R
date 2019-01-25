@@ -11,9 +11,12 @@ rm(list=ls())
 source("./tools/label_edges.R")
 
 # Load data
-load("./data/zmat/sub-MSC01_zcube_rcube.Rdata"); s1<- cubes$zcube
-load("./data/zmat/sub-MSC02_zcube_rcube.Rdata"); s2<- cubes$zcube
-load("./data/zmat/sub-MSC03_zcube_rcube.Rdata"); s3<- cubes$zcube
+load("./data/zmat/sub-MSC01_zcube_rcube.Rdata") 
+s1<- cubes$zcube
+load("./data/zmat/sub-MSC02_zcube_rcube.Rdata")
+s2<- cubes$zcube
+load("./data/zmat/sub-MSC03_zcube_rcube.Rdata")
+s3<- cubes$zcube
 rm(cubes)
 
 # load community labels
@@ -53,6 +56,8 @@ labels$subjects_label[1:ne1] <- "sub01"
 labels$subjects_label[(ne1+1):(ne1+ne2)] <- "sub02"
 labels$subjects_label[(ne1+ne2+1):nrow(labels)] <- "sub03"
 
+labels$subjects_edge_label <- paste(labels$subjects_label, labels$edges_label, sep="_")
+labels$wb <- "Within"
+labels$wb[grep(pattern = "_", labels$edges_label)] <- "Between"
+
 save(file = sprintf("./data/grandatble_and_labels_%s.Rdata",format(Sys.time(),"%Y%m%d")), list = c("gt", "labels"))
-
-

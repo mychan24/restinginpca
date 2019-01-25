@@ -4,9 +4,10 @@
 # Inputs:   Ci, Community indexing vector
 #   
 # Ouput:    L,   Label of edge 
-# #################################################
+# #############################################################################
+# myc, UTD 1/25/2019 - make sysA-sysB connection labeled the same as sysB-sysA
 # myc, UTD 12/31/2018 - Initial
-# #################################################
+# #############################################################################
 label_edges <- function(Ci){
   n <- length(Ci)
   u <- unique(Ci)
@@ -18,8 +19,16 @@ label_edges <- function(Ci){
     for(j in 1:length(u)){
       if(i==j){   
         labelmat[Ci==u[i], Ci==u[j]] <- sprintf("%s",u[i])          # within commmunity
-      }else{  
-        labelmat[Ci==u[i], Ci==u[j]] <- sprintf("%s_%s",u[i], u[j]) # between commmunities
+      }else{
+        # whichever system # is smaller goes first
+        if(u[i] < u[j]){
+          firstsys <- u[i]
+          secondsys <- u[j]
+        }else{
+          firstsys <- u[j]
+          secondsys <- u[i]
+        }
+        labelmat[Ci==u[i], Ci==u[j]] <- sprintf("%s_%s",firstsys, secondsys) # between commmunities
       }
     }
   }
