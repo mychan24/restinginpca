@@ -109,17 +109,45 @@ superheat(gt[,which(labels$subjects_label!="sub02")],
           left.label.text.alignment = "left"
 )
 
+colnames(gt) <- labels$subjects_edge_label
 # SVD on the rectangular data ------------------------
-pca.res.subj <- epPCA(t(gt[,which(labels$subjects_label!="sub02")]),scale = FALSE, center = FALSE, DESIGN = labels$subjects_edge_label[which(labels$subjects_label!="sub02")], make_design_nominal = TRUE)
+pca.res.subj <- epPCA(t(gt[,which(labels$subjects_label=="sub01")]),scale = FALSE, center = FALSE, DESIGN = labels$subjects_edge_label[which(labels$subjects_label=="sub01")], make_design_nominal = TRUE, graphs = FALSE)
 
 # Compute means of factor scores for different edges----
-mean.fj <- getMeans(pca.res.subj1$ExPosition.Data$fj, labels$s)
+mean.fj <- getMeans(pca.res.subj1$ExPosition.Data$fj, labels$subjects_edge_label)
+mean.fi <- getMeans(pca.res.subj$ExPosition.Data$fi, labels$subjects_edge_label[which(labels$subjects_label=="sub01")]) # with t(gt)
 
 # Plot -----------------------------------------------
 #--- row factor scores:
 plot.fi <- createFactorMap(pca.res.subj1$ExPosition.Data$fi)
-plot.fi$zeMap 
+plot.fj <- createFactorMap(pca.res.subj$ExPosition.Data$fj) # with t(gt)
 
+plot.fi$zeMap
+dev.new()
+plot.fj$zeMap
 #--- column factor scores:
 plot.fj <- createFactorMap(mean.fj, axis1 = 2, axis2 = 3)
-plot.fj$zeMap
+plot.fi <- createFactorMap(mean.fi, axis1 = 2, axis2 = 3,col.points = unique(pca.res.subj$Plotting.Data$fi.col)) # with t(gt)
+dev.new()
+plot.fi$zeMap
+plot.fi$zeMap_background + plot.fi$zeMap_dots
+prettyPlot(mean.fi, x_axis = 2, y_axis = 3)
+
+## See plot
+dev.new()
+superheat(gt[,c("sub01_4_8","sub01_8","sub01_6_10","sub01_8_29","sub01_6","sub01_4_29","sub01_29","sub01_9","sub01_14","sub01_11_29","sub01_12_17","sub01_12","sub01_10_17")],
+          # membership.cols = labels$subjects_edge_label[which(labels$subjects_label!="sub02")],
+          membership.rows = c(1:10),
+          clustering.method = NULL,
+          heat.col.scheme = "viridis",
+          left.label.size = 0.05,
+          bottom.label.size = 0.05,
+          y.axis.reverse = TRUE,
+          # left.label.col = Comm.col$gc[order(rownames(Comm.col$gc))], # order by community name
+          # bottom.label.col = Comm.col$gc[order(rownames(Comm.col$gc))],
+          left.label.text.size = 3,
+          bottom.label.text.size = 2,
+          # left.label.text.col = c(rep("black",8),rep("white",2),rep("black",3),"white",rep("black",3),rep("white",2)),
+          # bottom.label.text.col = c(rep("black",8),rep("white",2),rep("black",3),"white",rep("black",3),rep("white",2)),
+          left.label.text.alignment = "left"
+)
