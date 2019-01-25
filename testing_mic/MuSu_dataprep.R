@@ -24,7 +24,7 @@ c3 <- read.table("./data/parcel_community/sub-MSC03_node_parcel_comm.txt", sep="
 # take out negatives
 s1[s1<0] <- 0
 s2[s2<0] <- 0
-s2[s2<0] <- 0
+s3[s3<0] <- 0
 
 # Make Grand Table (session x c(upper_tris))
 allsubs_uppertri <- sum(sum(upper.tri(s1[,,1])), sum(upper.tri(s2[,,1])), sum(upper.tri(s3[,,1])))
