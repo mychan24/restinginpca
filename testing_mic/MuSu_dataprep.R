@@ -12,11 +12,11 @@ source("./tools/label_edges.R")
 
 # Load data
 load("./data/zmat/sub-MSC01_zcube_rcube.Rdata") 
-s1<- cubes$zcube
+s1 <- cubes$zcube
 load("./data/zmat/sub-MSC02_zcube_rcube.Rdata")
-s2<- cubes$zcube
+s2 <- cubes$zcube
 load("./data/zmat/sub-MSC03_zcube_rcube.Rdata")
-s3<- cubes$zcube
+s3 <- cubes$zcube
 rm(cubes)
 
 # load community labels
@@ -28,6 +28,11 @@ c3 <- read.table("./data/parcel_community/sub-MSC03_node_parcel_comm.txt", sep="
 s1[s1<0] <- 0
 s2[s2<0] <- 0
 s3[s3<0] <- 0
+
+# Take out diagonal (set to 0)
+s1[s1=="Inf"] <- 0
+s2[s2=="Inf"] <- 0
+s3[s3=="Inf"] <- 0
 
 # Make Grand Table (session x c(upper_tris))
 allsubs_uppertri <- sum(sum(upper.tri(s1[,,1])), sum(upper.tri(s2[,,1])), sum(upper.tri(s3[,,1])))
