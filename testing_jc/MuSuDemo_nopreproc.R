@@ -36,7 +36,7 @@ zmat.path <- "data/zmat" # path for data
 load(paste0(zmat.path,"/sub-MSC01_zcube_rcube.RData")) # read data
 
 ## the labels for each intersection of the correlation matirx
-load(paste0("data/grandatble_and_labels_20181231.Rdata")) # read the labels of grandtable
+load(paste0("data/grandatble_and_labels_20190125.Rdata")) # read the labels of grandtable
 
 ## the community (network) each voxel belongs to:
 parcel.comm.path <- "data/parcel_community" # path for community information
@@ -62,10 +62,11 @@ colnames(vox.des.mat) <- sub(".","",colnames(vox.des.mat))
 ## They are called cubes
 dim(cubes$rcube) # correlations
 dim(cubes$zcube) # Fisher's z-transformed correlations
+#--- WE USE ZCUBE
 
 ## Exclude negative correlations
-cubes$rcube[cubes$rcube < 0] <- 0
-r.dat <- cubes$rcube
+# cubes$rcube[cubes$rcube < 0] <- 0
+z.dat <- cubes$zcube
 ## Community assignment
 head(vox.des)
 dim(vox.des)
@@ -73,12 +74,12 @@ dim(vox.des)
 # Reform the data -----------------------------------
 ## Create empty matrix for the correlation data
 #--- get the length of data in the upper triangle
-n.uptri <- ((dim(r.dat)[1]*dim(r.dat)[2])-dim(r.dat)[1])/2
+n.uptri <- ((dim(z.dat)[1]*dim(z.dat)[2])-dim(z.dat)[1])/2
 #--- create the empty matrix
-rect.dat <- matrix(NA, nrow = dim(r.dat)[3], ncol = n.uptri)
+rect.dat <- matrix(NA, nrow = dim(z.dat)[3], ncol = n.uptri)
 
 ## Get the upper triangle for all sessions
-rect.dat <- sapply(c(1:dim(r.dat)[3]), function(x) r.dat[,,x][upper.tri(r.dat[,,x])]) %>% t
+rect.dat <- sapply(c(1:dim(z.dat)[3]), function(x) z.dat[,,x][upper.tri(z.dat[,,x])]) %>% t
 
 ## Get the labels of edges
 labels1 <- labels[which(labels$subjects_label == "sub01"),"edges_label"]
@@ -90,8 +91,9 @@ r.uptri.des <- makeNominalData(as.matrix(labels1))
 
 # Visualize data so far ------------------------------
 ## Use heatmap...this takes a while
-superheat(rect.dat,
-          membership.cols = colnames(rect.dat),
+dev.new()
+superheat(gt[,which(labels$subjects_label!="sub02")],
+          membership.cols = labels$subjects_edge_label[which(labels$subjects_label!="sub02")],
           membership.rows = c(1:10),
           clustering.method = NULL,
           heat.col.scheme = "viridis",
@@ -108,10 +110,10 @@ superheat(rect.dat,
 )
 
 # SVD on the rectangular data ------------------------
-pca.res.subj1 <- epPCA(rect.dat,scale = FALSE, center = FALSE, DESIGN = r.uptri.des, make_design_nominal = FALSE)
+pca.res.subj <- epPCA(t(gt[,which(labels$subjects_label!="sub02")]),scale = FALSE, center = FALSE, DESIGN = labels$subjects_edge_label[which(labels$subjects_label!="sub02")], make_design_nominal = TRUE)
 
 # Compute means of factor scores for different edges----
-mean.fj <- getMeans(pca.res.subj1$ExPosition.Data$fj, labels1)
+mean.fj <- getMeans(pca.res.subj1$ExPosition.Data$fj, labels$s)
 
 # Plot -----------------------------------------------
 #--- row factor scores:
@@ -119,5 +121,5 @@ plot.fi <- createFactorMap(pca.res.subj1$ExPosition.Data$fi)
 plot.fi$zeMap 
 
 #--- column factor scores:
-plot.fj <- createFactorMap(mean.fj[1:100,])
+plot.fj <- createFactorMap(mean.fj, axis1 = 2, axis2 = 3)
 plot.fj$zeMap
