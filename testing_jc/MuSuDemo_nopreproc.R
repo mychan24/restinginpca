@@ -64,7 +64,8 @@ dim(cubes$rcube) # correlations
 dim(cubes$zcube) # Fisher's z-transformed correlations
 
 ## Exclude negative correlations
-r.dat <- cubes$rcube[cubes$rcube < 0] <- 0
+cubes$rcube[cubes$rcube < 0] <- 0
+r.dat <- cubes$rcube
 ## Community assignment
 head(vox.des)
 dim(vox.des)
