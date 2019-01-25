@@ -24,16 +24,19 @@ library(ExPosition) # myc added to use "makeNominalData"
 library(superheat)
 
 # Read functions -----------------------------------
-tool.path <- "../tools/"
+tool.path <- "tools/"
 # SScomm.R: the function that compute sums of squares of a square matrix according to a design matrix
 source(paste0(tool.path,"SScomm.R"))
 
 # Read data  ---------------------------------------
 ## resting-state data:
 #--- dimensions: voxel x voxel x 10 sessions
-#--- data in each cell: Fisher's Z-transformed correlation (r)
+#--- data in each cell: correlation (r)
 zmat.path <- "data/zmat" # path for data
 load(paste0(zmat.path,"/sub-MSC01_zcube_rcube.RData")) # read data
+
+## the labels for each intersection of the correlation matirx
+load(paste0("data/grandatble_and_labels_20181231.Rdata")) # read the labels of grandtable
 
 ## the community (network) each voxel belongs to:
 parcel.comm.path <- "data/parcel_community" # path for community information
@@ -58,10 +61,63 @@ colnames(vox.des.mat) <- sub(".","",colnames(vox.des.mat))
 # Check data ---------------------------------------
 ## They are called cubes
 dim(cubes$rcube) # correlations
-dim(cubes$zcube) # z-transformed correlations
+r.dat <- cubes$rcube
+dim(cubes$zcube) # Fisher's z-transformed correlations
 
 ## Exclude negative correlations
 cubes$rcube[cubes$rcube < 0] <- 0
 ## Community assignment
 head(vox.des)
 dim(vox.des)
+
+# Reform the data -----------------------------------
+## Create empty matrix for the correlation data
+#--- get the length of data in the upper triangle
+n.uptri <- ((dim(r.dat)[1]*dim(r.dat)[2])-dim(r.dat)[1])/2
+#--- create the empty matrix
+rect.dat <- matrix(NA, nrow = dim(r.dat)[3], ncol = n.uptri)
+
+## Get the upper triangle for all sessions
+rect.dat <- sapply(c(1:dim(r.dat)[3]), function(x) r.dat[,,x][upper.tri(r.dat[,,x])]) %>% t
+
+## Get the labels of edges
+labels1 <- labels[which(labels$subjects_label == "sub01"),"edges_label"]
+#--- use it as column name of the rectangular matrix
+colnames(rect.dat) <- labels1
+
+## Get the design matrix for the upper triangle of subject 1
+r.uptri.des <- makeNominalData(as.matrix(labels1))
+
+# Visualize data so far ------------------------------
+## Use heatmap...this takes a while
+superheat(rect.dat,
+          membership.cols = colnames(rect.dat),
+          membership.rows = c(1:10),
+          clustering.method = NULL,
+          heat.col.scheme = "viridis",
+          left.label.size = 0.05,
+          bottom.label.size = 0.05,
+          y.axis.reverse = TRUE,
+          # left.label.col = Comm.col$gc[order(rownames(Comm.col$gc))], # order by community name
+          # bottom.label.col = Comm.col$gc[order(rownames(Comm.col$gc))],
+          left.label.text.size = 3,
+          bottom.label.text.size = 2,
+          # left.label.text.col = c(rep("black",8),rep("white",2),rep("black",3),"white",rep("black",3),rep("white",2)),
+          # bottom.label.text.col = c(rep("black",8),rep("white",2),rep("black",3),"white",rep("black",3),rep("white",2)),
+          left.label.text.alignment = "left"
+)
+
+# SVD on the rectangular data ------------------------
+pca.res.subj1 <- epPCA(rect.dat,scale = FALSE, center = FALSE, DESIGN = r.uptri.des, make_design_nominal = FALSE)
+
+# Compute means of factor scores for different edges----
+mean.fj <- getMeans(pca.res.subj1$ExPosition.Data$fj, labels1)
+
+# Plot -----------------------------------------------
+#--- row factor scores:
+plot.fi <- createFactorMap(pca.res.subj1$ExPosition.Data$fi)
+plot.fi$zeMap 
+
+#--- column factor scores:
+plot.fj <- createFactorMap(mean.fj[1:100,])
+plot.fj$zeMap
