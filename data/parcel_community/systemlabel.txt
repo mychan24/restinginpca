@@ -1,4 +1,4 @@
-0,0_Border,#D3D3D3,00Bd
+0,0_UnAssign,#D3D3D3,00Bd
 1,01_Default,#FF0000,01DMN
 2,02_LatVis,#0000FF,02lVis
 3,03_FrontoPar,#FFFF00,03FPN
