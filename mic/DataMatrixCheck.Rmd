@@ -1,0 +1,333 @@
+---
+title: "Data Matrix Sanity Check"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(pals)
+library(superheat)
+library(gridExtra)
+library(ggplotify)
+
+setwd("../")
+load("data/zmat/sub-MSC01_zcube_rcube.Rdata")
+s1 <- cubes$zcube
+load("./data/zmat/sub-MSC02_zcube_rcube.Rdata")
+s2 <- cubes$zcube
+load("./data/zmat/sub-MSC03_zcube_rcube.Rdata")
+s3 <- cubes$zcube
+rm(cubes)
+
+c1 <- read.table("./data/parcel_community/sub-MSC01_node_parcel_comm.txt", sep=",")
+c2 <- read.table("./data/parcel_community/sub-MSC02_node_parcel_comm.txt", sep=",")
+c3 <- read.table("./data/parcel_community/sub-MSC03_node_parcel_comm.txt", sep=",")
+
+names(c1) <- c("NodeID","Parcel","Comm")
+names(c2) <- c("NodeID","Parcel","Comm")
+names(c3) <- c("NodeID","Parcel","Comm")
+
+
+systemlabel <- read.csv("./data/parcel_community/systemlabel.txt",header=F)
+names(systemlabel) <- c("CommNum","SystemName","Color","PlotLabel")
+
+c1 <- merge(c1, systemlabel, by.x="Comm", by.y="CommNum", all.x=T)
+c1 <- c1[order(c1$NodeID),]
+
+c2 <- merge(c2, systemlabel, by.x="Comm", by.y="CommNum", all.x=T)
+c2 <- c2[order(c2$NodeID),]
+
+c3 <- merge(c3, systemlabel, by.x="Comm", by.y="CommNum", all.x=T)
+c3 <- c3[order(c3$NodeID),]
+
+
+parula.col <- colorRampPalette(c("#352A87","#1D50CE","#0872DC","#1189D2","#06A2C9","#1AB1AF","#51BC8F","#91BE71","#C5BB5C","#F2BB44","#F9D428","#F9FB0E"))
+
+```
+
+
+## MSC01
+### Coding heatmap
+```{r, fig.show = 'hide'}
+
+c1_label <- data.frame(Comm=unique(sort(c1$Comm)))
+c1_label <- merge(c1_label, systemlabel, by.x="Comm", by.y="CommNum", all.x=T)
+
+for(session.count in 1:dim(s1)[3]){
+hmap.name <- sprintf("hmap%s",session.count)
+  assign(hmap.name, 
+          superheat(s1[,,session.count], # smooth.heat = T, smooth.heat.type = "mean", 
+                    membership.rows = c1$PlotLabel,
+                    membership.cols = c1$Comm,
+                    # clustering.method = NULL,
+                  
+                    extreme.values.na = FALSE, 
+                    
+                     heat.pal = rev(brewer.rdylbu(20)), 
+                    # heat.pal = parula.col(12), 
+                    heat.lim = c(-.3,.3),
+                    heat.pal.values = c(0,.5,1),# c(0,.15,.3,.75,1),
+                    
+                    left.label.size = 0.08,
+                    bottom.label.size = 0.05,
+                    
+                    y.axis.reverse = TRUE,
+                    left.label.text.size = 3,
+                    bottom.label.text.size = 2,
+                    
+                    left.label.col = c1_label$Color, 
+                    bottom.label.col = c1_label$Color,  
+                    
+                    left.label.text.alignment = "left",
+                    title = sprintf("Correlation matrix of #%s session",session.count)
+          )
+  )
+}
+
+
+```
+
+### MSC01, Unthresholded Correlation Matrix
+```{r sub1_pos_neg, echo=F, fig.height=16, fig.width= 40}
+gridExtra::grid.arrange(as.grob(hmap1$plot),as.grob(hmap2$plot),as.grob(hmap3$plot),
+                        as.grob(hmap4$plot),as.grob(hmap5$plot),as.grob(hmap6$plot),
+                        as.grob(hmap7$plot),as.grob(hmap8$plot),as.grob(hmap9$plot),
+                        as.grob(hmap10$plot),ncol=5)
+```
+
+```{r, fig.show = 'hide'}
+for(session.count in 1:dim(s1)[3]){
+hmap.name <- sprintf("hmap_noneg%s",session.count)
+  posmat <- s1[,,session.count]
+  posmat[posmat<0] <- 0
+  posmat[posmat==Inf] <- 0
+assign(hmap.name, 
+          superheat(posmat, 
+                    membership.rows = c1$PlotLabel,
+                    membership.cols = c1$Comm,
+                    # clustering.method = NULL,
+                  
+                    extreme.values.na = FALSE, 
+                    
+                    # heat.pal = rev(brewer.rdylbu(20)), 
+                    heat.pal = parula.col(12), 
+                    heat.lim = c(0,.5),
+                    heat.pal.values = c(0,.5,1),
+                    
+                    left.label.size = 0.08,
+                    bottom.label.size = 0.05,
+                    
+                    y.axis.reverse = TRUE,
+                    left.label.text.size = 3,
+                    bottom.label.text.size = 2,
+                    
+                    left.label.col = c1_label$Color, 
+                    bottom.label.col = c1_label$Color,  
+                    
+                    left.label.text.alignment = "left",
+                    title = sprintf("Positive Correlation matrix of #%s session",session.count)
+          )
+  )
+}
+
+
+```
+
+### MSC01, Thresholded Positive Correlation Matrix
+```{r sub1_pos, echo=F, fig.height=16, fig.width= 40}
+gridExtra::grid.arrange(as.grob(hmap_noneg1$plot),as.grob(hmap_noneg2$plot),as.grob(hmap_noneg3$plot),
+                        as.grob(hmap_noneg4$plot),as.grob(hmap_noneg5$plot),as.grob(hmap_noneg6$plot),
+                        as.grob(hmap_noneg7$plot),as.grob(hmap_noneg8$plot),as.grob(hmap_noneg9$plot),
+                        as.grob(hmap_noneg10$plot),ncol=5)
+```
+
+## MSC02
+```{r, echo=F, fig.show = 'hide'}
+
+c2_label <- data.frame(Comm=unique(sort(c2$Comm)))
+c2_label <- merge(c2_label, systemlabel, by.x="Comm", by.y="CommNum", all.x=T)
+
+# Unthresholded Matrix (MSC-02)
+for(session.count in 1:dim(s2)[3]){
+hmap.name <- sprintf("MSC02_hmap%s",session.count)
+  assign(hmap.name, 
+          superheat(s2[,,session.count], # smooth.heat = T, smooth.heat.type = "mean", 
+                    membership.rows = c2$PlotLabel,
+                    membership.cols = c2$Comm,
+                    # clustering.method = NULL,
+                  
+                    extreme.values.na = FALSE, 
+                    
+                     heat.pal = rev(brewer.rdylbu(20)), 
+                    # heat.pal = parula.col(12), 
+                    heat.lim = c(-.3,.3),
+                    heat.pal.values = c(0,.5,1),# c(0,.15,.3,.75,1),
+                    
+                    left.label.size = 0.08,
+                    bottom.label.size = 0.05,
+                    
+                    y.axis.reverse = TRUE,
+                    left.label.text.size = 3,
+                    bottom.label.text.size = 2,
+                    
+                    left.label.col = c2_label$Color, 
+                    bottom.label.col = c2_label$Color,  
+                    
+                    left.label.text.alignment = "left",
+                    title = sprintf("Correlation matrix of #%s session",session.count)
+          )
+  )
+}
+
+
+# Positive Matrix (MSC-02)
+for(session.count in 1:dim(s2)[3]){
+hmap.name <- sprintf("MSC02_hmap_noneg%s",session.count)
+  posmat <- s2[,,session.count]
+  posmat[posmat<0] <- 0
+  posmat[posmat==Inf] <- 0
+assign(hmap.name, 
+          superheat(posmat, 
+                    membership.rows = c2$PlotLabel,
+                    membership.cols = c2$Comm,
+                    # clustering.method = NULL,
+                  
+                    extreme.values.na = FALSE, 
+                    
+                    # heat.pal = rev(brewer.rdylbu(20)), 
+                    heat.pal = parula.col(12), 
+                    heat.lim = c(0,.5),
+                    heat.pal.values = c(0,.5,1),
+                    
+                    left.label.size = 0.08,
+                    bottom.label.size = 0.05,
+                    
+                    y.axis.reverse = TRUE,
+                    left.label.text.size = 3,
+                    bottom.label.text.size = 2,
+                    
+                    left.label.col = c2_label$Color, 
+                    bottom.label.col = c2_label$Color,  
+                    
+                    left.label.text.alignment = "left",
+                    title = sprintf("Positive Correlation matrix of #%s session",session.count)
+          )
+  )
+}
+
+
+```
+
+### MSC02, Unthresholded Correlation Matrix
+
+```{r sub2_pos_neg, echo=F, fig.height=16, fig.width= 40}
+gridExtra::grid.arrange(as.grob(MSC02_hmap1$plot),as.grob(MSC02_hmap2$plot),as.grob(MSC02_hmap3$plot),
+                        as.grob(MSC02_hmap4$plot),as.grob(MSC02_hmap5$plot),as.grob(MSC02_hmap6$plot),
+                        as.grob(MSC02_hmap7$plot),as.grob(MSC02_hmap8$plot),as.grob(MSC02_hmap9$plot),
+                        as.grob(MSC02_hmap10$plot),ncol=5)
+```
+
+### MSC02, Thresholded Positive Correlation Matrix
+
+```{r sub2_pos, echo=F, fig.height=16, fig.width= 40}
+gridExtra::grid.arrange(as.grob(MSC02_hmap_noneg1$plot),as.grob(MSC02_hmap_noneg2$plot),as.grob(MSC02_hmap_noneg3$plot),
+                        as.grob(MSC02_hmap_noneg4$plot),as.grob(MSC02_hmap_noneg5$plot),as.grob(MSC02_hmap_noneg6$plot),
+                        as.grob(MSC02_hmap_noneg7$plot),as.grob(MSC02_hmap_noneg8$plot),as.grob(MSC02_hmap_noneg9$plot),
+                        as.grob(MSC02_hmap_noneg10$plot),ncol=5)
+```
+
+
+## MSC03
+```{r, echo=F, fig.show = 'hide'}
+
+c3_label <- data.frame(Comm=unique(sort(c3$Comm)))
+c3_label <- merge(c3_label, systemlabel, by.x="Comm", by.y="CommNum", all.x=T)
+
+# Unthresholded Matrix (MSC-02)
+for(session.count in 1:dim(s3)[3]){
+  hmap.name <- sprintf("MSC03_hmap%s",session.count)
+  assign(hmap.name, 
+         superheat(s3[,,session.count], # smooth.heat = T, smooth.heat.type = "mean", 
+                   membership.rows = c3$PlotLabel,
+                   membership.cols = c3$Comm,
+                   # clustering.method = NULL,
+                   
+                   extreme.values.na = FALSE, 
+                   
+                   heat.pal = rev(brewer.rdylbu(20)), 
+                   # heat.pal = parula.col(12), 
+                   heat.lim = c(-.3,.3),
+                   heat.pal.values = c(0,.5,1),# c(0,.15,.3,.75,1),
+                   
+                   left.label.size = 0.08,
+                   bottom.label.size = 0.05,
+                   
+                   y.axis.reverse = TRUE,
+                   left.label.text.size = 3,
+                   bottom.label.text.size = 2,
+                   
+                   left.label.col = c3_label$Color, 
+                   bottom.label.col = c3_label$Color,  
+                   
+                   left.label.text.alignment = "left",
+                   title = sprintf("Correlation matrix of #%s session",session.count)
+         )
+  )
+}
+
+
+# Positive Matrix (MSC-02)
+for(session.count in 1:dim(s3)[3]){
+  hmap.name <- sprintf("MSC03_hmap_noneg%s",session.count)
+  posmat <- s3[,,session.count]
+  posmat[posmat<0] <- 0
+  posmat[posmat==Inf] <- 0
+  assign(hmap.name, 
+         superheat(posmat, 
+                   membership.rows = c3$PlotLabel,
+                   membership.cols = c3$Comm,
+                   # clustering.method = NULL,
+                   
+                   extreme.values.na = FALSE, 
+                   
+                   # heat.pal = rev(brewer.rdylbu(20)), 
+                   heat.pal = parula.col(12), 
+                   heat.lim = c(0,.5),
+                   heat.pal.values = c(0,.5,1),
+                   
+                   left.label.size = 0.08,
+                   bottom.label.size = 0.05,
+                   
+                   y.axis.reverse = TRUE,
+                   left.label.text.size = 3,
+                   bottom.label.text.size = 2,
+                   
+                   left.label.col = c3_label$Color, 
+                   bottom.label.col = c3_label$Color,  
+                   
+                   left.label.text.alignment = "left",
+                   title = sprintf("Positive Correlation matrix of #%s session",session.count)
+         )
+  )
+}
+
+
+```
+
+### MSC03, Unthresholded Correlation Matrix
+
+```{r sub3_pos_neg, echo=F, fig.height=16, fig.width= 40}
+gridExtra::grid.arrange(as.grob(MSC03_hmap1$plot),as.grob(MSC03_hmap2$plot),as.grob(MSC03_hmap3$plot),
+                        as.grob(MSC03_hmap4$plot),as.grob(MSC03_hmap5$plot),as.grob(MSC03_hmap6$plot),
+                        as.grob(MSC03_hmap7$plot),as.grob(MSC03_hmap8$plot),as.grob(MSC03_hmap9$plot),
+                        as.grob(MSC03_hmap10$plot),ncol=5)
+```
+
+### MSC03, Thresholded Positive Correlation Matrix
+
+```{r sub3_pos, echo=F, fig.height=16, fig.width= 40}
+gridExtra::grid.arrange(as.grob(MSC03_hmap_noneg1$plot),as.grob(MSC03_hmap_noneg2$plot),as.grob(MSC03_hmap_noneg3$plot),
+                        as.grob(MSC03_hmap_noneg4$plot),as.grob(MSC03_hmap_noneg5$plot),as.grob(MSC03_hmap_noneg6$plot),
+                        as.grob(MSC03_hmap_noneg7$plot),as.grob(MSC03_hmap_noneg8$plot),as.grob(MSC03_hmap_noneg9$plot),
+                        as.grob(MSC03_hmap_noneg10$plot),ncol=5)
+```

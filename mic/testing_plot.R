@@ -42,8 +42,8 @@ superheat::superheat(X = s3[,,1],
 
 
 superheat::superheat(X = s2[,,1],
-                     membership.cols = c2,
-                     membership.rows = c2,
+                     membership.cols = c2$Comm,
+                     membership.rows = c2$Comm,
                      clustering.method = NULL,
                      heat.pal = parula.col(7), 
                      heat.lim = c(0,.5),
