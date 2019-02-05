@@ -127,7 +127,9 @@ dev.new()
 plot.fj$zeMap
 #--- column factor scores:
 plot.fj <- createFactorMap(mean.fj, axis1 = 2, axis2 = 3)
-plot.fi <- createFactorMap(mean.fi, axis1 = 2, axis2 = 3,col.points = unique(pca.res.subj$Plotting.Data$fi.col)) # with t(gt)
+plot.fi <- createFactorMap(mean.fi, axis1 = 2, axis2 = 3,
+                           col.points = unique(pca.res.subj$Plotting.Data$fi.col),
+                           text.cex = 1) # with t(gt)
 dev.new()
 plot.fi$zeMap
 plot.fi$zeMap_background + plot.fi$zeMap_dots
