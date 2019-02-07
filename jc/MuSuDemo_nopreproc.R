@@ -15,11 +15,13 @@
 ## devtools::install_github('HerveAbdi/DistatisR')
 ## devtools::install_github('HerveAbdi/PTCA4CATA')
 ## devtools::install_github('mychan24/superheat')
+## devtools::install_github('HerveAbdi/data4PCCAR')
 library(psych)
 library(tidyr)
 library(magrittr)
 library(DistatisR)
 library(PTCA4CATA)
+library(data4PCCAR)
 library(ExPosition) # myc added to use "makeNominalData"
 library(superheat)
 
@@ -31,12 +33,12 @@ source(paste0(tool.path,"SScomm.R"))
 # Read data  ---------------------------------------
 ## resting-state data:
 #--- dimensions: voxel x voxel x 10 sessions
-#--- data in each cell: correlation (r)
+#--- data in each cell: z-transformed correlation (z)
 zmat.path <- "data/zmat" # path for data
 load(paste0(zmat.path,"/sub-MSC01_zcube_rcube.RData")) # read data
 
 ## the labels for each intersection of the correlation matirx
-load(paste0("data/grandatble_and_labels_20190125.Rdata")) # read the labels of grandtable
+load(paste0("data/grandatble_and_labels_20190204.Rdata")) # read the labels of grandtable
 
 ## the community (network) each voxel belongs to:
 parcel.comm.path <- "data/parcel_community" # path for community information
@@ -71,29 +73,53 @@ z.dat <- cubes$zcube
 head(vox.des)
 dim(vox.des)
 
-# Reform the data -----------------------------------
-## Create empty matrix for the correlation data
-#--- get the length of data in the upper triangle
-n.uptri <- ((dim(z.dat)[1]*dim(z.dat)[2])-dim(z.dat)[1])/2
-#--- create the empty matrix
-rect.dat <- matrix(NA, nrow = dim(z.dat)[3], ncol = n.uptri)
-
-## Get the upper triangle for all sessions
-rect.dat <- sapply(c(1:dim(z.dat)[3]), function(x) z.dat[,,x][upper.tri(z.dat[,,x])]) %>% t
-
-## Get the labels of edges
-labels1 <- labels[which(labels$subjects_label == "sub01"),"edges_label"]
-#--- use it as column name of the rectangular matrix
-colnames(rect.dat) <- labels1
-
-## Get the design matrix for the upper triangle of subject 1
-r.uptri.des <- makeNominalData(as.matrix(labels1))
+# # Reform the data -----------------------------------
+# ## Create empty matrix for the correlation data
+# #--- get the length of data in the upper triangle
+# n.uptri <- ((dim(z.dat)[1]*dim(z.dat)[2])-dim(z.dat)[1])/2
+# #--- create the empty matrix
+# rect.dat <- matrix(NA, nrow = dim(z.dat)[3], ncol = n.uptri)
+# 
+# ## Get the upper triangle for all sessions
+# rect.dat <- sapply(c(1:dim(z.dat)[3]), function(x) z.dat[,,x][upper.tri(z.dat[,,x])]) %>% t
+# 
+# ## Get the labels of edges
+# labels1 <- labels[which(labels$subjects_label == "sub01"),"edges_label"]
+# #--- use it as column name of the rectangular matrix
+# colnames(rect.dat) <- labels1
+# 
+# ## Get the design matrix for the upper triangle of subject 1
+# r.uptri.des <- makeNominalData(as.matrix(labels1))
 
 # Visualize data so far ------------------------------
 ## Use heatmap...this takes a while
 dev.new()
-superheat(gt[,which(labels$subjects_label!="sub02")],
-          membership.cols = labels$subjects_edge_label[which(labels$subjects_label!="sub02")],
+superheat(gt,
+          membership.cols = labels$subjects_edge_label,
+          membership.rows = c(1:10),
+          clustering.method = NULL,
+          heat.col.scheme = "viridis",
+          left.label.size = 0.05,
+          bottom.label.size = 0.05,
+          y.axis.reverse = TRUE,
+          # left.label.col = Comm.col$gc[order(rownames(Comm.col$gc))], # order by community name
+          # bottom.label.col = Comm.col$gc[order(rownames(Comm.col$gc))],
+          left.label.text.size = 3,
+          bottom.label.text.size = 2,
+          # left.label.text.col = c(rep("black",8),rep("white",2),rep("black",3),"white",rep("black",3),rep("white",2)),
+          # bottom.label.text.col = c(rep("black",8),rep("white",2),rep("black",3),"white",rep("black",3),rep("white",2)),
+          left.label.text.alignment = "left"
+)
+
+
+## Categorize columns by between or within edges
+#--- Create new column of sub-edgetype
+sprintf('%s_%s',labels$subjects_label,labels$wb)
+labels[,'subjects_wb'] <- sprintf('%s_%s',labels$subjects_label,labels$wb)
+#--- Now draw the heatmap with columns arranged according to edgetype
+dev.new()
+superheat(gt,
+          membership.cols = labels$subjects_wb,
           membership.rows = c(1:10),
           clustering.method = NULL,
           heat.col.scheme = "viridis",
@@ -110,16 +136,31 @@ superheat(gt[,which(labels$subjects_label!="sub02")],
 )
 
 colnames(gt) <- labels$subjects_edge_label
+
 # SVD on the rectangular data ------------------------
-pca.res.subj <- epPCA(t(gt[,which(labels$subjects_label=="sub01")]),scale = FALSE, center = FALSE, DESIGN = labels$subjects_edge_label[which(labels$subjects_label=="sub01")], make_design_nominal = TRUE, graphs = FALSE)
+pca.res.subj <- epPCA(t(gt),scale = FALSE, center = FALSE, DESIGN = labels$subjects_edge_label, make_design_nominal = TRUE, graphs = FALSE)
+
+dim(t(gt))
+# Get the contributions for each variable ------------
+#--- get the contribution of each component
+cI <- pca.res.subj$ExPosition.Data$ci
+#--- compute the sums of squares of each variable for each component
+absCtrVar <- as.matrix(cI) %*% diag(pca.res.subj$ExPosition.Data$eigs)
+#--- get the contribution for component 1 AND 2 by sum(SS from 1, SS from 2)/sum(eigs 1, eigs 2)
+varCtr12 <- (absCtrVar[,1] + absCtrVar[,2])/(pca.res.subj$ExPosition.Data$eigs[1] + pca.res.subj$ExPosition.Data$eigs[2])
+#--- the important variables are the ones that contribute more than or equal to the average
+importantVar <- (varCtr12 >= 1/length(varCtr12))
 
 # Compute means of factor scores for different edges----
-mean.fj <- getMeans(pca.res.subj1$ExPosition.Data$fj, labels$subjects_edge_label)
-mean.fi <- getMeans(pca.res.subj$ExPosition.Data$fi, labels$subjects_edge_label[which(labels$subjects_label=="sub01")]) # with t(gt)
+mean.fj <- getMeans(pca.res.subj$ExPosition.Data$fj, labels$subjects_edge_label)
+mean.fi <- getMeans(pca.res.subj$ExPosition.Data$fi, labels$subjects_edge_label) # with t(gt)
 
+# Compute means of factor scores for different types of edges
+mean.fj.bw <- getMeans(pca.res.subj$ExPosition.Data$fj, labels$subjects_wb)
+mean.fi.bw <- getMeans(pca.res.subj$ExPosition.Data$fi, labels$subjects_wb) # with t(gt)
 # Plot -----------------------------------------------
 #--- row factor scores:
-plot.fi <- createFactorMap(pca.res.subj1$ExPosition.Data$fi)
+plot.fi <- createFactorMap(pca.res.subj$ExPosition.Data$fi)
 plot.fj <- createFactorMap(pca.res.subj$ExPosition.Data$fj) # with t(gt)
 
 plot.fi$zeMap
