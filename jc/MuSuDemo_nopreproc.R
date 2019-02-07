@@ -215,7 +215,7 @@ plot.fi$zeMap_background + plot.fi$zeMap_dots + f.CI.graph
 ##============================================
 
 #--- plot only the edge types
-plot.fi.bw <- createFactorMap(mean.fi.bw, axis1 = 1, axis2 = 2,
+plot.fi.bw <- createFactorMap(mean.fi.bw, axis1 = 2, axis2 = 3,
                               text.cex = 2) # with t(gt)
 
 dev.new()
