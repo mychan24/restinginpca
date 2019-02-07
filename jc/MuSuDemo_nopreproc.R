@@ -144,20 +144,35 @@ dim(t(gt))
 # Get the contributions for each variable ------------
 #--- get the contribution of each component
 cI <- pca.res.subj$ExPosition.Data$ci
+#--- get the sum of contribution for each edge
+c_edge <- labels$subjects_edge_label %>% as.matrix %>% makeNominalData %>% t %>% "%*%"(cI)
+rownames(c_edge) <- sub(".","",rownames(c_edge))
 #--- compute the sums of squares of each variable for each component
-absCtrVar <- as.matrix(cI) %*% diag(pca.res.subj$ExPosition.Data$eigs)
+absCtrEdg <- as.matrix(c_edge) %*% diag(pca.res.subj$ExPosition.Data$eigs)
 #--- get the contribution for component 1 AND 2 by sum(SS from 1, SS from 2)/sum(eigs 1, eigs 2)
-varCtr12 <- (absCtrVar[,1] + absCtrVar[,2])/(pca.res.subj$ExPosition.Data$eigs[1] + pca.res.subj$ExPosition.Data$eigs[2])
+edgCtr12 <- (absCtrEdg[,1] + absCtrEdg[,2])/(pca.res.subj$ExPosition.Data$eigs[1] + pca.res.subj$ExPosition.Data$eigs[2])
 #--- the important variables are the ones that contribute more than or equal to the average
-importantVar <- (varCtr12 >= 1/length(varCtr12))
+importantEdg <- (edgCtr12 >= 1/length(edgCtr12))
+#--- color for networks
+col4ImportantEdg <- unique(pca.res.subj$Plotting.Data$fi.col) # get colors
+col4NS <- 'gray90' # set color for not significant edges to gray
+col4ImportantEdg[!importantEdg] <- col4NS # replace them in the color vector
 
 # Compute means of factor scores for different edges----
-mean.fj <- getMeans(pca.res.subj$ExPosition.Data$fj, labels$subjects_edge_label)
 mean.fi <- getMeans(pca.res.subj$ExPosition.Data$fi, labels$subjects_edge_label) # with t(gt)
 
+BootCube.Comm <- Boot4Mean(pca.res.subj$ExPosition.Data$fi,
+                           design = labels$subjects_edge_label,
+                           niter = 100,
+                           suppressProgressBar = TRUE)
+
+
 # Compute means of factor scores for different types of edges
-mean.fj.bw <- getMeans(pca.res.subj$ExPosition.Data$fj, labels$subjects_wb)
 mean.fi.bw <- getMeans(pca.res.subj$ExPosition.Data$fi, labels$subjects_wb) # with t(gt)
+BootCube.Comm.bw <- Boot4Mean(pca.res.subj$ExPosition.Data$fi,
+                           design = labels$subjects_wb,
+                           niter = 100,
+                           suppressProgressBar = TRUE)
 # Plot -----------------------------------------------
 #--- row factor scores:
 plot.fi <- createFactorMap(pca.res.subj$ExPosition.Data$fi)
@@ -167,18 +182,77 @@ plot.fi$zeMap
 dev.new()
 plot.fj$zeMap
 #--- column factor scores:
-plot.fj <- createFactorMap(mean.fj, axis1 = 2, axis2 = 3)
 plot.fi <- createFactorMap(mean.fi, axis1 = 2, axis2 = 3,
-                           col.points = unique(pca.res.subj$Plotting.Data$fi.col),
-                           text.cex = 1) # with t(gt)
+                           col.points = col4ImportantEdg,
+                           text.cex = 2,
+                           force = 0.5)
+dev.new()
+plot.fi$zeMap_background + plot.fi$zeMap_dots
+#--- plot only the significant edges
+plot.fi <- createFactorMap(mean.fi[importantEdg,], axis1 = 1, axis2 = 2,
+                           col.points = col4ImportantEdg[importantEdg],
+                           text.cex = 2,
+                           force = 0.5# how much ggrepel repels the labels
+                           ) # with t(gt)
 dev.new()
 plot.fi$zeMap
-plot.fi$zeMap_background + plot.fi$zeMap_dots
-prettyPlot(mean.fi, x_axis = 2, y_axis = 3)
+plot.fi$zeMap_background + plot.fi$zeMap_text
+plot.fi$zeMap_text
+prettyPlot(mean.fi[importantEdg,], x_axis = 1, y_axis = 2)
 
-## See plot
+##=========THIS DOES NOT WORK=================
+### Plot bootstrapped confidence intervals for means
+f.CI.graph <- MakeCIEllipses(BootCube.Comm$BootCube[,c(1,2),],
+                             names.of.factors = c("Factor 1","Factor 2"),
+                             col = col4ImportantEdg[rownames(BootCube.Comm$GroupMeans),],
+                             p.level = .95)
+
 dev.new()
-superheat(gt[,c("sub01_4_8","sub01_8","sub01_6_10","sub01_8_29","sub01_6","sub01_4_29","sub01_29","sub01_9","sub01_14","sub01_11_29","sub01_12_17","sub01_12","sub01_10_17")],
+plot.fi$zeMap + f.CI.graph
+plot.fi$zeMap_background + plot.fi$zeMap_dots + f.CI.graph
+##============================================
+
+#--- plot only the edge types
+plot.fi.bw <- createFactorMap(mean.fi.bw, axis1 = 1, axis2 = 2,
+                              text.cex = 2) # with t(gt)
+
+dev.new()
+plot.fi.bw$zeMap
+
+##=========THIS DOES NOT WORK=================
+### Plot bootstrapped confidence intervals for means
+f.CI.graph.bw <- MakeCIEllipses(BootCube.Comm.bw$BootCube[,c(1,2),],
+                             names.of.factors = c("Factor 1","Factor 2"),
+                             p.level = .95)
+
+dev.new()
+plot.fi$zeMap_background + plot.fi$zeMap_dots + f.CI.graph.bw
+##============================================
+
+## See plot for edges ordered by fi_1
+name4ImportantEdg1 <- rownames(mean.fi[importantEdg,])[sort(mean.fi[importantEdg,1],index.return = TRUE)$ix]
+dev.new()
+superheat(gt[,name4ImportantEdg1],
+          # membership.cols = labels$subjects_edge_label[which(labels$subjects_label!="sub02")],
+          membership.rows = c(1:10),
+          clustering.method = NULL,
+          heat.col.scheme = "viridis",
+          left.label.size = 0.05,
+          bottom.label.size = 0.05,
+          y.axis.reverse = TRUE,
+          # left.label.col = Comm.col$gc[order(rownames(Comm.col$gc))], # order by community name
+          # bottom.label.col = Comm.col$gc[order(rownames(Comm.col$gc))],
+          left.label.text.size = 3,
+          bottom.label.text.size = 2,
+          # left.label.text.col = c(rep("black",8),rep("white",2),rep("black",3),"white",rep("black",3),rep("white",2)),
+          # bottom.label.text.col = c(rep("black",8),rep("white",2),rep("black",3),"white",rep("black",3),rep("white",2)),
+          left.label.text.alignment = "left"
+)
+
+## See plot for edges ordered by fi_2
+name4ImportantEdg2 <- rownames(mean.fi[importantEdg,])[sort(mean.fi[importantEdg,2],index.return = TRUE)$ix]
+dev.new()
+superheat(gt[,name4ImportantEdg2],
           # membership.cols = labels$subjects_edge_label[which(labels$subjects_label!="sub02")],
           membership.rows = c(1:10),
           clustering.method = NULL,
