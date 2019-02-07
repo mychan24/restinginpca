@@ -151,8 +151,10 @@ rownames(c_edge) <- sub(".","",rownames(c_edge))
 absCtrEdg <- as.matrix(c_edge) %*% diag(pca.res.subj$ExPosition.Data$eigs)
 #--- get the contribution for component 1 AND 2 by sum(SS from 1, SS from 2)/sum(eigs 1, eigs 2)
 edgCtr12 <- (absCtrEdg[,1] + absCtrEdg[,2])/(pca.res.subj$ExPosition.Data$eigs[1] + pca.res.subj$ExPosition.Data$eigs[2])
+edgCtr23 <- (absCtrEdg[,3] + absCtrEdg[,2])/(pca.res.subj$ExPosition.Data$eigs[2] + pca.res.subj$ExPosition.Data$eigs[3])
 #--- the important variables are the ones that contribute more than or equal to the average
 importantEdg <- (edgCtr12 >= 1/length(edgCtr12))
+importantEdg <- (edgCtr23 >= 1/length(edgCtr23))
 #--- color for networks
 col4ImportantEdg <- unique(pca.res.subj$Plotting.Data$fi.col) # get colors
 col4NS <- 'gray90' # set color for not significant edges to gray
@@ -189,7 +191,7 @@ plot.fi <- createFactorMap(mean.fi, axis1 = 2, axis2 = 3,
 dev.new()
 plot.fi$zeMap_background + plot.fi$zeMap_dots
 #--- plot only the significant edges
-plot.fi <- createFactorMap(mean.fi[importantEdg,], axis1 = 1, axis2 = 2,
+plot.fi <- createFactorMap(mean.fi[importantEdg,], axis1 = 2, axis2 = 3,
                            col.points = col4ImportantEdg[importantEdg],
                            text.cex = 2,
                            force = 0.5# how much ggrepel repels the labels
