@@ -1,10 +1,29 @@
 load("./data/grandatble_and_labels_20190204.Rdata")
 
 # ====  Plot Grand Table of 3 subjects 
-png(sprintf("./mic/GrandTable_3subs_%s.png",format(Sys.time(),"%Y%m%d")), width = 3000, height = 2530)
+png(sprintf("./mic/GrandTable_3subs_EdgeBlock_%s.png",format(Sys.time(),"%Y%m%d")), width = 3000, height = 2530)
 
 superheat::superheat(gt,
-          membership.cols = labels$subjects_edge_label,
+                     membership.cols = labels$subjects_edge_label,
+                     membership.rows = c(1:10),
+                     clustering.method = NULL,
+                     heat.col.scheme = "viridis",
+                     left.label.size = 0.05,
+                     bottom.label.size = 0.05,
+                     y.axis.reverse = TRUE,
+                     left.label.text.size = 3,
+                     bottom.label.text.size = 2,
+                     left.label.text.alignment = "left",
+                     grid.vline = F, 
+                     title = "Grand Table: Subject/EdgeType (X) by Sessions (Y)"
+)
+dev.off()
+
+
+png(sprintf("./mic/GrandTable_3subs_WithinBetween_%s.png",format(Sys.time(),"%Y%m%d")), width = 3000, height = 2530)
+
+superheat::superheat(gt,
+          membership.cols = labels$wb,
           membership.rows = c(1:10),
           clustering.method = NULL,
           heat.col.scheme = "viridis",
@@ -14,7 +33,30 @@ superheat::superheat(gt,
           left.label.text.size = 3,
           bottom.label.text.size = 2,
           left.label.text.alignment = "left",
+          grid.vline = F, 
           title = "Grand Table: Subject/EdgeType (X) by Sessions (Y)"
+)
+dev.off()
+
+
+## Within between per subject
+labels$subjects_wb <- paste(labels$subjects_label, labels$wb, sep = "_")
+  
+png(sprintf("./mic/GrandTable_3subs_WBxSub_%s.png",format(Sys.time(),"%Y%m%d")), width = 3000, height = 2530)
+
+superheat::superheat(gt,
+                     membership.cols = labels$subjects_wb,
+                     membership.rows = c(1:10),
+                     clustering.method = NULL,
+                     heat.col.scheme = "viridis",
+                     left.label.size = 0.05,
+                     bottom.label.size = 0.05,
+                     y.axis.reverse = TRUE,
+                     left.label.text.size = 3,
+                     bottom.label.text.size = 2,
+                     left.label.text.alignment = "left",
+                     grid.vline = F, 
+                     title = "Grand Table: Subject/WithinBetween (X) by Sessions (Y)"
 )
 dev.off()
 
