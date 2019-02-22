@@ -5,6 +5,11 @@
 ### GOAL
 Develop a technique that could analyze resting-state data and allow different participant to have different number of voxels/nodes.
 
+### Solution to test for
+If, instead of using the square correlation (or distance) matrix, we arrange data as condition x (regions x participants). In this case, we can concatenate data of different participants on the columns (we think).
+##### Problem
+But how do we know what the svd of this gives us, and how is this different from a DiSTATIS on distance matrices? 
+
 ### DATA WE WISH TO ANALYZE
 condition x (voxel x participants)
 
@@ -20,12 +25,15 @@ condition x (voxel x participants)
 
 ##### Starts from data with same number of nodes (MSC)
 + Run DiSTATIS on an examplar sample and use this results as a sample of what we want to replicate
-+ Try different normalization with subject 1:
++ Try different normalization with subjects 1:
 
 ⋅⋅⋅1. No normalization -> plain SVD
 
-⋅⋅⋅2. SVD on STATIS-like preprocessed rectangular matrix
+⋅⋅⋅2. SVD after the columns are centered 
 
-⋅⋅⋅3. Subject(table)-centered, block (network) MFA-normalized rectangular matrix
+⋅⋅⋅3. SVD on STATIS-like preprocessed rectangular matrix
+
+⋅⋅⋅4. Subject(table)-centered, block (network) MFA-normalized rectangular matrix
 
 + Try different normalization with multiple subjects (1-3):
+
