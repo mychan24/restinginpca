@@ -108,7 +108,8 @@ superheat(gt,
           bottom.label.text.size = 2,
           # left.label.text.col = c(rep("black",8),rep("white",2),rep("black",3),"white",rep("black",3),rep("white",2)),
           # bottom.label.text.col = c(rep("black",8),rep("white",2),rep("black",3),"white",rep("black",3),rep("white",2)),
-          left.label.text.alignment = "left"
+          left.label.text.alignment = "left",
+          grid.vline = FALSE
 )
 
 
@@ -132,7 +133,8 @@ superheat(gt,
           bottom.label.text.size = 2,
           # left.label.text.col = c(rep("black",8),rep("white",2),rep("black",3),"white",rep("black",3),rep("white",2)),
           # bottom.label.text.col = c(rep("black",8),rep("white",2),rep("black",3),"white",rep("black",3),rep("white",2)),
-          left.label.text.alignment = "left"
+          left.label.text.alignment = "left",
+          grid.vline = FALSE
 )
 
 colnames(gt) <- labels$subjects_edge_label
