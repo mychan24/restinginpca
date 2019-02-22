@@ -24,7 +24,8 @@ condition x (region x participants)
 ⋅⋅⋅So we test this first on one correlation matrix
 
 ##### Starts from data with same number of nodes (MSC)
-+ Run DiSTATIS on an examplar sample and use this results as a sample of what we want to replicate
++ Run DiSTATIS on an one-subject sample and use this results as an example of what we want to replicate
+⋅⋅⋅Data structure for one-subject sample: regions x regions x sessions
 + Try different normalization with subjects 1:
 
 ⋅⋅⋅1. No normalization -> plain SVD
@@ -35,5 +36,8 @@ condition x (region x participants)
 
 ⋅⋅⋅4. Subject(table)-centered, block (network) MFA-normalized rectangular matrix
 
++ Run DiSTATIS on two-subject sample and use this results as an example of what we want to replicate when multiple subjects are involved
+⋅⋅⋅Data structure for two-subject sample: regions x regions x (5 sessions of subjects 1 and 2)
+⋅⋅⋅Blocks of tables
 + Try different normalization with multiple subjects (1-3):
 
