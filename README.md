@@ -11,7 +11,7 @@ If, instead of using the square correlation (or distance) matrix, we arrange dat
 But how do we know what the svd of this gives us, and how is this different from a DiSTATIS on distance matrices? 
 
 ### DATA WE WISH TO ANALYZE
-condition x (voxel x participants)
+condition x (region x participants)
 
 ### DATA WE USED TO TEST
 + Big5 FakeData: for STATIS-like normalization
@@ -29,7 +29,7 @@ condition x (voxel x participants)
 
 ⋅⋅⋅1. No normalization -> plain SVD
 
-⋅⋅⋅2. SVD after the columns are centered 
+⋅⋅⋅2. SVD after the columns are centered (center across rows)
 
 ⋅⋅⋅3. SVD on STATIS-like preprocessed rectangular matrix
 
