@@ -11,3 +11,5 @@ This folder stores functions we wrote for this project.
 ---Load TP (node x timepoint matrix) and ouptut correlation matrix (z or r matrix)
 * *MakeGrandTable_Sub1_3*:
 ---Load correlation cube (z matrix) and take the upper triangle of the entire cube
+* *vec2sqmat*:
+---Load a vector (e.g., factor scores) and map it back into a symmetrical square matrix
