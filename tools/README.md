@@ -1,7 +1,10 @@
 This folder stores functions we wrote for this project.
 
->Edited by JCY, 02/07/2019
+>Edited by JCY, 02/28/2019
 
+---
+
+### Functions
 
 * *label_edge*:
 ---Take a community label vector and output a vector of label for edges
@@ -13,3 +16,9 @@ This folder stores functions we wrote for this project.
 ---Load correlation cube (z matrix) and take the upper triangle of the entire cube
 * *vec2sqmat*:
 ---Load a vector (e.g., factor scores) and map it back into a symmetrical square matrix
+---
+
+### Script:
+
+* *animation_script*:
+---Create .gif for animation that shows 10 session of one subject

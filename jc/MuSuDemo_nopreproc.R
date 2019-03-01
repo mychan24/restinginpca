@@ -24,12 +24,13 @@ library(PTCA4CATA)
 library(data4PCCAR)
 library(ExPosition) # myc added to use "makeNominalData"
 library(superheat)
+library(pals)
 
 # Read functions -----------------------------------
 tool.path <- "tools/"
 # SScomm.R: the function that compute sums of squares of a square matrix according to a design matrix
 source(paste0(tool.path,"SScomm.R"))
-
+source(paste0(tool.path,"vec2sqmat.R"))
 # Read data  ---------------------------------------
 ## resting-state data:
 #--- dimensions: voxel x voxel x 10 sessions
@@ -59,6 +60,11 @@ for(i in 1:nrow(CommName)){
 #--- Create design matrix for communities
 vox.des.mat <- makeNominalData(as.matrix(vox.des$Comm.rcd))
 colnames(vox.des.mat) <- sub(".","",colnames(vox.des.mat))
+
+#--- Create color for each communities
+Comm.col <- list(oc = as.matrix(vox.des$Comm.Col), gc = as.matrix(CommName$CommColor))
+rownames(Comm.col$oc) <- vox.des$NodeID
+rownames(Comm.col$gc) <- CommName$CommLabel.short
 
 # Check data ---------------------------------------
 ## They are called cubes
@@ -169,6 +175,7 @@ BootCube.Comm <- Boot4Mean(pca.res.subj$ExPosition.Data$fi,
                            design = labels$subjects_edge_label,
                            niter = 100,
                            suppressProgressBar = TRUE)
+BootFactorScores(pca.res.subj$ExPosition.Data$fi)
 
 
 # Compute means of factor scores for different types of edges
@@ -232,7 +239,28 @@ f.CI.graph.bw <- MakeCIEllipses(BootCube.Comm.bw$BootCube[,c(1,2),],
 dev.new()
 plot.fi$zeMap_background + plot.fi$zeMap_dots + f.CI.graph.bw
 ##============================================
-
+# heatmap of factor scores
+ci1_sub1 <- pca.res.subj$ExPosition.Data$ci[labels$subjects_label=="sub01",1]
+fi1_sub1_sig <- fi1_sub1
+fi1_sub1_sig[ci1_sub1 < 1/length(ci1_sub1)] <- 0
+newmat <- vec2sqmat(fi1_sub1)
+newmat <- vec2sqmat(fi1_sub1_sig)
+superheat(newmat, y.axis.reverse = T,
+          membership.rows =vox.des$Comm.rcd,
+          membership.cols =vox.des$Comm.rcd,                    
+          left.label.col=Comm.col$gc[order(rownames(Comm.col$gc))],
+          bottom.label.col=Comm.col$gc[order(rownames(Comm.col$gc))],
+          left.label.size = 0.08,
+          bottom.label.size = 0.05,
+          extreme.values.na = FALSE,
+          heat.lim = c(-.6, .6),
+          heat.pal = kovesi.diverging_bwr_40_95_c42(200),
+          heat.pal.values = c(0,0.35,0.5,0.65,1),
+          left.label.text.size = 3,
+          bottom.label.text.size = 2,
+          left.label.text.col = c(rep("black",8),rep("white",2),rep("black",3),"white",rep("black",3),rep("white",2)),
+          bottom.label.text.col = c(rep("black",8),rep("white",2),rep("black",3),"white",rep("black",3),rep("white",2)),
+          title="Node x Node Matrix of factor scores")
 ## See plot for edges ordered by fi_1
 name4ImportantEdg1 <- rownames(mean.fi[importantEdg,])[sort(mean.fi[importantEdg,1],index.return = TRUE)$ix]
 dev.new()
