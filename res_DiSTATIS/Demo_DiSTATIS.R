@@ -2,10 +2,17 @@
 ### DiSTATIS on resting state data ###
 ######################################
 # We are using the MSC data
-# Edited by Ju-Chi Yu on Jan. 16th, 2019
+# Edited by Ju-Chi Yu on Mar. 1st, 2019
 
 # Procedure outline:-------------------------------
+## > One subject; sessions 1-10:
 # Correlation matrix >> distance matrix >> DiSTATIS 
+## > One subject; sessions 1-5 & 6-10 (as two fake subjects):
+# Correlation matrix >> distance matrix >> DiSTATIS 
+
+# Note:---------------------------------------------
+## This script gives the code to run the complete analysis. However, the results with
+## different data are not all listed here. For results with different data, check rmd.
 
 # Library ------------------------------------------
 ## install.packages("psych")
@@ -29,6 +36,7 @@ source(paste0(tool.path,"SScomm.R"))
 zmat.path <- "data/zmat"
 load(paste0(zmat.path,"/sub-MSC01_zcube_rcube.RData"))
 
+## community info:
 parcel.comm.path <- "data/parcel_community"
 vox.des <- read.table(paste0(parcel.comm.path,"/sub-MSC01_node_parcel_comm.txt"),sep = ",")
 colnames(vox.des) <- c("NodeID","VertexID","Comm")
