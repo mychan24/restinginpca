@@ -199,7 +199,7 @@ col4NS <- 'gray90' # set color for not significant edges to gray
 col4ImportantEdg[!importantEdg12] <- col4NS # replace them in the color vector
 
 # > Compute means of factor scores for different edges----
-mean.fi <- getMeans(pca.res.subj$ExPosition.Data$fi, labels$subjects_edge_label) # with t(gt)
+mean.fi <- getMeans(pca.res.subj$ExPosition.Data$fi, labels.sub1$subjects_edge_label) # with t(gt)
 
 BootCube.Comm <- Boot4Mean(pca.res.subj$ExPosition.Data$fi,
                            design = labels.sub1$subjects_edge_label,
@@ -209,7 +209,7 @@ BootFactorScores(pca.res.subj$ExPosition.Data$fi)
 
 
 # Compute means of factor scores for different types of edges
-mean.fi.bw <- getMeans(pca.res.subj$ExPosition.Data$fi, labels$subjects_wb) # with t(gt)
+mean.fi.bw <- getMeans(pca.res.subj$ExPosition.Data$fi, labels.sub1$subjects_wb) # with t(gt)
 BootCube.Comm.bw <- Boot4Mean(pca.res.subj$ExPosition.Data$fi,
                               design = labels.sub1$subjects_wb,
                               niter = 100,

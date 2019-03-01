@@ -25,9 +25,15 @@ fi1_sub1_mat <- matrix(0, 602, 602)
 fi1_sub1_mat[upper.tri(fi1_sub1_mat)] <- fi1_sub1
 fi1_sub1_mat[lower.tri(fi1_sub1_mat)] <- t(fi1_sub1_mat)[lower.tri(fi1_sub1_mat)]
 
+parula.col <- colorRampPalette(c("#352A87","#1D50CE","#0872DC","#1189D2","#06A2C9","#1AB1AF","#51BC8F","#91BE71","#C5BB5C","#F2BB44","#F9D428","#F9FB0E"))
+
+
 superheat(fi1_sub1_mat, y.axis.reverse = T,
           membership.rows = sub1_label$V3,
-          membership.cols = sub1_label$V3)
+          membership.cols = sub1_label$V3,
+          heat.lim = c(-.5,.5),
+          extreme.values.na = FALSE, # outside of range shows as maximum
+          heat.pal = parula.col(7))
 
 # Compononet 2
 fi2_sub1 <- pca.res.subj$ExPosition.Data$fi[labels$subjects_label=="sub01",2]
@@ -38,8 +44,12 @@ fi2_sub1_mat[lower.tri(fi2_sub1_mat)] <- t(fi2_sub1_mat)[lower.tri(fi2_sub1_mat)
 
 superheat(fi2_sub1_mat, y.axis.reverse = T,
           membership.rows = sub1_label$V3,
-          membership.cols = sub1_label$V3)
+          membership.cols = sub1_label$V3,
+          heat.lim = c(-.5,.5),
+          extreme.values.na = FALSE, # outside of range shows as maximum
+          heat.pal = parula.col(7))
 
+## Entire factor score
 
 
 

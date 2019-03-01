@@ -192,7 +192,7 @@ col4NS <- 'gray90' # set color for not significant edges to gray
 col4ImportantEdg[!importantEdg12] <- col4NS # replace them in the color vector
 
 # > Compute means of factor scores for different edges----
-mean.fi <- getMeans(pca.res.subj$ExPosition.Data$fi, labels$subjects_edge_label) # with t(gt)
+mean.fi <- getMeans(pca.res.subj$ExPosition.Data$fi, labels.sub1$subjects_edge_label) # with t(gt)
 
 BootCube.Comm <- Boot4Mean(pca.res.subj$ExPosition.Data$fi,
                            design = labels.sub1$subjects_edge_label,
@@ -202,7 +202,7 @@ BootFactorScores(pca.res.subj$ExPosition.Data$fi)
 
 
 # Compute means of factor scores for different types of edges
-mean.fi.bw <- getMeans(pca.res.subj$ExPosition.Data$fi, labels$subjects_wb) # with t(gt)
+mean.fi.bw <- getMeans(pca.res.subj$ExPosition.Data$fi, labels.sub1$subjects_wb) # with t(gt)
 BootCube.Comm.bw <- Boot4Mean(pca.res.subj$ExPosition.Data$fi,
                               design = labels.sub1$subjects_wb,
                               niter = 100,
@@ -229,7 +229,7 @@ plot.fi <- createFactorMap(mean.fi[importantEdg,], axis1 = 2, axis2 = 3,
 dev.new()
 plot.fi$zeMap
 plot.fi$zeMap_background + plot.fi$zeMap_text
-prettyPlot(mean.fi[importantEdg,], x_axis = 1, y_axis = 2)
+prettyPlot(mean.fi[importantEdg1,], x_axis = 1, y_axis = 2)
 
 #--- show column factor scores in a square matrix
 fi1_sqmat <- vec2sqmat(pca.res.subj$ExPosition.Data$fi[,1])
@@ -251,10 +251,11 @@ superheat(fi1_sqmat, y.axis.reverse = T,
           title="Node x Node Matrix of factor scores")
 
 #----- plot only fi with significant contribution in a square matrix
-fj_sig <- pca.res.subj$ExPosition.Data$fj
-fj_sig[!importantEdg1] <- 0
-fj_sig_sqmat <- vec2sqmat(fj_sig)
-superheat(fj_sig_sqmat, y.axis.reverse = T,
+fi_sig <- pca.res.subj$ExPosition.Data$fi[,1]
+fi_sig[!importantEdg1] <- 0
+fi_sig_sqmat <- vec2sqmat(fi_sig)
+dev.new()
+superheat(fi_sig_sqmat, y.axis.reverse = T,
           membership.rows =vox.des$Comm.rcd,
           membership.cols =vox.des$Comm.rcd,                    
           left.label.col=Comm.col$gc[order(rownames(Comm.col$gc))],
