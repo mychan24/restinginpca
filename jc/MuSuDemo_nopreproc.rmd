@@ -133,6 +133,10 @@ edgCtr23 <- (absCtrEdg[,3] + absCtrEdg[,2])/(pca.res.subj$ExPosition.Data$eigs[2
 #--- the important variables are the ones that contribute more than or equal to the average
 importantEdg <- (edgCtr12 >= 1/length(edgCtr12))
 importantEdg <- (edgCtr23 >= 1/length(edgCtr23))
+#--- 
+ci1_sub1 <- pca.res.subj$ExPosition.Data$ci[labels$subjects_label=="sub01",1]
+fi1_sub1_sig <- fi1_sub1
+fi1_sub1_sig[ci1_sub1 < 1/length(ci1_sub1)] <- 0
 #--- color for networks
 col4ImportantEdg <- unique(pca.res.subj$Plotting.Data$fi.col) # get colors
 col4NS <- 'gray90' # set color for not significant edges to gray
@@ -170,5 +174,29 @@ First, we plot the 10 sessions
 ```{r plot_fj, echo = FALSE}
 plot.fj <- createFactorMap(pca.res.subj$ExPosition.Data$fj) # with t(gt)
 plot.fj$zeMap
+```
+
+Factor scores:
+```{r}
+# heatmap of factor scores
+newmat <- vec2sqmat(fi1_sub1)
+newmat <- vec2sqmat(fi1_sub1_sig)
+superheat(newmat, y.axis.reverse = T,
+          membership.rows =vox.des$Comm.rcd,
+          membership.cols =vox.des$Comm.rcd,                    
+          left.label.col=Comm.col$gc[order(rownames(Comm.col$gc))],
+          bottom.label.col=Comm.col$gc[order(rownames(Comm.col$gc))],
+          left.label.size = 0.08,
+          bottom.label.size = 0.05,
+          extreme.values.na = FALSE,
+          heat.lim = c(-.6, .6),
+          heat.pal = kovesi.diverging_bwr_40_95_c42(200),
+          heat.pal.values = c(0,0.35,0.5,0.65,1),
+          left.label.text.size = 3,
+          bottom.label.text.size = 2,
+          left.label.text.col = c(rep("black",8),rep("white",2),rep("black",3),"white",rep("black",3),rep("white",2)),
+          bottom.label.text.col = c(rep("black",8),rep("white",2),rep("black",3),"white",rep("black",3),rep("white",2)),
+          title="Node x Node Matrix of factor scores")
+
 ```
 

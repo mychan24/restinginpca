@@ -38,9 +38,13 @@ condition x (region x participants)
 ⋅⋅⋅4. Subject(table)-centered, block (network) MFA-normalized rectangular matrix
 
 + Run DiSTATIS on a fake two-subject sample and use this results as an example of what we want to replicate when multiple subjects are involved
+
 ⋅⋅⋅Data structure for the fake two-subject sample: regions x regions x (sessions 1-5 of subjects 1 as fake sub1 and sessions 6-10 of subject 1 as fake sub2)
+
 ⋅⋅⋅Blocks on tables
+
 + Try different normalization with fake multi-subjects data:
+
 ⋅⋅⋅Rectangular data structure: 5 sessions x (region-region edges x fake subjects 1 and 2)
 
 ⋅⋅⋅1. No normalization -> plain SVD
