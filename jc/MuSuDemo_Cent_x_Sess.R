@@ -100,9 +100,9 @@ superheat(gt.sub1_centXsess,
           membership.cols = labels.sub1$subjects_edge_label,
           membership.rows = c(1:10),
           clustering.method = NULL,
-          heat.lim = c(0, 0.6), 
-          heat.pal = parula(20),
-          heat.pal.values = c(0, 0.5, 1),
+          heat.lim = c(-1, 1),
+          heat.pal = kovesi.diverging_bwr_40_95_c42(200),
+          heat.pal.values = c(0,0.45,0.5,0.65,1),
           left.label.size = 0.05,
           bottom.label.size = 0.05,
           y.axis.reverse = TRUE,
@@ -123,9 +123,9 @@ superheat(gt.sub1_centXsess,
           membership.cols = labels.sub1$subjects_wb,
           membership.rows = c(1:10),
           clustering.method = NULL,
-          heat.lim = c(0, 0.6), 
-          heat.pal = parula(20),
-          heat.pal.values = c(0, 0.5, 1),
+          heat.lim = c(-1, 1),
+          heat.pal = kovesi.diverging_bwr_40_95_c42(200),
+          heat.pal.values = c(0,0.45,0.5,0.65,1),
           left.label.size = 0.05,
           bottom.label.size = 0.05,
           y.axis.reverse = TRUE,
@@ -149,9 +149,9 @@ out <- lapply(1:10, function(session.count){
                     membership.cols = vox.des$Comm.rcd,
                     membership.rows = vox.des$Comm.rcd,
                     clustering.method = NULL,
-                    heat.lim = c(0, 0.6), 
-                    heat.pal = parula(20),
-                    heat.pal.values = c(0, 0.5, 1),
+                    heat.lim = c(-1, 1),
+                    heat.pal = kovesi.diverging_bwr_40_95_c42(200),
+                    heat.pal.values = c(0,0.45,0.5,0.65,1),
                     left.label.size = 0.08,
                     bottom.label.size = 0.05,
                     y.axis.reverse = TRUE,
@@ -166,7 +166,8 @@ out <- lapply(1:10, function(session.count){
   print(hmap$plot)
 })
 dev.off()
-sess.animate <- image_animate(img, fps = 3)
+centXsess.animate <- image_animate(img, fps = 4)
+image_write(centXsess.animate, "subj_1(1-10)_centXsess.gif")
 
 
 # > SVD on the rectangular data ------------------------
