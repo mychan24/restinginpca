@@ -23,6 +23,6 @@ out <- lapply(1:10, function(session.count){
   print(hmap$plot)
 })
 dev.off()
-sess.animate <- image_animate(img, fps = 5)
+sess.animate <- image_animate(img, fps = 3)
 # print(sess.animate)
 image_write(sess.animate, "subj_1(1-10).gif")
