@@ -7,16 +7,18 @@ Develop a technique that could analyze resting-state data and allow different pa
 
 ### Solution to test for
 If, instead of using the square correlation (or distance) matrix, we arrange data as condition x (regions x participants). In this case, we can concatenate data of different participants on the columns (we think).
+
+With the two by two design of the condition, we can maybe try an analysis similar to the ANOVA approach.
+
 #### Problem
 But how do we know what the svd of this gives us, and how is this different from a DiSTATIS on distance matrices?
 
-_We cannot compare the two sets of results because they don't have the same observations/variables
+_We cannot compare the two sets of results because they don't have the same observations/variables_
 
-__What Normalization should we use?
++ What Normalization should we use?
 
-__How do we bootstrap? (All random factors need to be bootstrapped.)
-
-__How can we do an ANOVA-like comparison for the sessions
++ How do we bootstrap? (All random factors need to be bootstrapped.)
++ How can we do an ANOVA-like comparison for the sessions
 
 ### DATA WE WISH TO ANALYZE
 condition x (region x participants)
