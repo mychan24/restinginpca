@@ -21,36 +21,52 @@ condition x (region x participants)
 ##### New normalization that we come up with (Big5)
 + STATIS-like normalization
 
-⋅⋅⋅So we test this first on one correlation matrix
+  + So we test this first on one correlation matrix
 
 ##### Starts from data with same number of nodes (MSC)
 + Run DiSTATIS on an one-subject sample and use this results as an example of what we want to replicate
-⋅⋅⋅Data structure for one-subject sample: regions x regions x sessions
+  Data structure for one-subject sample: regions x regions x sessions
 + Try different normalization with subjects 1:
-⋅⋅⋅Rectangular data structure: 10 sessions x region-region edges
+  Rectangular data structure: 10 sessions x region-region edges
 
-⋅⋅⋅1. No normalization -> plain SVD
+  1. SVD after the columns are centered (center across rows)
 
-⋅⋅⋅2. SVD after the columns are centered (center across rows)
+  2. SVD after the columns are centered and normalized (center and normalize across rows)
 
-⋅⋅⋅3. SVD on STATIS-like preprocessed rectangular matrix
+  3. MFA-normalized rectangular matrix by subjects without normalizing across rows
 
-⋅⋅⋅4. Subject(table)-centered, block (network) MFA-normalized rectangular matrix
+  4. MFA-normalized rectangular matrix by subjects after normalizing across rows
+
+  5. MFA-normalized rectangular matrix by networks without normalizing across rows
+
+  6. MFA-normalized rectangular matrix by networks after normalizing across rows
+
+  7. HMFA-normalized rectangular matrix by networks and subject without normalizing across rows
+
+  8. HMFA-normalized rectangular matrix by networks and subject after normalizing across rows
 
 + Run DiSTATIS on a fake two-subject sample and use this results as an example of what we want to replicate when multiple subjects are involved
 
-⋅⋅⋅Data structure for the fake two-subject sample: regions x regions x (sessions 1-5 of subjects 1 as fake sub1 and sessions 6-10 of subject 1 as fake sub2)
+  Data structure for the fake two-subject sample: regions x regions x (sessions 1-5 of subjects 1 as fake sub1 and sessions 6-10 of subject 1 as fake sub2)
 
-⋅⋅⋅Blocks on tables
+  Blocks on tables
 
 + Try different normalization with fake multi-subjects data:
 
-⋅⋅⋅Rectangular data structure: 5 sessions x (region-region edges x fake subjects 1 and 2)
+  Rectangular data structure: 5 sessions x (region-region edges x fake subjects 1 and 2)
 
-⋅⋅⋅1. No normalization -> plain SVD
+  1. SVD after the columns are centered (center across rows)
 
-⋅⋅⋅2. SVD after the columns are centered (center across rows)
+  2. SVD after the columns are centered and normalized (center and normalize across rows)
 
-⋅⋅⋅3. SVD on STATIS-like preprocessed rectangular matrix
+  3. MFA-normalized rectangular matrix by subjects without normalizing across rows
 
-⋅⋅⋅4. Subject(table)-centered, block (network) MFA-normalized rectangular matrix
+  4. MFA-normalized rectangular matrix by subjects after normalizing across rows
+
+  5. MFA-normalized rectangular matrix by networks without normalizing across rows
+
+  6. MFA-normalized rectangular matrix by networks after normalizing across rows
+
+  7. HMFA-normalized rectangular matrix by networks and subject without normalizing across rows
+
+  8. HMFA-normalized rectangular matrix by networks and subject after normalizing across rows
