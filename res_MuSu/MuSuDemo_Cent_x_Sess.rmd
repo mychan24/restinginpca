@@ -22,9 +22,11 @@ suppressMessages(library(superheat))
 suppressMessages(library(gridExtra))
 suppressMessages(library(ggplotify))
 suppressMessages(library(grid))
+suppressMessages(library(pals))
 # Read functions
 tool.path <- "../tools/"
 source(paste0(tool.path,"SScomm.R"))
+source(paste0(tool.path,"vec2sqmat.R"))
 ```
 
 
@@ -38,16 +40,23 @@ parcel.comm.path <- "../data/parcel_community"
 vox.des <- read.table(paste0(parcel.comm.path,"/sub-MSC01_node_parcel_comm.txt"),sep = ",")
 colnames(vox.des) <- c("NodeID","VertexID","Comm")
 # rename communities
+#--- read the file with community information: label number & community name & color & abbreviation for community name
 CommName <- read.csv(paste0(parcel.comm.path,"/systemlabel.txt"),sep = ",",header = FALSE)
 colnames(CommName) <- c("Comm","CommLabel","CommColor","CommLabel.short")
+#--- create three columns in the original table of community information: name, color, abbreviation
 for(i in 1:nrow(CommName)){
   vox.des$Comm.recode[vox.des$Comm==CommName$Comm[i]] <- as.character(CommName$CommLabel[i])
   vox.des$Comm.Col[vox.des$Comm==CommName$Comm[i]] <- as.character(CommName$CommColor[i])
   vox.des$Comm.rcd[vox.des$Comm==CommName$Comm[i]] <- as.character(CommName$CommLabel.short[i])
 }
-# Create design matrix for communities
+#--- Create design matrix for communities
 vox.des.mat <- makeNominalData(as.matrix(vox.des$Comm.rcd))
 colnames(vox.des.mat) <- sub(".","",colnames(vox.des.mat))
+
+#--- Create color for each communities
+Comm.col <- list(oc = as.matrix(vox.des$Comm.Col), gc = as.matrix(CommName$CommColor))
+rownames(Comm.col$oc) <- vox.des$NodeID
+rownames(Comm.col$gc) <- CommName$CommLabel.short
 ```
 
 This is a data cube of correlation: ROIs x ROIs x 10 sessions
@@ -77,7 +86,7 @@ gt.sub1_centXsess <- expo.scale(gt.sub1, center = TRUE, scale = FALSE)
 ### The grand table:
 ```{r gt_heatmap, echo = FALSE}
 superheat(gt.sub1_centXsess,
-          membership.cols = labels$subjects_edge_label,
+          membership.cols = labels.sub1$subjects_edge_label,
           membership.rows = c(1:10),
           clustering.method = NULL,
           heat.col.scheme = "viridis",
@@ -95,7 +104,7 @@ superheat(gt.sub1_centXsess,
 
 ```{r gt_heatmap_bw, echo = FALSE}
 superheat(gt.sub1_centXsess,
-          membership.cols = labels$subjects_wb,
+          membership.cols = labels.sub1$subjects_wb,
           membership.rows = c(1:10),
           clustering.method = NULL,
           heat.col.scheme = "viridis",
@@ -117,12 +126,10 @@ The data are transposed so that the rows are now different edges of different su
 ```{r gt_svd}
 # Use subject_edge_label as column names
 colnames(gt.sub1_centXsess) <- labels.sub1$subjects_edge_label
-# Transpose for epPCA
-t_gt_centXsess <- t(gt_centXsess)
 # SVD on the rectangular data ------------------------
-pca.res.subj <- epPCA(t_gt_centXsess,scale = FALSE, center = FALSE, DESIGN = labels$subjects_edge_label, make_design_nominal = TRUE, graphs = FALSE)
+pca.res.subj <- epPCA(t(gt.sub1_centXsess),scale = FALSE, center = FALSE, DESIGN = labels.sub1$subjects_edge_label, make_design_nominal = TRUE, graphs = FALSE)
 # check dimension
-dim(t_gt_centXsess)
+dim(t(gt.sub1_centXsess))
 ```
 
 ### Check the contribution of each variable
@@ -154,20 +161,20 @@ To have a (relatively) clearer view of the results, we compute the mean for each
 
 ```{r mean_fi}
 # Compute means of factor scores for different edges----
-mean.fi <- getMeans(pca.res.subj$ExPosition.Data$fi, labels$subjects_edge_label) # with t(gt)
+#mean.fi <- getMeans(pca.res.subj$ExPosition.Data$fi, labels.sub1$subjects_edge_label) # with t(gt)
 
-BootCube.Comm <- Boot4Mean(pca.res.subj$ExPosition.Data$fi,
-                           design = labels$subjects_edge_label,
-                           niter = 100,
-                           suppressProgressBar = TRUE)
+#BootCube.Comm <- Boot4Mean(pca.res.subj$ExPosition.Data$fi,
+#                           design = labels.sub1$subjects_edge_label,
+#                           niter = 100,
+#                           suppressProgressBar = TRUE)
 
 
 # Compute means of factor scores for different types of edges
-mean.fi.bw <- getMeans(pca.res.subj$ExPosition.Data$fi, labels$subjects_wb) # with t(gt)
-BootCube.Comm.bw <- Boot4Mean(pca.res.subj$ExPosition.Data$fi,
-                           design = labels$subjects_wb,
-                           niter = 100,
-                           suppressProgressBar = TRUE)
+#mean.fi.bw <- getMeans(pca.res.subj$ExPosition.Data$fi, labels.sub1$subjects_wb) # with t(gt)
+#BootCube.Comm.bw <- Boot4Mean(pca.res.subj$ExPosition.Data$fi,
+#                           design = labels.sub1$subjects_wb,
+#                           niter = 100,
+#                           suppressProgressBar = TRUE)
 
 ```
 
@@ -222,7 +229,7 @@ heat_fi2 <- superheat(fi2_sqmat, y.axis.reverse = T,
 ```
 
 ```{r grid_heat_fi, echo=F, fig.height=8, fig.width=14}
-gridExtra::grid.arrange(as.grob(heats_fi1$plot), as.grob(heats_fi2$plot), ncol=2,
+gridExtra::grid.arrange(as.grob(heat_fi1$plot), as.grob(heat_fi2$plot), ncol=2,
                         top = textGrob("Node x Node Matrix of Factor Score",gp=gpar(fontsize=18,font=3)))
 ```
 
@@ -273,6 +280,6 @@ heat_sig_fi2 <- superheat(fi2_sig_sqmat, y.axis.reverse = T,
 ```
 
 ```{r grid_heat_sig_fi, echo=F, fig.height=8, fig.width=14}
-gridExtra::grid.arrange(as.grob(heats_sig_fi1$plot), as.grob(heats_sig_fi2$plot), ncol=2,
+gridExtra::grid.arrange(as.grob(heat_sig_fi1$plot), as.grob(heat_sig_fi2$plot), ncol=2,
                         top = textGrob("Node x Node Matrix of Factor Score (significant edges)",gp=gpar(fontsize=18,font=3)))
 ```
