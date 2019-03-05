@@ -1,12 +1,16 @@
 # install.packages("magick")
 library(magick)
+library(pals)
+library(superheat)
 img <- image_graph(800, 1000)
-out <- lapply(1:10, function(session.count){
+out <- lapply(6:10, function(session.count){
   hmap <- superheat(cubes$zcube[,,session.count],
                     membership.cols = vox.des$Comm.rcd,
                     membership.rows = vox.des$Comm.rcd,
+                    smooth.heat = T,
+                    smooth.heat.type = 'mean',
                     clustering.method = NULL,
-                    heat.lim = c(0, 0.6), 
+                    heat.lim = c(0,0.6), 
                     heat.pal = parula(20),
                     heat.pal.values = c(0, 0.5, 1),
                     left.label.size = 0.08,
@@ -23,6 +27,6 @@ out <- lapply(1:10, function(session.count){
   print(hmap$plot)
 })
 dev.off()
-sess.animate <- image_animate(img, fps = 3)
+sess.animate <- image_animate(img, fps = 4)
 # print(sess.animate)
-image_write(sess.animate, "subj_1(1-10).gif")
+image_write(sess.animate, "subj_1(6-10)_mean.gif")

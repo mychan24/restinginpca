@@ -52,6 +52,12 @@ for(i in 1:nrow(CommName)){
 # Create design matrix for communities
 vox.des.mat <- makeNominalData(as.matrix(vox.des$Comm.rcd))
 colnames(vox.des.mat) <- sub(".","",colnames(vox.des.mat))
+# Create design vector for group
+subj.des <- c(rep("Subj1", 5), rep("Subj2",5))
+# Create design matrix for group
+subj.des.mat <- makeNominalData(as.data.frame(subj.des))
+# get the colors
+color4Subj.list <- prettyGraphs::createColorVectorsByDesign(subj.des.mat)
 ```
 
 This is a data cube of correlation: ROIs x ROIs x 10 sessions
@@ -91,6 +97,7 @@ rownames(Comm.col$oc) <- vox.des$NodeID
 rownames(Comm.col$gc) <- CommName$CommLabel.short
 ```
 
+
 ## Check data with heatmap for the 1st session
 ```{r show_heatmap, echo = FALSE, fig.height= 16, fig.width = 16}
 superheat(cubes$rcube[,,1],
@@ -121,7 +128,7 @@ superheat(ss_rcube[,,1],
           membership.cols = rownames(ss_rcube[,,1]),
           membership.rows = colnames(ss_rcube[,,1]),
           clustering.method = NULL,
-          heat.lim = c(0, 1300), 
+          heat.lim = c(0, 0.6), 
           heat.pal = parula(20),
           heat.pal.values = c(0, 0.5, 1),
           left.label.size = 0.08,
@@ -164,8 +171,7 @@ superheat(ss_dcube[,,1],
 ## Run DiSTATIS
 ```{r distatis}
 # DiSTATIS
-distatis.res_first5 <- distatis(dcube_first5)
-distatis.res_last5 <- distatis(dcube_last5)
+distatis.res <- distatis(dcube)
 ```
 
 ## Plot results
@@ -175,39 +181,35 @@ distatis.res_last5 <- distatis(dcube_last5)
 #### Eigenvalues
 
 ```{r Rv.scree, echo = FALSE}
-PlotScree(ev = distatis.res_first5$res4Cmat$tau,
-          title = "RV-map (first 5): Expained variance per dimension")
-PlotScree(ev = distatis.res_first5$res4Cmat$tau,
-          title = "RV-map (last 5): Expained variance per dimension")
+PlotScree(ev = distatis.res$res4Cmat$tau,
+          title = "RV-map: Expained variance per dimension")
 ```
 
 #### Factor scores
 
-```{r Rv.f, fig.show='hide'}
+```{r Rv.f}
 ### Rv factor scores
-rv.graph_first5 <- createFactorMap(distatis.res_first5$res4Cmat$G,
-                axis1 = 1, axis2 = 2)
-rv.graph_last5 <- createFactorMap(distatis.res_last5$res4Cmat$G,
-                axis1 = 1, axis2 = 2)
+Rv.f2plot <- distatis.res$res4Cmat$G
+rv.graph <- createFactorMap(Rv.f2plot, 
+                            axis1 = 1, axis2 = 2,
+                            title = "Subj: RvMap",
+                            col.points = color4Subj.list$oc,
+                            col.labels = color4Subj.list$oc)
+
+### Compute mean Rv for different subject
+subjMean.Rv.tmp <- aggregate(Rv.f2plot, list(subj.des), mean)
+subjMean.Rv <- subjMean.Rv.tmp[,2:ncol(subjMean.Rv.tmp)]
+rownames(subjMean.Rv) <- subjMean.Rv.tmp[,1]
+### Compute bootstrap estimates
+BootCube.subj.Rv <- PTCA4CATA::Boot4Mean(Rv.f2plot, design = subj.des, niter = 100, suppressProgressBar = TRUE)
 
 ### Dimension labels for the Rv map
-rv.labels_first5 <- createxyLabels.gen(lambda = distatis.res_first5$res4Cmat$eigValues,
-                                tau = distatis.res_first5$res4Cmat$tau,
+rv.labels <- createxyLabels.gen(lambda = distatis.res$res4Cmat$eigValues,
+                                tau = distatis.res$res4Cmat$tau,
                                 axisName = "Dimension ")
-rv.labels_last5 <- createxyLabels.gen(lambda = distatis.res_last5$res4Cmat$eigValues,
-                                tau = distatis.res_last5$res4Cmat$tau,
-                                axisName = "Dimension ")
-
 ### Show plot
-Rvmap_first5 <- rv.graph_first5$zeMap + rv.labels_first5
-Rvmap_last5 <- rv.graph_last5$zeMap + rv.labels_last5
-
-```
-
-
-```{r show.Rv.f, echo=F, fig.height=8, fig.width= 16}
-gridExtra::grid.arrange(as.grob(Rvmap_first5), as.grob(Rvmap_last5),
-                        ncol=2)
+Rvmap <- rv.graph$zeMap + rv.labels
+print(Rvmap)
 ```
 
 ### Compromise space
@@ -215,42 +217,38 @@ gridExtra::grid.arrange(as.grob(Rvmap_first5), as.grob(Rvmap_last5),
 #### Eigenvalues
 
 ```{r scree, echo = FALSE}
-PlotScree(ev = distatis.res_first5$res4Splus$tau,
-          title = "Compromise (first 5): Explained variance per dimension")
-PlotScree(ev = distatis.res_last5$res4Splus$tau,
-          title = "Compromise (last 5): Explained variance per dimension")
+PlotScree(ev = distatis.res$res4Splus$eigValues,
+          title = "Compromise: Explained variance per dimension")
 ```
 
 #### Factor scores
 
 ```{r f, echo = FALSE}
-# plot factor scores
-f.graph_first5 <- createFactorMap(distatis.res_first5$res4Splus$F,
+f.graph <- createFactorMap(distatis.res$res4Splus$F,
                            axis1 = 1, axis2 = 2,
-                           title = "Compromise (first 5) - Factor scores (nodes): cp 1 & 2",
+                           title = "Compromise - Factor scores (nodes): cp 1 & 2",
                            col.points = Comm.col$oc,
                            alpha.points = .4, cex = 3)
-f.graph_last5 <- createFactorMap(distatis.res_last5$res4Splus$F,
-                           axis1 = 1, axis2 = 2,
-                           title = "Compromise (last 5) - Factor scores (nodes): cp 1 & 2",
+f.graph.23 <- createFactorMap(distatis.res$res4Splus$F,
+                           axis1 = 2, axis2 = 3,
+                           title = "Compromise - Factor scores (nodes): cp 2 & 3",
                            col.points = Comm.col$oc,
                            alpha.points = .4, cex = 3)
-# labels
-f.labels_first5 <- createxyLabels.gen(x_axis = 1, y_axis = 2,
-                               lambda = distatis.res_first5$res4Splus$eigValues,
-                               tau = distatis.res_first5$res4Splus$tau,
+f.labels <- createxyLabels.gen(x_axis = 1, y_axis = 2,
+                               lambda = distatis.res$res4Splus$eigValues,
+                               tau = distatis.res$res4Splus$tau,
                                axisName = "Dimension ")
-f.labels_last5 <- createxyLabels.gen(x_axis = 1, y_axis = 2,
-                               lambda = distatis.res_last5$res4Splus$eigValues,
-                               tau = distatis.res_last5$res4Splus$tau,
+f.labels.23 <- createxyLabels.gen(x_axis = 2, y_axis = 3,
+                               lambda = distatis.res$res4Splus$eigValues,
+                               tau = distatis.res$res4Splus$tau,
                                axisName = "Dimension ")
 # Show plot
-f01a.Fi.noLabel <- f.graph_first5$zeMap_background + f.graph_first5$zeMap_dots + f.labels_first5
-f02a.Fi.noLabel <- f.graph_last5$zeMap_background + f.graph_last5$zeMap_dots + f.labels_last5
+f01.Fi.noLabel <- f.graph$zeMap_background + f.graph$zeMap_dots + f.labels
+f02.Fi.noLabel <- f.graph.23$zeMap_background + f.graph.23$zeMap_dots + f.labels.23
 ```
 
 ```{r plot_fig_f, echo=F, fig.height=8, fig.width= 16}
-gridExtra::grid.arrange(as.grob(f01a.Fi.noLabel), as.grob(f02a.Fi.noLabel), ncol=2)
+gridExtra::grid.arrange(as.grob(f01.Fi.noLabel), as.grob(f02.Fi.noLabel), ncol=2)
 ```
 
 ### Now plot the compromise space with means, confidence intervals, and tolerance intervals
@@ -268,7 +266,7 @@ BootCube.Comm <- Boot4Mean(distatis.res$res4Splus$F,
 ```{r makefig, echo = FALSE}
 ### Plot means
 f.mean.graph <- createFactorMap(BootCube.Comm$GroupMeans,
-                                axis1 = x_cp, axis2 = y_cp,
+                                axis1 = 1, axis2 = 2,
                                 title = "Compromise - Factor scores with means of networks: cp 1 & 2",
                                 col.points = Comm.col$gc[rownames(BootCube.Comm$GroupMeans),],
                                 constraints = f.graph$constraints,
@@ -278,7 +276,7 @@ f.mean.graph <- createFactorMap(BootCube.Comm$GroupMeans,
                                 cex = 5)
 ### Plot means with its own constraints
 f.mean.graph.owncon <- createFactorMap(BootCube.Comm$GroupMeans,
-                                axis1 = x_cp, axis2 = y_cp,
+                                axis1 = 1, axis2 = 2,
                                 title = "Compromise - Factor scores with means of networks: cp 1 & 2",
                                 col.points = Comm.col$gc[rownames(BootCube.Comm$GroupMeans),],
                                 col.labels = Comm.col$gc[rownames(BootCube.Comm$GroupMeans),],
@@ -286,13 +284,13 @@ f.mean.graph.owncon <- createFactorMap(BootCube.Comm$GroupMeans,
                                 pch = 15,
                                 cex = 5)
 ### Plot bootstrapped confidence intervals for means
-f.CI.graph <- MakeCIEllipses(BootCube.Comm$BootCube[,c(x_cp,y_cp),],
-                                    names.of.factors = c(sprintf("Factor %s",x_cp),sprintf("Factor %s",y_cp)),
+f.CI.graph <- MakeCIEllipses(BootCube.Comm$BootCube[,c(1,2),],
+                                    names.of.factors = c(sprintf("Factor %s",1),sprintf("Factor %s",2)),
                                     col = Comm.col$gc[rownames(BootCube.Comm$GroupMeans),],
                                     p.level = .95)
 ### Plot tolerance intervals of each community
 f.TI.graph <- MakeToleranceIntervals(distatis.res$res4Splus$F,
-                                     axis1 = x_cp, axis2 = y_cp,
+                                     axis1 = 1, axis2 = 2,
                                      design = vox.des$Comm,
                                      names.of.factors = c("Dim1", "Dim2"),
                                      col = Comm.col$gc[rownames(BootCube.Comm$GroupMeans),],
