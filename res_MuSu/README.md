@@ -1,5 +1,7 @@
 This is the first attempt to do MuSu with centered columns.
 
+> Updated 03/05/2019 by JC
+
 *MuSuDemo_Cent_x_Sess*:
 
 + Data: 
