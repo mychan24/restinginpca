@@ -65,11 +65,18 @@ load(paste0("../data/grandatble_and_labels_20190204.Rdata")) # read the labels o
 #--- Create new column of sub-edgetype
 sprintf('%s_%s',labels$subjects_label,labels$wb)
 labels[,'subjects_wb'] <- sprintf('%s_%s',labels$subjects_label,labels$wb)
+## get data from subject 1
+gt.sub1 <- gt[,which(labels$subjects_label == "sub01")]
+labels.sub1 <- labels[which(labels$subjects_label == "sub01"),]
+
+# > Centered across sessions
+gt.sub1_centXsess <- expo.scale(gt.sub1, center = TRUE, scale = FALSE)
+
 ```
 
 ### The grand table:
 ```{r gt_heatmap, echo = FALSE}
-superheat(gt,
+superheat(gt.sub1_centXsess,
           membership.cols = labels$subjects_edge_label,
           membership.rows = c(1:10),
           clustering.method = NULL,
@@ -87,7 +94,7 @@ superheat(gt,
 ### the heatmap with columns arranged according to edgetype
 
 ```{r gt_heatmap_bw, echo = FALSE}
-superheat(gt,
+superheat(gt.sub1_centXsess,
           membership.cols = labels$subjects_wb,
           membership.rows = c(1:10),
           clustering.method = NULL,
@@ -102,11 +109,6 @@ superheat(gt,
 )
 ```
 
-## Centered across sessions (rows)
-```{r gt_centerRow}
-gt_centXsess <- expo.scale(gt, scale = FALSE)
-```
-
 
 ## SVD
 
@@ -114,7 +116,7 @@ The data are transposed so that the rows are now different edges of different su
 
 ```{r gt_svd}
 # Use subject_edge_label as column names
-colnames(gt_centXsess) <- labels$subjects_edge_label
+colnames(gt.sub1_centXsess) <- labels.sub1$subjects_edge_label
 # Transpose for epPCA
 t_gt_centXsess <- t(gt_centXsess)
 # SVD on the rectangular data ------------------------
@@ -124,11 +126,10 @@ dim(t_gt_centXsess)
 ```
 
 ### Check the contribution of each variable
-```{r}
-#--- get the contribution of each component
+```{r contribution}
 cI <- pca.res.subj$ExPosition.Data$ci
 #--- get the sum of contribution for each edge
-c_edge <- labels$subjects_edge_label %>% as.matrix %>% makeNominalData %>% t %>% "%*%"(cI)
+c_edge <- labels.sub1$subjects_edge_label %>% as.matrix %>% makeNominalData %>% t %>% "%*%"(cI)
 rownames(c_edge) <- sub(".","",rownames(c_edge))
 #--- compute the sums of squares of each variable for each component
 absCtrEdg <- as.matrix(c_edge) %*% diag(pca.res.subj$ExPosition.Data$eigs)
@@ -136,12 +137,14 @@ absCtrEdg <- as.matrix(c_edge) %*% diag(pca.res.subj$ExPosition.Data$eigs)
 edgCtr12 <- (absCtrEdg[,1] + absCtrEdg[,2])/(pca.res.subj$ExPosition.Data$eigs[1] + pca.res.subj$ExPosition.Data$eigs[2])
 edgCtr23 <- (absCtrEdg[,3] + absCtrEdg[,2])/(pca.res.subj$ExPosition.Data$eigs[2] + pca.res.subj$ExPosition.Data$eigs[3])
 #--- the important variables are the ones that contribute more than or equal to the average
-importantEdg <- (edgCtr12 >= 1/length(edgCtr12))
-importantEdg <- (edgCtr23 >= 1/length(edgCtr23))
+importantEdg12 <- (edgCtr12 >= 1/length(edgCtr12))
+importantEdg23 <- (edgCtr23 >= 1/length(edgCtr23))
+importantEdg1 <- (cI[,1] >= 1/length(cI[,1]))
+importantEdg2 <- (cI[,2] >= 1/length(cI[,2]))
 #--- color for networks
 col4ImportantEdg <- unique(pca.res.subj$Plotting.Data$fi.col) # get colors
 col4NS <- 'gray90' # set color for not significant edges to gray
-col4ImportantEdg[!importantEdg] <- col4NS # replace them in the color vector
+col4ImportantEdg[!importantEdg12] <- col4NS # replace them in the color vector
 
 ```
 
@@ -177,3 +180,99 @@ plot.fj <- createFactorMap(pca.res.subj$ExPosition.Data$fj) # with t(gt)
 plot.fj$zeMap
 ```
 
+Next, we plot each edges
+
+```{r f_sqmat, echo=F, fig.show = 'hide'}
+#--- show column factor scores in a square matrix
+fi1_sqmat <- vec2sqmat(pca.res.subj$ExPosition.Data$fi[,1])
+heat_fi1 <- superheat(fi1_sqmat, y.axis.reverse = T,
+          membership.rows =vox.des$Comm.rcd,
+          membership.cols =vox.des$Comm.rcd,                    
+          left.label.col=Comm.col$gc[order(rownames(Comm.col$gc))],
+          bottom.label.col=Comm.col$gc[order(rownames(Comm.col$gc))],
+          left.label.size = 0.08,
+          bottom.label.size = 0.05,
+          extreme.values.na = FALSE,
+          heat.lim = c(-.6, .6),
+          heat.pal = kovesi.diverging_bwr_40_95_c42(200),
+          heat.pal.values = c(0,0.35,0.5,0.65,1),
+          left.label.text.size = 3,
+          bottom.label.text.size = 2,
+          left.label.text.col = c(rep("black",8),rep("white",2),rep("black",3),"white",rep("black",3),rep("white",2)),
+          bottom.label.text.col = c(rep("black",8),rep("white",2),rep("black",3),"white",rep("black",3),rep("white",2)),
+          title="Node x Node Matrix of factor scores (component 1)")
+
+fi2_sqmat <- vec2sqmat(pca.res.subj$ExPosition.Data$fi[,2])
+heat_fi2 <- superheat(fi2_sqmat, y.axis.reverse = T,
+          membership.rows =vox.des$Comm.rcd,
+          membership.cols =vox.des$Comm.rcd,                    
+          left.label.col=Comm.col$gc[order(rownames(Comm.col$gc))],
+          bottom.label.col=Comm.col$gc[order(rownames(Comm.col$gc))],
+          left.label.size = 0.08,
+          bottom.label.size = 0.05,
+          extreme.values.na = FALSE,
+          heat.lim = c(-.6, .6),
+          heat.pal = kovesi.diverging_bwr_40_95_c42(200),
+          heat.pal.values = c(0,0.35,0.5,0.65,1),
+          left.label.text.size = 3,
+          bottom.label.text.size = 2,
+          left.label.text.col = c(rep("black",8),rep("white",2),rep("black",3),"white",rep("black",3),rep("white",2)),
+          bottom.label.text.col = c(rep("black",8),rep("white",2),rep("black",3),"white",rep("black",3),rep("white",2)),
+          title="Node x Node Matrix of factor scores (component 2)")
+```
+
+```{r grid_heat_fi, echo=F, fig.height=8, fig.width=14}
+gridExtra::grid.arrange(as.grob(heats_fi1$plot), as.grob(heats_fi2$plot), ncol=2,
+                        top = textGrob("Node x Node Matrix of Factor Score",gp=gpar(fontsize=18,font=3)))
+```
+
+If we plot only the edges that significantly contribute to the component
+
+```{r f_sig_sqmat, echo=F, fig.show = 'hide'}
+fi1_sig <- pca.res.subj$ExPosition.Data$fi[,1]
+fi1_sig[!importantEdg1] <- 0
+fi1_sig_sqmat <- vec2sqmat(fi1_sig)
+heat_sig_fi1 <- superheat(fi1_sig_sqmat, y.axis.reverse = T,
+          membership.rows =vox.des$Comm.rcd,
+          membership.cols =vox.des$Comm.rcd,                    
+          left.label.col=Comm.col$gc[order(rownames(Comm.col$gc))],
+          bottom.label.col=Comm.col$gc[order(rownames(Comm.col$gc))],
+          left.label.size = 0.08,
+          bottom.label.size = 0.05,
+          extreme.values.na = FALSE,
+          heat.lim = c(-.6, .6),
+          heat.pal = kovesi.diverging_bwr_40_95_c42(200),
+          heat.pal.values = c(0,0.35,0.5,0.65,1),
+          left.label.text.size = 3,
+          bottom.label.text.size = 2,
+          left.label.text.col = c(rep("black",8),rep("white",2),rep("black",3),"white",rep("black",3),rep("white",2)),
+          bottom.label.text.col = c(rep("black",8),rep("white",2),rep("black",3),"white",rep("black",3),rep("white",2)),
+          title="Node x Node Matrix of factor scores (component 1)")
+
+fi2_sig <- pca.res.subj$ExPosition.Data$fi[,2]
+fi2_sig[!importantEdg2] <- 0
+fi2_sig_sqmat <- vec2sqmat(fi2_sig)
+heat_sig_fi2 <- superheat(fi2_sig_sqmat, y.axis.reverse = T,
+          membership.rows =vox.des$Comm.rcd,
+          membership.cols =vox.des$Comm.rcd,                    
+          left.label.col=Comm.col$gc[order(rownames(Comm.col$gc))],
+          bottom.label.col=Comm.col$gc[order(rownames(Comm.col$gc))],
+          left.label.size = 0.08,
+          bottom.label.size = 0.05,
+          extreme.values.na = FALSE,
+          heat.lim = c(-.6, .6),
+          heat.pal = kovesi.diverging_bwr_40_95_c42(200),
+          heat.pal.values = c(0,0.35,0.5,0.65,1),
+          left.label.text.size = 3,
+          bottom.label.text.size = 2,
+          left.label.text.col = c(rep("black",8),rep("white",2),rep("black",3),"white",rep("black",3),rep("white",2)),
+          bottom.label.text.col = c(rep("black",8),rep("white",2),rep("black",3),"white",rep("black",3),rep("white",2)),
+          title="Node x Node Matrix of factor scores (component 2)")
+
+
+```
+
+```{r grid_heat_sig_fi, echo=F, fig.height=8, fig.width=14}
+gridExtra::grid.arrange(as.grob(heats_sig_fi1$plot), as.grob(heats_sig_fi2$plot), ncol=2,
+                        top = textGrob("Node x Node Matrix of Factor Score (significant edges)",gp=gpar(fontsize=18,font=3)))
+```
