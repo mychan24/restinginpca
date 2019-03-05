@@ -158,22 +158,40 @@ To have a (relatively) clearer view of the results, we compute the mean for each
 # Compute means of factor scores for different edges----
 mean.fi <- getMeans(pca.res.subj$ExPosition.Data$fi, labels$subjects_edge_label) # with t(gt)
 
-BootCube.Comm <- Boot4Mean(pca.res.subj$ExPosition.Data$fi,
-                           design = labels$subjects_edge_label,
-                           niter = 100,
-                           suppressProgressBar = TRUE)
+# BootCube.Comm <- Boot4Mean(pca.res.subj$ExPosition.Data$fi,
+#                            design = labels$subjects_edge_label,
+#                            niter = 100,
+#                            suppressProgressBar = TRUE)
 
 
 # Compute means of factor scores for different types of edges
 mean.fi.bw <- getMeans(pca.res.subj$ExPosition.Data$fi, labels$subjects_wb) # with t(gt)
-BootCube.Comm.bw <- Boot4Mean(pca.res.subj$ExPosition.Data$fi,
-                           design = labels$subjects_wb,
-                           niter = 100,
-                           suppressProgressBar = TRUE)
+
+# BootCube.Comm.bw <- Boot4Mean(pca.res.subj$ExPosition.Data$fi,
+#                            design = labels$subjects_wb,
+#                            niter = 100,
+#                            suppressProgressBar = TRUE)
 
 ```
 
 ## Plot
+```{r plotsetup, echo=F}
+#--- text color of text label (background color matches systems)
+textcol <- c(rep("black",8),rep("white",2),rep("black",3),"white",rep("black",3),rep("white",2))
+
+#--- background color of text label
+Comm.col <- list(oc = as.matrix(vox.des$Comm.Col), gc = as.matrix(CommName$CommColor))
+rownames(Comm.col$oc) <- vox.des$NodeID
+rownames(Comm.col$gc) <- CommName$CommLabel.short
+labelcol <- Comm.col$gc[order(rownames(Comm.col$gc))]
+
+#--- the important variables are the ones that contribute more than or equal to the average
+importantEdg12 <- (edgCtr12 >= 1/length(edgCtr12))
+importantEdg23 <- (edgCtr23 >= 1/length(edgCtr23))
+importantEdg1 <- (cI[,1] >= 1/length(cI[,1]))
+importantEdg2 <- (cI[,2] >= 1/length(cI[,2]))
+
+```
 
 First, we plot the 5 sessions
 
@@ -193,19 +211,15 @@ plot.fi$zeMap_background + plot.fi$zeMap_dots
 
 Show column factor as square matrix of sub01_a and sub01_b
 
-```{r squremat_fi, echo=F, fig.show = 'hide'}
-Comm.col <- list(oc = as.matrix(vox.des$Comm.Col), gc = as.matrix(CommName$CommColor))
-rownames(Comm.col$oc) <- vox.des$NodeID
-rownames(Comm.col$gc) <- CommName$CommLabel.short
-
+```{r squaremat_fi, echo=F, fig.show = 'hide'}
 fi1_s1a_sqmat <- vec2sqmat(pca.res.subj$ExPosition.Data$fi[labels$subjects_label=="sub01_a",1])
 fi1_s1b_sqmat <- vec2sqmat(pca.res.subj$ExPosition.Data$fi[labels$subjects_label=="sub01_b",1])
 
 heats1a <- superheat(fi1_s1a_sqmat, y.axis.reverse = T,
           membership.rows =vox.des$Comm.rcd,
           membership.cols =vox.des$Comm.rcd,                    
-          left.label.col=Comm.col$gc[order(rownames(Comm.col$gc))],
-          bottom.label.col=Comm.col$gc[order(rownames(Comm.col$gc))],
+          left.label.col=labelcol,
+          bottom.label.col=labelcol,
           left.label.size = 0.08,
           bottom.label.size = 0.05,
           extreme.values.na = FALSE,
@@ -214,15 +228,15 @@ heats1a <- superheat(fi1_s1a_sqmat, y.axis.reverse = T,
           heat.pal.values = c(0,0.35,0.5,0.65,1),
           left.label.text.size = 3,
           bottom.label.text.size = 2,
-          left.label.text.col = c(rep("black",8),rep("white",2),rep("black",3),"white",rep("black",3),rep("white",2)),
-          bottom.label.text.col = c(rep("black",8),rep("white",2),rep("black",3),"white",rep("black",3),rep("white",2)),
-          title="Node x Node Matrix of\n factor scores sub01_a")
+          left.label.text.col = textcol, 
+          bottom.label.text.col = textcol, 
+          title="sub01_a")
 
 heats1b <- superheat(fi1_s1b_sqmat, y.axis.reverse = T,
           membership.rows =vox.des$Comm.rcd,
           membership.cols =vox.des$Comm.rcd,                    
-          left.label.col=Comm.col$gc[order(rownames(Comm.col$gc))],
-          bottom.label.col=Comm.col$gc[order(rownames(Comm.col$gc))],
+          left.label.col=labelcol,
+          bottom.label.col=labelcol,
           left.label.size = 0.08,
           bottom.label.size = 0.05,
           extreme.values.na = FALSE,
@@ -231,66 +245,107 @@ heats1b <- superheat(fi1_s1b_sqmat, y.axis.reverse = T,
           heat.pal.values = c(0,0.35,0.5,0.65,1),
           left.label.text.size = 3,
           bottom.label.text.size = 2,
-          left.label.text.col = c(rep("black",8),rep("white",2),rep("black",3),"white",rep("black",3),rep("white",2)),
-          bottom.label.text.col = c(rep("black",8),rep("white",2),rep("black",3),"white",rep("black",3),rep("white",2)),
-          title="Node x Node Matrix of\nfactor scores sub01_b")
+          left.label.text.col = textcol,  
+          bottom.label.text.col = textcol, 
+          title="sub01_b")
 
 ```
 
-```{r, echo=F}
-gridExtra::grid.arrange(as.grob(heats1a$plot), as.grob(heats1b$plot), ncol=2)
+```{r grid_heat_fi, echo=F, fig.height=8, fig.width=14}
+gridExtra::grid.arrange(as.grob(heats1a$plot), as.grob(heats1b$plot), ncol=2,
+                        top = textGrob("Node x Node Matrix of Factor Score",gp=gpar(fontsize=18,font=3)))
 ```
 
 Factor score in squarem matrix that have significant contribution only
-```{r, echo=F, fig.show = 'hide'}
-#--- the important variables are the ones that contribute more than or equal to the average
-importantEdg12 <- (edgCtr12 >= 1/length(edgCtr12))
-importantEdg23 <- (edgCtr23 >= 1/length(edgCtr23))
-importantEdg1 <- (cI[,1] >= 1/length(cI[,1]))
-importantEdg2 <- (cI[,2] >= 1/length(cI[,2]))
-
+```{r, squaremat_sigfi, echo=F, fig.show = 'hide'}
 fi_sig <- pca.res.subj$ExPosition.Data$fi
 fi_sig[!importantEdg1] <- 0
 fi_sub1a_sig_sqmat <- vec2sqmat(fi_sig[labels$subjects_label=="sub01_a",1])
 fi_sub1b_sig_sqmat <- vec2sqmat(fi_sig[labels$subjects_label=="sub01_b",1])
 
+heat_sigfi_sub1a <- superheat(fi_sub1a_sig_sqmat, y.axis.reverse = T,
+                              membership.rows =vox.des$Comm.rcd,
+                              membership.cols =vox.des$Comm.rcd,                    
+                              left.label.col= labelcol,
+                              bottom.label.col= labelcol,
+                              left.label.size = 0.08,
+                              bottom.label.size = 0.05,
+                              extreme.values.na = FALSE,
+                              heat.lim = c(-.6, .6),
+                              heat.pal = kovesi.diverging_bwr_40_95_c42(200),
+                              heat.pal.values = c(0,0.35,0.5,0.65,1),
+                              left.label.text.size = 3,
+                              bottom.label.text.size = 2,
+                              left.label.text.col = textcol, 
+                              bottom.label.text.col = textcol, 
+                              title="sub1_a")
 
-sigfi_sub1a <- superheat(fi_sub1a_sig_sqmat, y.axis.reverse = T,
-          membership.rows =vox.des$Comm.rcd,
-          membership.cols =vox.des$Comm.rcd,                    
-          left.label.col=Comm.col$gc[order(rownames(Comm.col$gc))],
-          bottom.label.col=Comm.col$gc[order(rownames(Comm.col$gc))],
-          left.label.size = 0.08,
-          bottom.label.size = 0.05,
-          extreme.values.na = FALSE,
-          heat.lim = c(-.6, .6),
-          heat.pal = kovesi.diverging_bwr_40_95_c42(200),
-          heat.pal.values = c(0,0.35,0.5,0.65,1),
-          left.label.text.size = 3,
-          bottom.label.text.size = 2,
-          left.label.text.col = c(rep("black",8),rep("white",2),rep("black",3),"white",rep("black",3),rep("white",2)),
-          bottom.label.text.col = c(rep("black",8),rep("white",2),rep("black",3),"white",rep("black",3),rep("white",2)),
-          title="Node x Node Matrix of factor scores - sub1_a")
-
-sigfi_sub1b <- superheat(fi_sub1b_sig_sqmat, y.axis.reverse = T,
-          membership.rows =vox.des$Comm.rcd,
-          membership.cols =vox.des$Comm.rcd,                    
-          left.label.col=Comm.col$gc[order(rownames(Comm.col$gc))],
-          bottom.label.col=Comm.col$gc[order(rownames(Comm.col$gc))],
-          left.label.size = 0.08,
-          bottom.label.size = 0.05,
-          extreme.values.na = FALSE,
-          heat.lim = c(-.6, .6),
-          heat.pal = kovesi.diverging_bwr_40_95_c42(200),
-          heat.pal.values = c(0,0.35,0.5,0.65,1),
-          left.label.text.size = 3,
-          bottom.label.text.size = 2,
-          left.label.text.col = c(rep("black",8),rep("white",2),rep("black",3),"white",rep("black",3),rep("white",2)),
-          bottom.label.text.col = c(rep("black",8),rep("white",2),rep("black",3),"white",rep("black",3),rep("white",2)),
-          title="Node x Node Matrix of factor scores - sub1_b")
+heat_sigfi_sub1b <- superheat(fi_sub1b_sig_sqmat, y.axis.reverse = T,
+                              membership.rows =vox.des$Comm.rcd,
+                              membership.cols =vox.des$Comm.rcd,                    
+                              left.label.col= labelcol,
+                              bottom.label.col= labelcol,
+                              left.label.size = 0.08,
+                              bottom.label.size = 0.05,
+                              extreme.values.na = FALSE,
+                              heat.lim = c(-.6, .6),
+                              heat.pal = kovesi.diverging_bwr_40_95_c42(200),
+                              heat.pal.values = c(0,0.35,0.5,0.65,1),
+                              left.label.text.size = 3,
+                              bottom.label.text.size = 2,
+                              left.label.text.col = textcol,
+                              bottom.label.text.col = textcol, 
+                              title="sub1_b")
 
 ```
 
-```{r, echo=F}
-gridExtra::grid.arrange(as.grob(sigfi_sub1a$plot), as.grob(sigfi_sub1b$plot), ncol=2)
+```{r, grid_heat_sigfi, echo=F, fig.height=8, fig.width=14}
+gridExtra::grid.arrange(as.grob(heat_sigfi_sub1a$plot), as.grob(heat_sigfi_sub1b$plot), ncol=2,
+                        top = textGrob("Node x Node Matrix of Factor Score w/ Sig Contribution",gp=gpar(fontsize=16,font=3)))
+```
+
+Smoothed Sig Factor Score
+```{r, sm_squaremat_sigfi, echo=F, fig.show = 'hide'}
+#--- the important variables are the ones that contribute more than or equal to the average
+sm_heat_sigfi_sub1a <- superheat(fi_sub1a_sig_sqmat, y.axis.reverse = T, 
+                                  smooth.heat = T, smooth.heat.type = "mean",
+                                  membership.rows =vox.des$Comm.rcd,
+                                  membership.cols =vox.des$Comm.rcd,                    
+                                  left.label.col=labelcol,
+                                  bottom.label.col=labelcol,
+                                  left.label.size = 0.08,
+                                  bottom.label.size = 0.05,
+                                  extreme.values.na = FALSE,
+                                  heat.lim = c(-.6, .6),
+                                  heat.pal = kovesi.diverging_bwr_40_95_c42(200),
+                                  heat.pal.values = c(0,0.35,0.5,0.65,1),
+                                  left.label.text.size = 3,
+                                  bottom.label.text.size = 2,
+                                  left.label.text.col = textcol,
+                                  bottom.label.text.col = textcol, 
+                                  title="Node x Node Matrix of factor scores - sub1_a")
+
+sm_heat_sigfi_sub1b <- superheat(fi_sub1b_sig_sqmat, y.axis.reverse = T, 
+                                  smooth.heat = T, smooth.heat.type = "mean",
+                                  membership.rows =vox.des$Comm.rcd,
+                                  membership.cols =vox.des$Comm.rcd,                    
+                                  left.label.col= labelcol,
+                                  bottom.label.col= labelcol,
+                                  left.label.size = 0.08,
+                                  bottom.label.size = 0.05,
+                                  extreme.values.na = FALSE,
+                                  heat.lim = c(-.6, .6),
+                                  heat.pal = kovesi.diverging_bwr_40_95_c42(200),
+                                  heat.pal.values = c(0,0.35,0.5,0.65,1),
+                                  left.label.text.size = 3,
+                                  bottom.label.text.size = 2,
+                                  left.label.text.col = textcol,
+                                  bottom.label.text.col = textcol, 
+                                  title="Node x Node Matrix of factor scores - sub1_b")
+
+```
+
+```{r, grid_smheat_sigfi, echo=F, fig.height=8, fig.width=14}
+gridExtra::grid.arrange(as.grob(sm_heat_sigfi_sub1a$plot), as.grob(sm_heat_sigfi_sub1b$plot), ncol=2,
+                        top = textGrob("Smoothed Node x Node Matrix of Factor Score w/ Sig Contribution",gp=gpar(fontsize=16,font=3)))
 ```

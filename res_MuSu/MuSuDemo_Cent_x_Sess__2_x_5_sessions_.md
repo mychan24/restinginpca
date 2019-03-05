@@ -97,18 +97,19 @@ To have a (relatively) clearer view of the results, we compute the mean for each
 # Compute means of factor scores for different edges----
 mean.fi <- getMeans(pca.res.subj$ExPosition.Data$fi, labels$subjects_edge_label) # with t(gt)
 
-BootCube.Comm <- Boot4Mean(pca.res.subj$ExPosition.Data$fi,
-                           design = labels$subjects_edge_label,
-                           niter = 100,
-                           suppressProgressBar = TRUE)
+# BootCube.Comm <- Boot4Mean(pca.res.subj$ExPosition.Data$fi,
+#                            design = labels$subjects_edge_label,
+#                            niter = 100,
+#                            suppressProgressBar = TRUE)
 
 
 # Compute means of factor scores for different types of edges
 mean.fi.bw <- getMeans(pca.res.subj$ExPosition.Data$fi, labels$subjects_wb) # with t(gt)
-BootCube.Comm.bw <- Boot4Mean(pca.res.subj$ExPosition.Data$fi,
-                           design = labels$subjects_wb,
-                           niter = 100,
-                           suppressProgressBar = TRUE)
+
+# BootCube.Comm.bw <- Boot4Mean(pca.res.subj$ExPosition.Data$fi,
+#                            design = labels$subjects_wb,
+#                            niter = 100,
+#                            suppressProgressBar = TRUE)
 ```
 
 Plot
@@ -122,8 +123,12 @@ Plot column factor scores (a mess) ![](MuSuDemo_Cent_x_Sess__2_x_5_sessions__fil
 
 Show column factor as square matrix of sub01\_a and sub01\_b
 
-![](MuSuDemo_Cent_x_Sess__2_x_5_sessions__files/figure-markdown_github/unnamed-chunk-2-1.png)
+![](MuSuDemo_Cent_x_Sess__2_x_5_sessions__files/figure-markdown_github/grid_heat_fi-1.png)
 
 Factor score in squarem matrix that have significant contribution only
 
-![](MuSuDemo_Cent_x_Sess__2_x_5_sessions__files/figure-markdown_github/unnamed-chunk-4-1.png)
+![](MuSuDemo_Cent_x_Sess__2_x_5_sessions__files/figure-markdown_github/grid_heat_sigfi-1.png)
+
+Smoothed Sig Factor Score
+
+![](MuSuDemo_Cent_x_Sess__2_x_5_sessions__files/figure-markdown_github/grid_smheat_sigfi-1.png)
