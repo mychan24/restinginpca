@@ -202,13 +202,29 @@ subjMean.Rv <- subjMean.Rv.tmp[,2:ncol(subjMean.Rv.tmp)]
 rownames(subjMean.Rv) <- subjMean.Rv.tmp[,1]
 ### Compute bootstrap estimates
 BootCube.subj.Rv <- PTCA4CATA::Boot4Mean(Rv.f2plot, design = subj.des, niter = 100, suppressProgressBar = TRUE)
+dimnames(BootCube.subj.Rv$BootCube)[[2]] <- paste0('dim', 1:dim(BootCube.subj.Rv$BootCube)[[2]])
 
 ### Dimension labels for the Rv map
 rv.labels <- createxyLabels.gen(lambda = distatis.res$res4Cmat$eigValues,
                                 tau = distatis.res$res4Cmat$tau,
                                 axisName = "Dimension ")
+### Create confidence intervals for the subjects
+in.tmp <- sort(rownames(color4Subj.list$gc), index.return = TRUE)$ix
+col4Sub <- color4Subj.list$gc[in.tmp]
+### Plot means
+rv.means.graph <- createFactorMap(subjMean.Rv,
+                                  axis1 = 1, axis2 = 2,
+                                  constraints = rv.graph$constraints,
+                                  col.point = col4Sub,
+                                  alpha.points = 1,
+                                  col.labels = col4Sub)
+GraphElli.rv <- MakeCIEllipses(BootCube.subj.Rv$BootCube[,1:2,],
+                               names.of.factors = c("dim 1","dim 2"),
+                               col = col4Sub,
+                               p.level = .95)
+
 ### Show plot
-Rvmap <- rv.graph$zeMap + rv.labels
+Rvmap <- rv.graph$zeMap + rv.labels + rv.means.graph$zeMap_dots + GraphElli.rv
 print(Rvmap)
 ```
 
@@ -249,6 +265,28 @@ f02.Fi.noLabel <- f.graph.23$zeMap_background + f.graph.23$zeMap_dots + f.labels
 
 ```{r plot_fig_f, echo=F, fig.height=8, fig.width= 16}
 gridExtra::grid.arrange(as.grob(f01.Fi.noLabel), as.grob(f02.Fi.noLabel), ncol=2)
+```
+
+#### The partial factor scores
+
+```{r pF}
+# Partial factor scores and weights
+F_j <- distatis.res$res4Splus$PartialF
+alpha_j <- distatis.res$res4Cmat$alpha
+
+# Group of sessions
+code4Sub <- unique(subj.des)
+nK <- length(code4Sub)
+
+# Create empty array for F_k and alpha_k
+F_k <- array(0, dim = c(dim(F_j)[[1]], dim(F_j)[[2]], nK))
+dimnames(F_k) <- list(dimnames(F_j)[[1]], dimanems(F_j)[[2]], code4Sub)
+
+alpha_k <- rep(0,nK)
+names(alpha_k) <- code4Sub
+
+# 
+
 ```
 
 ### Now plot the compromise space with means, confidence intervals, and tolerance intervals
