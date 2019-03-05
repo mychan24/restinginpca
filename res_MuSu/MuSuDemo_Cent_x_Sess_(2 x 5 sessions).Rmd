@@ -1,0 +1,296 @@
+---
+title: "MuSuDemo_nopreproc (2 sub01 x 5 sessions)"
+output: github_document
+---
+
+## Outline
+##### Correlation matirx (first 5 sessions x of sub01 & next 5 sessions of sub01 ) -> rectangular matrix [sessions x edges by network by subject] -> center across sessions -> SVD
+This retains the same dimension across "two" subjects (data are all from sub01).
+
+## Objectives
+Here, we illustrate the results when the rectangular matrix (sessions x edges by network by subject) is analyzed by SVD after the each edge is centered (center across sessions).
+
+```{r cars, echo = FALSE, include = FALSE}
+suppressMessages(library(psych))
+suppressMessages(library(DistatisR))
+suppressMessages(library(tidyr))
+suppressMessages(library(magrittr))
+suppressMessages(library(DistatisR))
+suppressMessages(library(PTCA4CATA))
+suppressMessages(library(ExPosition))
+suppressMessages(library(InPosition))
+suppressMessages(library(superheat))
+suppressMessages(library(gridExtra))
+suppressMessages(library(ggplotify))
+suppressMessages(library(grid))
+suppressMessages(library(pals))
+# Read functions
+tool.path <- "../tools/"
+source(paste0(tool.path,"SScomm.R"))
+source(paste0(tool.path,"vec2sqmat.R"))
+```
+
+
+## Read cube data (z(correlation) matrix) and the information for communities
+
+```{r data, echo = FALSE, include = FALSE}
+zmat.path <- "../data/zmat"
+load(paste0(zmat.path,"/sub-MSC01_zcube_rcube.RData"))
+# read parcel labels
+parcel.comm.path <- "../data/parcel_community"
+vox.des <- read.table(paste0(parcel.comm.path,"/sub-MSC01_node_parcel_comm.txt"),sep = ",")
+colnames(vox.des) <- c("NodeID","VertexID","Comm")
+# rename communities
+CommName <- read.csv(paste0(parcel.comm.path,"/systemlabel.txt"),sep = ",",header = FALSE)
+colnames(CommName) <- c("Comm","CommLabel","CommColor","CommLabel.short")
+for(i in 1:nrow(CommName)){
+  vox.des$Comm.recode[vox.des$Comm==CommName$Comm[i]] <- as.character(CommName$CommLabel[i])
+  vox.des$Comm.Col[vox.des$Comm==CommName$Comm[i]] <- as.character(CommName$CommColor[i])
+  vox.des$Comm.rcd[vox.des$Comm==CommName$Comm[i]] <- as.character(CommName$CommLabel.short[i])
+}
+# Create design matrix for communities
+vox.des.mat <- makeNominalData(as.matrix(vox.des$Comm.rcd))
+colnames(vox.des.mat) <- sub(".","",colnames(vox.des.mat))
+```
+
+This is a data cube of correlation: ROIs x ROIs x 10 sessions
+
+```{r check, echo = TRUE, include = TRUE}
+# Dimensions
+dim(cubes$rcube)
+```
+
+## Read the rectangular table
+```{r gt, echo = FALSE, include = FALSE}
+# the labels for each intersection of the correlation matirx
+load(paste0("../data/sub1_grandatble_and_labels_20190304.Rdata")) # read the labels of grandtable
+gt <- gt_s1; rm(gt_s1)
+labels <- labels_s1; rm(labels_s1)
+# Categorize columns by between or within edges
+#--- Create new column of sub-edgetype
+sprintf('%s_%s',labels$subjects_label,labels$wb)
+labels[,'subjects_wb'] <- sprintf('%s_%s',labels$subjects_label,labels$wb) #
+```
+
+### The grand table:
+```{r gt_heatmap, echo = FALSE}
+superheat(gt,
+          membership.cols = labels$subjects_edge_label,
+          membership.rows = c(1:5),
+          clustering.method = NULL,
+          heat.col.scheme = "viridis",
+          left.label.size = 0.05,
+          bottom.label.size = 0.05,
+          y.axis.reverse = TRUE,
+          left.label.text.size = 3,
+          bottom.label.text.size = 2,
+          left.label.text.alignment = "left",
+          grid.vline = FALSE
+)
+```
+
+### the heatmap with columns arranged according to edgetype
+
+```{r gt_heatmap_bw, echo = FALSE}
+superheat(gt,
+          membership.cols = labels$subjects_wb,
+          membership.rows = c(1:5),
+          clustering.method = NULL,
+          heat.col.scheme = "viridis",
+          left.label.size = 0.05,
+          bottom.label.size = 0.05,
+          y.axis.reverse = TRUE,
+          left.label.text.size = 3,
+          bottom.label.text.size = 2,
+          left.label.text.alignment = "left",
+          grid.vline = FALSE
+)
+```
+
+## Centered across sessions (rows)
+```{r gt_centerRow}
+gt_centXsess <- expo.scale(gt, scale = FALSE)
+```
+
+
+## SVD
+
+The data are transposed so that the rows are now different edges of different subject and the columns are different sessions. The data are centered across sessions (each edge is centered).
+
+```{r gt_svd}
+# Use subject_edge_label as column names
+colnames(gt_centXsess) <- labels$subjects_edge_label
+# Transpose for epPCA
+t_gt_centXsess <- t(gt_centXsess)
+# SVD on the rectangular data ------------------------
+pca.res.subj <- epPCA(t_gt_centXsess,scale = FALSE, center = FALSE, DESIGN = labels$subjects_edge_label, make_design_nominal = TRUE, graphs = FALSE)
+# check dimension
+dim(t_gt_centXsess)
+```
+
+### Check the contribution of each variable
+```{r}
+#--- get the contribution of each component
+cI <- pca.res.subj$ExPosition.Data$ci
+#--- get the sum of contribution for each edge
+c_edge <- labels$subjects_edge_label %>% as.matrix %>% makeNominalData %>% t %>% "%*%"(cI)
+rownames(c_edge) <- sub(".","",rownames(c_edge))
+#--- compute the sums of squares of each variable for each component
+absCtrEdg <- as.matrix(c_edge) %*% diag(pca.res.subj$ExPosition.Data$eigs)
+#--- get the contribution for component 1 AND 2 by sum(SS from 1, SS from 2)/sum(eigs 1, eigs 2)
+edgCtr12 <- (absCtrEdg[,1] + absCtrEdg[,2])/(pca.res.subj$ExPosition.Data$eigs[1] + pca.res.subj$ExPosition.Data$eigs[2])
+edgCtr23 <- (absCtrEdg[,3] + absCtrEdg[,2])/(pca.res.subj$ExPosition.Data$eigs[2] + pca.res.subj$ExPosition.Data$eigs[3])
+#--- the important variables are the ones that contribute more than or equal to the average
+importantEdg <- (edgCtr12 >= 1/length(edgCtr12))
+importantEdg <- (edgCtr23 >= 1/length(edgCtr23))
+#--- color for networks
+col4ImportantEdg <- unique(pca.res.subj$Plotting.Data$fi.col) # get colors
+col4NS <- 'gray90' # set color for not significant edges to gray
+col4ImportantEdg[!importantEdg] <- col4NS # replace them in the color vector
+
+```
+
+## Inference
+
+To have a (relatively) clearer view of the results, we compute the mean for each edge (or edge type) that we are interested in.
+
+```{r mean_fi}
+# Compute means of factor scores for different edges----
+mean.fi <- getMeans(pca.res.subj$ExPosition.Data$fi, labels$subjects_edge_label) # with t(gt)
+
+BootCube.Comm <- Boot4Mean(pca.res.subj$ExPosition.Data$fi,
+                           design = labels$subjects_edge_label,
+                           niter = 100,
+                           suppressProgressBar = TRUE)
+
+
+# Compute means of factor scores for different types of edges
+mean.fi.bw <- getMeans(pca.res.subj$ExPosition.Data$fi, labels$subjects_wb) # with t(gt)
+BootCube.Comm.bw <- Boot4Mean(pca.res.subj$ExPosition.Data$fi,
+                           design = labels$subjects_wb,
+                           niter = 100,
+                           suppressProgressBar = TRUE)
+
+```
+
+## Plot
+
+First, we plot the 5 sessions
+
+```{r plot_fj, echo = FALSE}
+plot.fj <- createFactorMap(pca.res.subj$ExPosition.Data$fj) # with t(gt)
+plot.fj$zeMap
+```
+
+Plot column factor scores (a mess)
+```{r plot_fi, echo=FALSE}
+plot.fi <- createFactorMap(mean.fi, axis1 = 2, axis2 = 3,
+                           col.points = col4ImportantEdg,
+                           text.cex = 2,
+                           force = 0.5)
+plot.fi$zeMap_background + plot.fi$zeMap_dots
+```
+
+Show column factor as square matrix of sub01_a and sub01_b
+
+```{r squremat_fi, echo=F, fig.show = 'hide'}
+Comm.col <- list(oc = as.matrix(vox.des$Comm.Col), gc = as.matrix(CommName$CommColor))
+rownames(Comm.col$oc) <- vox.des$NodeID
+rownames(Comm.col$gc) <- CommName$CommLabel.short
+
+fi1_s1a_sqmat <- vec2sqmat(pca.res.subj$ExPosition.Data$fi[labels$subjects_label=="sub01_a",1])
+fi1_s1b_sqmat <- vec2sqmat(pca.res.subj$ExPosition.Data$fi[labels$subjects_label=="sub01_b",1])
+
+heats1a <- superheat(fi1_s1a_sqmat, y.axis.reverse = T,
+          membership.rows =vox.des$Comm.rcd,
+          membership.cols =vox.des$Comm.rcd,                    
+          left.label.col=Comm.col$gc[order(rownames(Comm.col$gc))],
+          bottom.label.col=Comm.col$gc[order(rownames(Comm.col$gc))],
+          left.label.size = 0.08,
+          bottom.label.size = 0.05,
+          extreme.values.na = FALSE,
+          heat.lim = c(-.6, .6),
+          heat.pal = kovesi.diverging_bwr_40_95_c42(200),
+          heat.pal.values = c(0,0.35,0.5,0.65,1),
+          left.label.text.size = 3,
+          bottom.label.text.size = 2,
+          left.label.text.col = c(rep("black",8),rep("white",2),rep("black",3),"white",rep("black",3),rep("white",2)),
+          bottom.label.text.col = c(rep("black",8),rep("white",2),rep("black",3),"white",rep("black",3),rep("white",2)),
+          title="Node x Node Matrix of\n factor scores sub01_a")
+
+heats1b <- superheat(fi1_s1b_sqmat, y.axis.reverse = T,
+          membership.rows =vox.des$Comm.rcd,
+          membership.cols =vox.des$Comm.rcd,                    
+          left.label.col=Comm.col$gc[order(rownames(Comm.col$gc))],
+          bottom.label.col=Comm.col$gc[order(rownames(Comm.col$gc))],
+          left.label.size = 0.08,
+          bottom.label.size = 0.05,
+          extreme.values.na = FALSE,
+          heat.lim = c(-.6, .6),
+          heat.pal = kovesi.diverging_bwr_40_95_c42(200),
+          heat.pal.values = c(0,0.35,0.5,0.65,1),
+          left.label.text.size = 3,
+          bottom.label.text.size = 2,
+          left.label.text.col = c(rep("black",8),rep("white",2),rep("black",3),"white",rep("black",3),rep("white",2)),
+          bottom.label.text.col = c(rep("black",8),rep("white",2),rep("black",3),"white",rep("black",3),rep("white",2)),
+          title="Node x Node Matrix of\nfactor scores sub01_b")
+
+```
+
+```{r, echo=F}
+gridExtra::grid.arrange(as.grob(heats1a$plot), as.grob(heats1b$plot), ncol=2)
+```
+
+Factor score in squarem matrix that have significant contribution only
+```{r, echo=F, fig.show = 'hide'}
+#--- the important variables are the ones that contribute more than or equal to the average
+importantEdg12 <- (edgCtr12 >= 1/length(edgCtr12))
+importantEdg23 <- (edgCtr23 >= 1/length(edgCtr23))
+importantEdg1 <- (cI[,1] >= 1/length(cI[,1]))
+importantEdg2 <- (cI[,2] >= 1/length(cI[,2]))
+
+fi_sig <- pca.res.subj$ExPosition.Data$fi
+fi_sig[!importantEdg1] <- 0
+fi_sub1a_sig_sqmat <- vec2sqmat(fi_sig[labels$subjects_label=="sub01_a",1])
+fi_sub1b_sig_sqmat <- vec2sqmat(fi_sig[labels$subjects_label=="sub01_b",1])
+
+
+sigfi_sub1a <- superheat(fi_sub1a_sig_sqmat, y.axis.reverse = T,
+          membership.rows =vox.des$Comm.rcd,
+          membership.cols =vox.des$Comm.rcd,                    
+          left.label.col=Comm.col$gc[order(rownames(Comm.col$gc))],
+          bottom.label.col=Comm.col$gc[order(rownames(Comm.col$gc))],
+          left.label.size = 0.08,
+          bottom.label.size = 0.05,
+          extreme.values.na = FALSE,
+          heat.lim = c(-.6, .6),
+          heat.pal = kovesi.diverging_bwr_40_95_c42(200),
+          heat.pal.values = c(0,0.35,0.5,0.65,1),
+          left.label.text.size = 3,
+          bottom.label.text.size = 2,
+          left.label.text.col = c(rep("black",8),rep("white",2),rep("black",3),"white",rep("black",3),rep("white",2)),
+          bottom.label.text.col = c(rep("black",8),rep("white",2),rep("black",3),"white",rep("black",3),rep("white",2)),
+          title="Node x Node Matrix of factor scores - sub1_a")
+
+sigfi_sub1b <- superheat(fi_sub1b_sig_sqmat, y.axis.reverse = T,
+          membership.rows =vox.des$Comm.rcd,
+          membership.cols =vox.des$Comm.rcd,                    
+          left.label.col=Comm.col$gc[order(rownames(Comm.col$gc))],
+          bottom.label.col=Comm.col$gc[order(rownames(Comm.col$gc))],
+          left.label.size = 0.08,
+          bottom.label.size = 0.05,
+          extreme.values.na = FALSE,
+          heat.lim = c(-.6, .6),
+          heat.pal = kovesi.diverging_bwr_40_95_c42(200),
+          heat.pal.values = c(0,0.35,0.5,0.65,1),
+          left.label.text.size = 3,
+          bottom.label.text.size = 2,
+          left.label.text.col = c(rep("black",8),rep("white",2),rep("black",3),"white",rep("black",3),rep("white",2)),
+          bottom.label.text.col = c(rep("black",8),rep("white",2),rep("black",3),"white",rep("black",3),rep("white",2)),
+          title="Node x Node Matrix of factor scores - sub1_b")
+
+```
+
+```{r, echo=F}
+gridExtra::grid.arrange(as.grob(sigfi_sub1a$plot), as.grob(sigfi_sub1b$plot), ncol=2)
+```
