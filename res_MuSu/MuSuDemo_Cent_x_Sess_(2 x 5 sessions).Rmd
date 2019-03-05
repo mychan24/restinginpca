@@ -193,16 +193,16 @@ importantEdg2 <- (cI[,2] >= 1/length(cI[,2]))
 
 ```
 
-First, we plot the 5 sessions
+First, we plot the 5 sessions: Dim 1 & 2
 
 ```{r plot_fj, echo = FALSE}
 plot.fj <- createFactorMap(pca.res.subj$ExPosition.Data$fj) # with t(gt)
 plot.fj$zeMap
 ```
 
-Plot column factor scores (a mess)
+Plot column factor scores (a mess): Dim 1 & 2
 ```{r plot_fi, echo=FALSE}
-plot.fi <- createFactorMap(mean.fi, axis1 = 2, axis2 = 3,
+plot.fi <- createFactorMap(mean.fi, axis1 = 1, axis2 = 2,
                            col.points = col4ImportantEdg,
                            text.cex = 2,
                            force = 0.5)
@@ -253,7 +253,7 @@ heats1b <- superheat(fi1_s1b_sqmat, y.axis.reverse = T,
 
 ```{r grid_heat_fi, echo=F, fig.height=8, fig.width=14}
 gridExtra::grid.arrange(as.grob(heats1a$plot), as.grob(heats1b$plot), ncol=2,
-                        top = textGrob("Node x Node Matrix of Factor Score",gp=gpar(fontsize=18,font=3)))
+                        top = textGrob("Node x Node Matrix of Factor Score: Dim 1",gp=gpar(fontsize=18,font=3)))
 ```
 
 Factor score in squarem matrix that have significant contribution only
@@ -301,7 +301,7 @@ heat_sigfi_sub1b <- superheat(fi_sub1b_sig_sqmat, y.axis.reverse = T,
 
 ```{r, grid_heat_sigfi, echo=F, fig.height=8, fig.width=14}
 gridExtra::grid.arrange(as.grob(heat_sigfi_sub1a$plot), as.grob(heat_sigfi_sub1b$plot), ncol=2,
-                        top = textGrob("Node x Node Matrix of Factor Score w/ Sig Contribution",gp=gpar(fontsize=16,font=3)))
+                        top = textGrob("Node x Node Matrix of Factor Score w/ Sig Contribution: Dim 1",gp=gpar(fontsize=16,font=3)))
 ```
 
 Smoothed Sig Factor Score
@@ -347,5 +347,5 @@ sm_heat_sigfi_sub1b <- superheat(fi_sub1b_sig_sqmat, y.axis.reverse = T,
 
 ```{r, grid_smheat_sigfi, echo=F, fig.height=8, fig.width=14}
 gridExtra::grid.arrange(as.grob(sm_heat_sigfi_sub1a$plot), as.grob(sm_heat_sigfi_sub1b$plot), ncol=2,
-                        top = textGrob("Smoothed Node x Node Matrix of Factor Score w/ Sig Contribution",gp=gpar(fontsize=16,font=3)))
+                        top = textGrob("Smoothed Node x Node Matrix of Factor Score w/ Sig Contribution: Dim 1",gp=gpar(fontsize=16,font=3)))
 ```

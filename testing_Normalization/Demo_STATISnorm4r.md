@@ -1,30 +1,25 @@
 Demonstrating STATIS normalization on a correlation matrix
 ================
 
-## Idea
+Idea
+----
 
-Before starting this project, we were not sure how we should normalize
-our data to control for counding factors (e.g., voxel size and network
-size) and keep important signals. (But what is really the important
-information?) Since the correlation matrix we work on resemble a
-distance matrix. We came up with the idea of matrix preprocessing steps
-similar to that of DiSTATIS (i.e., STATIS for distance matrices). This
-type of preprocessing consists of two steps:
+Before starting this project, we were not sure how we should normalize our data to control for counding factors (e.g., voxel size and network size) and keep important signals. (But what is really the important information?) Since the correlation matrix we work on resemble a distance matrix. We came up with the idea of matrix preprocessing steps similar to that of DiSTATIS (i.e., STATIS for distance matrices). This type of preprocessing consists of two steps:
 
-  - Double-center
-  - Normalized by the first eigenvalue of the double-centered matrix
+-   Double-center
+-   Normalized by the first eigenvalue of the double-centered matrix
 
-## Objectives
+Objectives
+----------
 
-Here, we illustrate how data are changed along these steps and how the
-final singular value decomposition (SVD) results are affected.
+Here, we illustrate how data are changed along these steps and how the final singular value decomposition (SVD) results are affected.
 
-## Start with an example data
+Start with an example data
+--------------------------
 
 ### Fake data
 
-We start with a fake data with blocks of
-    correlation.
+We start with a fake data with blocks of correlation.
 
     ##      Ex1 Ex2 Ex3 Ex4 Ex5 Ex6 Ex7 Ex8 Ag1 Ag2 Ag3 Ag4 Ag5 Ag6 Ag7 Ag8 Ag9
     ## [1,]   5   2   4   4   4   3   3   3   2   4   5   3   3   3   3   4   4
@@ -61,8 +56,7 @@ dim(cor.X)
 ## [1] 44 44
 ```
 
-Setting up colors for
-plotting
+Setting up colors for plotting
 
 ``` r
 group.col <- RColorBrewer::brewer.pal(5,"Set1")[c(rep(x=1,8),rep(x=2,9),rep(x=3,9),rep(x=4,8),rep(x=5,10))]
@@ -80,24 +74,20 @@ value.col <- colorRamps::blue2red(100)
 
 ### The heatmap:
 
-Given that all networks have strong within connection, we want to
-differentiate networks that:
+Given that all networks have strong within connection, we want to differentiate networks that:
 
-  - have low between-network connection (an isolated network) – E and N
-  - have strong connection with one other network – A and C (Note: These
-    two networks also have strong connections to two other networks, but
-    these connections are not as evenly strong as the O network, and
-    they both have smaller SS.)
-  - have strong connection with two (or more) other network – O
+-   have low between-network connection (an isolated network) -- E and N
+-   have strong connection with one other network -- A and C (Note: These two networks also have strong connections to two other networks, but these connections are not as evenly strong as the O network, and they both have smaller SS.)
+-   have strong connection with two (or more) other network -- O
 
-![](demo_STATISnorm4r_files/figure-gfm/show_cor-1.png)<!-- -->
+![](Demo_STATISnorm4r_files/figure-markdown_github/show_cor-1.png)
 
-## STATIS-like normalization
+STATIS-like normalization
+-------------------------
 
 ### STEP 1 : Double centering
 
-Centering across columns and rows so that each row and column has a mean
-of 0.
+Centering across columns and rows so that each row and column has a mean of 0.
 
 ``` r
 # center columns and rows
@@ -120,10 +110,9 @@ colnames(Q1) <- colnames(X)
 
 Plot eigen vectors:
 
-![](demo_STATISnorm4r_files/figure-gfm/plot_dc_ev-1.png)<!-- -->
+![](Demo_STATISnorm4r_files/figure-markdown_github/plot_dc_ev-1.png)
 
-Double-centering subtracts the most from the network that connects most
-to other networks.
+Double-centering subtracts the most from the network that connects most to other networks.
 
 ### STEP 2 : Devided the double-centered matrix by the first eigenvalue
 
@@ -133,11 +122,9 @@ end.X <- corX.c/Lambda.corX[1]
 
 #### Compared the STATIS-like normalized matrix to the original matrix:
 
-As mentioned above, when we double-center the matrix, the value
-subtracted from the most connected network will be large, and thus the
-value will become smaller than those who connect less to other networks.
+As mentioned above, when we double-center the matrix, the value subtracted from the most connected network will be large, and thus the value will become smaller than those who connect less to other networks.
 
-![](demo_STATISnorm4r_files/figure-gfm/o_n_mat-1.png)<!-- -->
+![](Demo_STATISnorm4r_files/figure-markdown_github/o_n_mat-1.png)
 
 Sums of squares of the normalized matrix:
 
@@ -148,8 +135,7 @@ Sums of squares of the normalized matrix:
     ## N 0.01211016 0.02935305 0.04340758 0.54467836 0.05296631
     ## O 0.07531015 0.05395297 0.05685418 0.05296631 0.45944721
 
-Normalized sums of squares of the normalized
-    matrix:
+Normalized sums of squares of the normalized matrix:
 
     ##              E            A            C            N            O
     ## E 0.0083994644 0.0008382265 0.0007297789 0.0001892212 0.0009413769
@@ -194,14 +180,14 @@ Plot them:
     ## N 0.02061252 0.03335369 0.04136409 0.34365785 0.01968514
     ## O 0.05683041 0.17906033 0.19537509 0.01968514 0.45215325
 
-![](demo_STATISnorm4r_files/figure-gfm/grid_small_mats-1.png)<!-- -->
+![](Demo_STATISnorm4r_files/figure-markdown_github/grid_small_mats-1.png)
 
-## Try PCA
+Try PCA
+-------
 
 ### PCA results with STATIS-normalized and original matrix
 
-Let’s see how the PCA results are changed after the STATIS-like
-normalization.
+Let's see how the PCA results are changed after the STATIS-like normalization.
 
 ``` r
 # Group design
@@ -214,28 +200,21 @@ endX.pca.res <- epPCA(end.X, center = FALSE, scale = FALSE, DESIGN = group.des, 
 
 #### Compare
 
-![](demo_STATISnorm4r_files/figure-gfm/plot_scree-1.png)<!-- -->
+![](Demo_STATISnorm4r_files/figure-markdown_github/plot_scree-1.png)
 
-  - The network with the largest size will dominate the first component.
-  - The first component gives the frequency of connections for each
-    network. (Isolated -\> Connected)
-  - The first component might give a combination of two features of
-    networks:
-      - sums of squares
-      - frequency of connectivity
-  - The second component differentiates different isolated networks.
+-   The network with the largest size will dominate the first component.
+-   The first component gives the frequency of connections for each network. (Isolated -&gt; Connected)
+-   The first component might give a combination of two features of networks:
+-   sums of squares
+-   frequency of connectivity
+-   The second component differentiates different isolated networks.
 
-When compared to PCA of the original matrix, the STATIS-like
-normalization is similar to a rotation for components 1 and 2. The third
-component is not making much sense.
+When compared to PCA of the original matrix, the STATIS-like normalization is similar to a rotation for components 1 and 2. The third component is not making much sense.
 
-![](demo_STATISnorm4r_files/figure-gfm/grid_pca-1.png)<!-- -->
+![](Demo_STATISnorm4r_files/figure-markdown_github/grid_pca-1.png)
 
 #### Question?
 
-  - The first two components seem to capture what we care about. The
-    question now is: Will these first two components survive if we
-    reshape this normalized matrix and do PCA on the its rectangular
-    form?
+-   The first two components seem to capture what we care about. The question now is: Will these first two components survive if we reshape this normalized matrix and do PCA on the its rectangular form?
 
-### To be continued…
+### To be continued...

@@ -115,11 +115,11 @@ mean.fi.bw <- getMeans(pca.res.subj$ExPosition.Data$fi, labels$subjects_wb) # wi
 Plot
 ----
 
-First, we plot the 5 sessions
+First, we plot the 5 sessions: Dim 1 & 2
 
 ![](MuSuDemo_Cent_x_Sess__2_x_5_sessions__files/figure-markdown_github/plot_fj-1.png)
 
-Plot column factor scores (a mess) ![](MuSuDemo_Cent_x_Sess__2_x_5_sessions__files/figure-markdown_github/plot_fi-1.png)
+Plot column factor scores (a mess): Dim 1 & 2 ![](MuSuDemo_Cent_x_Sess__2_x_5_sessions__files/figure-markdown_github/plot_fi-1.png)
 
 Show column factor as square matrix of sub01\_a and sub01\_b
 
