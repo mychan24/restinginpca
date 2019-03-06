@@ -97,30 +97,6 @@ superheat(cubes$rcube[,,1],
 
 _Note: The data was transformed from the upper triangle of the correlation matrices. From the correlation matrix of each session, its upper triangle are reshape as a vector. These sessions are concatenated on the rows and these of different subjects are concatenated on the columns._
 
-### The grand table:
-```{r gt_heatmap, echo = FALSE, fig.height= 8, fig.width = 16}
-# the labels for each intersection of the correlation matirx
-load(paste0("../data/grandatble_and_labels_20190204.Rdata")) # read the labels of grandtable
-# Categorize columns by between or within edges
-#--- Create new column of sub-edgetype
-sprintf('%s_%s',labels$subjects_label,labels$wb)
-labels[,'subjects_wb'] <- sprintf('%s_%s',labels$subjects_label,labels$wb)
-#--- Heatmap of the grand table
-superheat(gt,
-          membership.cols = labels$subjects_edge_label,
-          membership.rows = c(1:10),
-          clustering.method = NULL,
-          heat.col.scheme = "viridis",
-          left.label.size = 0.05,
-          bottom.label.size = 0.05,
-          y.axis.reverse = TRUE,
-          left.label.text.size = 3,
-          bottom.label.text.size = 2,
-          left.label.text.alignment = "left",
-          grid.vline = FALSE
-)
-```
-
 ##### Method:
 
 + Centering: across sessions (rows) (i.e., the columns are centered)
