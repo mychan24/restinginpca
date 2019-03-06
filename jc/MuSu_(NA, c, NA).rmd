@@ -1,0 +1,129 @@
+
+---
+title: "MuSu_(NA, c, NA)"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+suppressMessages(library(pander))
+suppressMessages(library(psych))
+suppressMessages(library(DistatisR))
+suppressMessages(library(tidyr))
+suppressMessages(library(magrittr))
+suppressMessages(library(DistatisR))
+suppressMessages(library(PTCA4CATA))
+suppressMessages(library(ExPosition))
+suppressMessages(library(InPosition))
+suppressMessages(library(superheat))
+suppressMessages(library(gridExtra))
+suppressMessages(library(ggplotify))
+suppressMessages(library(grid))
+suppressMessages(library(pals))
+```
+
+> This is an SVD with centered columns.
+
+##### Data:
+
+###### The data are from the morning scan club (MSC) resting-state data where each of the 10 participants were scanned 10 times. The data that are analyzed here are the z-transformed coefficients of correlation between regions. These regions can be categorized into 12 networks: 
+
+```{r community_list, echo = FALSE, fig.height= 10, fig.width = 2}
+# rename communities
+#--- read the file with community information: label number & community name & color & abbreviation for community name
+parcel.comm.path <- "data/parcel_community"
+CommName <- read.csv("../data/parcel_community/systemlabel.txt",header = FALSE)
+colnames(CommName) <- c("Comm", "CommLabel","CommColor","CommLabel.short")
+CommName[,'Community'] <- c("UnAssign", "Default","lateral Visual","Frontoparietal",
+                            "medial Visual","dorsal Attention","Premotor",
+                            "ventral Attention","Salience","Cingular opercular",
+                            "Sensorimotor - hand","Sensorimotor - face","Auditory",
+                            "anterior Medial temporal","posterior Medial temporal",
+                            "Parietal memory","Context","Sensorimotor - foot","Unknown")
+pander::pander(CommName[,c("Comm", "Community","CommLabel.short")])
+
+```
+
+###### As a result, the correlation matrix of each session of each subject will look like this:
+
+```{r data, echo = FALSE, include = TRUE, fig.height= 20, fig.width = 16}
+zmat.path <- "../data/zmat"
+load(paste0(zmat.path,"/sub-MSC01_zcube_rcube.RData"))
+# read parcel labels
+parcel.comm.path <- "../data/parcel_community"
+vox.des <- read.table(paste0(parcel.comm.path,"/sub-MSC01_node_parcel_comm.txt"),sep = ",")
+colnames(vox.des) <- c("NodeID","VertexID","Comm")
+#--- create three columns in the original table of community information: name, color, abbreviation
+for(i in 1:nrow(CommName)){
+  vox.des$Comm.recode[vox.des$Comm==CommName$Comm[i]] <- as.character(CommName$CommLabel[i])
+  vox.des$Comm.Col[vox.des$Comm==CommName$Comm[i]] <- as.character(CommName$CommColor[i])
+  vox.des$Comm.rcd[vox.des$Comm==CommName$Comm[i]] <- as.character(CommName$CommLabel.short[i])
+}
+#--- Create design matrix for communities
+vox.des.mat <- makeNominalData(as.matrix(vox.des$Comm.rcd))
+colnames(vox.des.mat) <- sub(".","",colnames(vox.des.mat))
+
+#--- Create color for each communities
+Comm.col <- list(oc = as.matrix(vox.des$Comm.Col), gc = as.matrix(CommName$CommColor))
+rownames(Comm.col$oc) <- vox.des$NodeID
+rownames(Comm.col$gc) <- CommName$CommLabel.short
+
+superheat(cubes$rcube[,,1],
+          membership.cols = vox.des$Comm.rcd,
+          membership.rows = vox.des$Comm.rcd,
+          clustering.method = NULL,
+          heat.col.scheme = "viridis",
+          left.label.size = 0.08,
+          bottom.label.size = 0.05,
+          y.axis.reverse = TRUE,
+          left.label.col = Comm.col$gc[order(rownames(Comm.col$gc))], # order by community name
+          bottom.label.col = Comm.col$gc[order(rownames(Comm.col$gc))],
+          left.label.text.size = c(rep(6,4), rep(3,3),6,3,  rep(6,2),3,rep(6,5),3,3),
+          bottom.label.text.size = 2,
+          left.label.text.col = c(rep("black",8),rep("white",2),rep("black",3),"white",rep("black",3),rep("white",2)),
+          bottom.label.text.col = c(rep("black",8),rep("white",2),rep("black",3),"white",rep("black",3),rep("white",2)),
+          left.label.text.alignment = "left",
+          title = "Correlation matric of the 1st session of Subject 1"
+)
+```
+
+###### This correlation matrix were then turned into a rectangular matrix
+
+#### Rectangular data:
+
++ Rows: 5 sessions
+
++ Columns: Different edges (e.g, _within DMN_, _between DMN & CON_, _between DMN & FPN_, etc.) of different subjects
+
+_Note: The data was transformed from the upper triangle of the correlation matrices. From the correlation matrix of each session, its upper triangle are reshape as a vector. These sessions are concatenated on the rows and these of different subjects are concatenated on the columns._
+
+### The grand table:
+```{r gt_heatmap, echo = FALSE, fig.height= 8, fig.width = 16}
+# the labels for each intersection of the correlation matirx
+load(paste0("../data/grandatble_and_labels_20190204.Rdata")) # read the labels of grandtable
+# Categorize columns by between or within edges
+#--- Create new column of sub-edgetype
+sprintf('%s_%s',labels$subjects_label,labels$wb)
+labels[,'subjects_wb'] <- sprintf('%s_%s',labels$subjects_label,labels$wb)
+#--- Heatmap of the grand table
+superheat(gt,
+          membership.cols = labels$subjects_edge_label,
+          membership.rows = c(1:10),
+          clustering.method = NULL,
+          heat.col.scheme = "viridis",
+          left.label.size = 0.05,
+          bottom.label.size = 0.05,
+          y.axis.reverse = TRUE,
+          left.label.text.size = 3,
+          bottom.label.text.size = 2,
+          left.label.text.alignment = "left",
+          grid.vline = FALSE
+)
+```
+
+##### Method:
+
++ Centering: across sessions (rows) (i.e., the columns are centered)
+
++ Normalizing: none
+
