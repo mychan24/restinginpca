@@ -65,18 +65,18 @@ different subjects are concatenated on the columns.*
 # Centered across sessions
 gt_preproc <- expo.scale(gt, center = TRUE, scale = FALSE)
 # set the column names
-colnames(gt_preproc) <- labels$subjects_edge_label
+colnames(gt_preproc) <- gtlabel$subjects_edge_label
 # check dimension
 dim(t(gt_preproc))
 ```
 
-    ## [1] 533252     10
+    ## [1] 432596     10
 
 Then, the preprocessed data are decomposed by the
 SVD:
 
 ``` r
-svd.res <- epPCA(t(gt_preproc),scale = FALSE, center = FALSE, DESIGN = labels$subjects_edge_label, make_design_nominal = TRUE, graphs = FALSE)
+svd.res <- epPCA(t(gt_preproc),scale = FALSE, center = FALSE, DESIGN = gtlabel$subjects_edge_label, make_design_nominal = TRUE, graphs = FALSE)
 ```
 
 ##### Results:
@@ -87,3 +87,43 @@ three important components with the percentage of explained variance
 more than average (i.e., 1/10).
 
 ![](MuSu__NA,_c,_NA__files/figure-gfm/scree-1.png)<!-- -->
+
+Before checking the factor scores, we first plot the contribution to
+check the importance of each edge
+
+``` r
+#--- get the contribution of each component
+cI <- svd.res$ExPosition.Data$ci
+#--- get the sum of contribution for each edge
+c_edge <- gtlabel$subjects_edge_label %>% as.matrix %>% makeNominalData %>% t %>% "%*%"(cI)
+rownames(c_edge) <- sub(".","",rownames(c_edge))
+#--- compute the sums of squares of each variable for each component
+absCtrEdg <- as.matrix(c_edge) %*% diag(svd.res$ExPosition.Data$eigs)
+#--- get the contribution for component 1 AND 2 by sum(SS from 1, SS from 2)/sum(eigs 1, eigs 2)
+edgCtr12 <- (absCtrEdg[,1] + absCtrEdg[,2])/(svd.res$ExPosition.Data$eigs[1] + svd.res$ExPosition.Data$eigs[2])
+#--- the important variables are the ones that contribute more than or equal to the average
+importantEdg <- (edgCtr12 >= 1/length(edgCtr12))
+#--- color for networks
+col4ImportantEdg <- unique(svd.res$Plotting.Data$fi.col) # get colors
+col4NS <- 'gray90' # set color for not significant edges to gray
+col4ImportantEdg[!importantEdg] <- col4NS # replace them in the color vector
+```
+
+``` r
+ciplot_all <- createFactorMap(c_edge,
+                          axis1 = 1, axis2 = 2,
+                          col.points = col4ImportantEdg,
+                          text.cex = 2,
+                          force = 0.5,
+                          title = "Contibutions for all subject x edges")
+ciplot_imp <- createFactorMap(c_edge[importantEdg,],
+                          axis1 = 1, axis2 = 2,
+                          col.points = col4ImportantEdg[importantEdg],
+                          text.cex = 2,
+                          force = 0.5,
+                          title = "Significant contribution")
+ciplot01 <- ciplot_all$zeMap_background + ciplot_all$zeMap_dots
+ciplot02 <- ciplot_imp$zeMap_background + ciplot_imp$zeMap_dots + ciplot_imp$zeMap_text
+```
+
+![](MuSu__NA,_c,_NA__files/figure-gfm/grid_ciplot-1.png)<!-- -->
