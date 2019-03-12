@@ -5,12 +5,13 @@
 #                         e.g., cube_paths <- list.files("./data/zmat/", pattern = "Rdata", full.names = T)
 #           comm_paths,   paths to node community to organize grand table. 
 #                         e.g., comm_paths <- list.files("./data/parcel_community/", pattern = "comm.txt", full.names = T)
+#           out_file,     Rdata to save gt and gtlabel to. Default = NULL (won't save a file)
 # Ouput:    gt,           grand table based on zcube
 #           gtlabel,     grand table labels (edges_label, subjects_label, subjects_edge_label, within_between)
 # #########################################################################
 # myc, UTD 2019/03/01 - Initial
 # #########################################################################
-cube2gt <- function(cube_paths, comm_paths){
+cube2gt <- function(cube_paths, comm_paths, out_file=NULL){
   if(!exists("label_edges")){
     stop("Source label_edges.R (in ./tools)")
   }
@@ -31,10 +32,12 @@ cube2gt <- function(cube_paths, comm_paths){
   
   nsub <- length(cube_paths)
   
+  print(sprintf("Total subjects: %d", nsub))
+  
   for(i in 1:nsub){
-    cube <- loadRData(cube_paths[i])
+    cube <- loadRData(cube_paths[[i]])
     s <- cube$zcube
-    c <- read.table(comm_paths[i], sep=",")[,3]
+    c <- read.table(comm_paths[[i]], sep=",")[,3]
     
     # Take out negatives and Inf (usually diagonals) by setting to 0
     s[s<0] <- 0
@@ -64,6 +67,10 @@ cube2gt <- function(cube_paths, comm_paths){
   gtlabel$subjects_edge_label <- paste(gtlabel$subjects_label, gtlabel$edges_label, sep="_")
   gtlabel$wb <- "Within"
   gtlabel$wb[grep(pattern = "_", gtlabel$edges_label)] <- "Between"
+  
+  if(!is.null(out_file)){
+    save(file = out_file, list = c("gt", "gtlabel"))
+  }
   
   return(list(gt, gtlabel))
 }
