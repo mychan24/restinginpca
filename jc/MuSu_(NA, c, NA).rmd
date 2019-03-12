@@ -105,7 +105,7 @@ _Note: The data was transformed from the upper triangle of the correlation matri
 ```{r grandtable, echo = FALSE}
 # > Read grand table of subject 1 --------------------
 ## grand table and the labels for each intersection of the correlation matirx
-load(paste0("../data/grandatble_and_labels_20190204.Rdata")) # read the labels of grandtable
+load(paste0("../data/grandatble_and_labels_MSC01_MSC08_20190312.Rdata")) # read the labels of grandtable
 # gt: grand tabls
 # labels: information for each edge in the rectangular grand table
 
@@ -147,3 +147,8 @@ PlotScree(ev = svd.res$ExPosition.Data$t,
           title = "Compromise: Explained variance per dimension")
 
 ```
+
+```{r}
+
+```
+
