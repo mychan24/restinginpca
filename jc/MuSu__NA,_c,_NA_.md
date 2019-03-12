@@ -33,6 +33,28 @@ can be categorized into 12 networks:
 |  17  |    Sensorimotor - foot    |     17fSMN      |
 |  29  |          Unknown          |      18UN       |
 
+``` r
+# read parcel labels for each subject
+parcel.comm.path <- "../data/parcel_community"
+parcelfile2read <- c("/sub-MSC01_node_parcel_comm.txt","/sub-MSC08_node_parcel_comm.txt")
+parcel.list <- lapply(1:length(parcelfile2read), function(x){
+  parcel <- read.table(paste0(parcel.comm.path, parcelfile2read[x]),sep = ",")
+  getVoxDes(parcel,CommName)
+})
+```
+
+    ## [1] "You have 17 NAs in your data. makeNominalData automatically imputes NA with the mean of the columns."
+
+``` r
+names(parcel.list) <- c("sub01","sub08")
+
+#--- Create colors for heatmap
+labelcol <- list(sub01 = parcel.list$sub01$Comm.col$gc[order(rownames(parcel.list$sub01$Comm.col$gc))],
+                 sub08 = parcel.list$sub08$Comm.col$gc[order(rownames(parcel.list$sub08$Comm.col$gc))])
+textcol <- list(sub01 = c(rep("black",8),rep("white",2),rep("black",3),"white",rep("black",3),rep("white",2)),
+                sub08 = c(rep("black",8),rep("white",2),rep("black",3),"white",rep("black",3),rep("white",2)))
+```
+
 As a result, the correlation matrix of each session of each subject will
 look like this:
 
@@ -97,20 +119,38 @@ check the importance of network edges. The important edges are defined
 as those that with significant mean contribution to both components 1
 and 2.
 
-We first compute the contribution and find the important edges:
+We first compute the contribution and find the important edges and
+sessions:
 
 ``` r
 #--- get the contribution of each component
 cI <- svd.res$ExPosition.Data$ci
+cJ <- svd.res$ExPosition.Data$cj
 #--- get the sum of contribution for each edge
 c_edge <- gtlabel$subjects_edge_label %>% as.matrix %>% makeNominalData %>% t %>% "%*%"(cI)
 rownames(c_edge) <- sub(".","",rownames(c_edge))
+rownames(cJ) <- c(1:10)
+## Find important sessions
+#--- get the contribution for component 1 AND 2 by sum(SS from 1, SS from 2)/sum(eigs 1, eigs 2)
+sesCtr12 <- (cJ[,1]+cJ[,2])/(svd.res$ExPosition.Data$eigs[1] + svd.res$ExPosition.Data$eigs[2])
+#--- the important sessions are the ones that contribute more than or equal to the average
+importantSes <- (sesCtr12 >= 1/length(sesCtr12))
+importantSes1 <- (cJ[,1] >= 1/length(cJ[,1]))
+importantSes2 <- (cJ[,2] >= 1/length(cJ[,2]))
+#--- color for sessions
+col4ImportantSes <- svd.res$Plotting.Data$fj.col # get colors
+col4NS <- 'gray48' # set color for not significant edges to gray
+col4ImportantSes[!importantSes] <- col4NS # replace them in the color vector
+
+## Find important edges
 #--- compute the sums of squares of each variable for each component
 absCtrEdg <- as.matrix(c_edge) %*% diag(svd.res$ExPosition.Data$eigs)
 #--- get the contribution for component 1 AND 2 by sum(SS from 1, SS from 2)/sum(eigs 1, eigs 2)
 edgCtr12 <- (absCtrEdg[,1] + absCtrEdg[,2])/(svd.res$ExPosition.Data$eigs[1] + svd.res$ExPosition.Data$eigs[2])
 #--- the important variables are the ones that contribute more than or equal to the average
 importantEdg <- (edgCtr12 >= 1/length(edgCtr12))
+importantEdg1 <- (cI[,1] >= 1/length(cI[,1]))
+importantEdg2 <- (cI[,2] >= 1/length(cI[,2]))
 #--- find the between/within description for each network edge
 net.edge <- matrix(NA, nrow = nrow(c_edge),ncol = 1)
 for (i in 1:nrow(c_edge)){
@@ -162,3 +202,16 @@ Next, we plot the factor scores for the subject x edges (a mess): Dim 1
 & 2
 
 ![](MuSu__NA,_c,_NA__files/figure-gfm/grid_f_netedge_plot-1.png)<!-- -->
+
+We can also show the factor scores for network edges as square matrix of
+sub01 (subj1) and sub02 (subj8)
+
+![](MuSu__NA,_c,_NA__files/figure-gfm/grid_heat_fi-1.png)<!-- -->
+
+Factor score in squarem matrix that have significant contribution only
+
+![](MuSu__NA,_c,_NA__files/figure-gfm/grid_heat_sigfi-1.png)<!-- -->
+
+Smoothed Sig Factor Score
+
+![](MuSu__NA,_c,_NA__files/figure-gfm/grid_smheat_sigfi-1.png)<!-- -->

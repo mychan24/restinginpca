@@ -16,6 +16,8 @@ This folder stores functions we wrote for this project.
 ---Load TP (node x timepoint matrix) and ouptut correlation matrix (z or r matrix)
 * *vec2sqmat*:
 ---Load a vector (e.g., factor scores) and map it back into a symmetrical square matrix
+* *getVoxDes*:
+---Generate the design matrix for regions and color matrix from the parcellation of each subject's correlation matrix
 ---
 
 ### Script:

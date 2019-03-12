@@ -25,6 +25,7 @@ tool.path <- "../tools/"
 # SScomm.R: the function that compute sums of squares of a square matrix according to a design matrix
 source(paste0(tool.path,"SScomm.R"))
 source(paste0(tool.path,"vec2sqmat.R"))
+source(paste0(tool.path,"getVoxDes.R"))
 ```
 
 > This is an SVD with centered columns.
@@ -49,44 +50,44 @@ pander::pander(CommName[,c("Comm", "Community","CommLabel.short")])
 
 ```
 
+```{r data_info}
+# read parcel labels for each subject
+parcel.comm.path <- "../data/parcel_community"
+parcelfile2read <- c("/sub-MSC01_node_parcel_comm.txt","/sub-MSC08_node_parcel_comm.txt")
+parcel.list <- lapply(1:length(parcelfile2read), function(x){
+  parcel <- read.table(paste0(parcel.comm.path, parcelfile2read[x]),sep = ",")
+  getVoxDes(parcel,CommName)
+})
+names(parcel.list) <- c("sub01","sub08")
+
+#--- Create colors for heatmap
+labelcol <- list(sub01 = parcel.list$sub01$Comm.col$gc[order(rownames(parcel.list$sub01$Comm.col$gc))],
+                 sub08 = parcel.list$sub08$Comm.col$gc[order(rownames(parcel.list$sub08$Comm.col$gc))])
+textcol <- list(sub01 = c(rep("black",8),rep("white",2),rep("black",3),"white",rep("black",3),rep("white",2)),
+                sub08 = c(rep("black",8),rep("white",2),rep("black",3),"white",rep("black",3),rep("white",2)))
+```
+
 As a result, the correlation matrix of each session of each subject will look like this:
 
 ```{r data, echo = FALSE, include = TRUE, fig.height= 20, fig.width = 16}
+# read examplar data
 zmat.path <- "../data/zmat"
 load(paste0(zmat.path,"/sub-MSC01_zcube_rcube.RData"))
-# read parcel labels
-parcel.comm.path <- "../data/parcel_community"
-vox.des <- read.table(paste0(parcel.comm.path,"/sub-MSC01_node_parcel_comm.txt"),sep = ",")
-colnames(vox.des) <- c("NodeID","VertexID","Comm")
-#--- create three columns in the original table of community information: name, color, abbreviation
-for(i in 1:nrow(CommName)){
-  vox.des$Comm.recode[vox.des$Comm==CommName$Comm[i]] <- as.character(CommName$CommLabel[i])
-  vox.des$Comm.Col[vox.des$Comm==CommName$Comm[i]] <- as.character(CommName$CommColor[i])
-  vox.des$Comm.rcd[vox.des$Comm==CommName$Comm[i]] <- as.character(CommName$CommLabel.short[i])
-}
-#--- Create design matrix for communities
-vox.des.mat <- makeNominalData(as.matrix(vox.des$Comm.rcd))
-colnames(vox.des.mat) <- sub(".","",colnames(vox.des.mat))
-
-#--- Create color for each communities
-Comm.col <- list(oc = as.matrix(vox.des$Comm.Col), gc = as.matrix(CommName$CommColor))
-rownames(Comm.col$oc) <- vox.des$NodeID
-rownames(Comm.col$gc) <- CommName$CommLabel.short
-
+#--- plot heatmap
 superheat(cubes$rcube[,,1],
-          membership.cols = vox.des$Comm.rcd,
-          membership.rows = vox.des$Comm.rcd,
+          membership.cols = parcel.list$sub01$vox.des$Comm.rcd,
+          membership.rows = parcel.list$sub01$vox.des$Comm.rcd,
           clustering.method = NULL,
           heat.col.scheme = "viridis",
           left.label.size = 0.08,
           bottom.label.size = 0.05,
           y.axis.reverse = TRUE,
-          left.label.col = Comm.col$gc[order(rownames(Comm.col$gc))], # order by community name
-          bottom.label.col = Comm.col$gc[order(rownames(Comm.col$gc))],
+          left.label.col = labelcol$sub01,
+          bottom.label.col = labelcol$sub01,
           left.label.text.size = c(rep(6,4), rep(3,3),6,3,  rep(6,2),3,rep(6,5),3,3),
           bottom.label.text.size = 2,
-          left.label.text.col = c(rep("black",8),rep("white",2),rep("black",3),"white",rep("black",3),rep("white",2)),
-          bottom.label.text.col = c(rep("black",8),rep("white",2),rep("black",3),"white",rep("black",3),rep("white",2)),
+          left.label.text.col = textcol$sub01,
+          bottom.label.text.col = textcol$sub01,
           left.label.text.alignment = "left",
           title = "Correlation matric of the 1st session of Subject 1"
 )
@@ -154,20 +155,37 @@ PlotScree(ev = svd.res$ExPosition.Data$t,
 
 Before checking the factor scores, we first plot the contributions to check the importance of network edges. The important edges are defined as those that with significant mean contribution to both components 1 and 2.
 
-We first compute the contribution and find the important edges:
+We first compute the contribution and find the important edges and sessions:
 
 ```{r contribution}
 #--- get the contribution of each component
 cI <- svd.res$ExPosition.Data$ci
+cJ <- svd.res$ExPosition.Data$cj
 #--- get the sum of contribution for each edge
 c_edge <- gtlabel$subjects_edge_label %>% as.matrix %>% makeNominalData %>% t %>% "%*%"(cI)
 rownames(c_edge) <- sub(".","",rownames(c_edge))
+rownames(cJ) <- c(1:10)
+## Find important sessions
+#--- get the contribution for component 1 AND 2 by sum(SS from 1, SS from 2)/sum(eigs 1, eigs 2)
+sesCtr12 <- (cJ[,1]+cJ[,2])/(svd.res$ExPosition.Data$eigs[1] + svd.res$ExPosition.Data$eigs[2])
+#--- the important sessions are the ones that contribute more than or equal to the average
+importantSes <- (sesCtr12 >= 1/length(sesCtr12))
+importantSes1 <- (cJ[,1] >= 1/length(cJ[,1]))
+importantSes2 <- (cJ[,2] >= 1/length(cJ[,2]))
+#--- color for sessions
+col4ImportantSes <- svd.res$Plotting.Data$fj.col # get colors
+col4NS <- 'gray48' # set color for not significant edges to gray
+col4ImportantSes[!importantSes] <- col4NS # replace them in the color vector
+
+## Find important edges
 #--- compute the sums of squares of each variable for each component
 absCtrEdg <- as.matrix(c_edge) %*% diag(svd.res$ExPosition.Data$eigs)
 #--- get the contribution for component 1 AND 2 by sum(SS from 1, SS from 2)/sum(eigs 1, eigs 2)
 edgCtr12 <- (absCtrEdg[,1] + absCtrEdg[,2])/(svd.res$ExPosition.Data$eigs[1] + svd.res$ExPosition.Data$eigs[2])
 #--- the important variables are the ones that contribute more than or equal to the average
 importantEdg <- (edgCtr12 >= 1/length(edgCtr12))
+importantEdg1 <- (cI[,1] >= 1/length(cI[,1]))
+importantEdg2 <- (cI[,2] >= 1/length(cI[,2]))
 #--- find the between/within description for each network edge
 net.edge <- matrix(NA, nrow = nrow(c_edge),ncol = 1)
 for (i in 1:nrow(c_edge)){
@@ -187,24 +205,33 @@ col4ImportantEdg[!importantEdg] <- col4NS # replace them in the color vector
 Then the contributions are shown in plots
 
 ```{r plot_ci, echo=F, fig.show = 'hide'}
+cjplot <- createFactorMap(cJ,
+                              axis1 = 1, axis2 = 2,
+                              col.points = col4ImportantSes,
+                              text.cex = 5,
+                              cex = 3,
+                              force = 0.5,
+                              title = "Contibutions for sessions")
+
 ciplot_all <- createFactorMap(c_edge,
-                          axis1 = 1, axis2 = 2,
-                          col.points = col4ImportantEdg,
-                          text.cex = 2,
-                          force = 0.5,
-                          title = "Contibutions for all subject x edges")
+                              axis1 = 1, axis2 = 2,
+                              col.points = col4ImportantEdg,
+                              text.cex = 2,
+                              force = 0.5,
+                              title = "Contibutions for all subject x edges")
 ciplot_imp <- createFactorMap(c_edge[importantEdg,],
-                          axis1 = 1, axis2 = 2,
-                          col.points = col4ImportantEdg[importantEdg],
-                          text.cex = 2,
-                          force = 0.5,
-                          title = "Significant contribution")
+                              axis1 = 1, axis2 = 2,
+                              col.points = col4ImportantEdg[importantEdg],
+                              text.cex = 2,
+                              force = 0.5,
+                              title = "Significant contribution")
+cjplot01 <- cjplot$zeMap
 ciplot01 <- ciplot_all$zeMap_background + ciplot_all$zeMap_dots
 ciplot02 <- ciplot_imp$zeMap_background + ciplot_imp$zeMap_dots + ciplot_imp$zeMap_text
 ```
 
-```{r grid_ciplot, echo=F, fig.height=6, fig.width=12}
-gridExtra::grid.arrange(as.grob(ciplot01), as.grob(ciplot02), ncol=2,
+```{r grid_ciplot, echo=F, fig.height=12, fig.width=12}
+gridExtra::grid.arrange(as.grob(ciplot01), as.grob(ciplot02), as.grob(cjplot01),ncol=2,
                         top = textGrob("Contribution plots",gp=gpar(fontsize=18,font=3)))
 ```
 
@@ -243,26 +270,26 @@ Next, we plot the factor scores for the subject x edges (a mess): Dim 1 & 2
 ```{r plot_f_edge, echo=FALSE, echo=F, fig.show = 'hide'}
 # plot all factor scores
 plot.f_edge <- createFactorMap(mean.fi, axis1 = 1, axis2 = 2,
-                           col.points = net.edge.col$oc,
-                           text.cex = 2,
-                           force = 0.5,
-                           title = "All factor scores - colored by subject_x_edge types")
+                               col.points = net.edge.col$oc,
+                               text.cex = 2,
+                               force = 0.5,
+                               title = "All factor scores - colored by subject_x_edge types")
 f_netedge_plot01 <- plot.f_edge$zeMap_background + plot.f_edge$zeMap_dots
 # plot the significantly contributed factor scores
 plot.f_edge_imp <- createFactorMap(mean.fi, axis1 = 1, axis2 = 2,
-                           col.points = col4ImportantEdg,
-                           col.labels = col4ImportantEdg,
-                           text.cex = 2,
-                           force = 0.5,
-                           title = "Significantly contributed factor scores - colored by subject_x_edge types")
+                                   col.points = col4ImportantEdg,
+                                   col.labels = col4ImportantEdg,
+                                   text.cex = 2,
+                                   force = 0.5,
+                                   title = "Significantly contributed factor scores - colored by subject_x_edge types")
 f_netedge_plot02 <- plot.f_edge_imp$zeMap_background + plot.f_edge_imp$zeMap_dots
 # plot mean factor scores of subject x edge type
 plot.f_edge_imp <- createFactorMap(mean.fi.bw, axis1 = 1, axis2 = 2,
-                           col.points = net.edge.col$gc[rownames(mean.fi.bw),],
-                           col.labels = net.edge.col$gc[rownames(mean.fi.bw),],
-                           text.cex = 2,
-                           force = 0.5,
-                           title = "Mean factor scores for subject_x_edge types")
+                                   col.points = net.edge.col$gc[rownames(mean.fi.bw),],
+                                   col.labels = net.edge.col$gc[rownames(mean.fi.bw),],
+                                   text.cex = 2,
+                                   force = 0.5,
+                                   title = "Mean factor scores for subject_x_edge types")
 f_netedge_plot03 <- plot.f_edge_imp$zeMap_background + plot.f_edge_imp$zeMap_dots + plot.f_edge_imp$zeMap_text
 
 ```
@@ -272,3 +299,146 @@ gridExtra::grid.arrange(as.grob(f_netedge_plot01), as.grob(f_netedge_plot02),as.
                         top = textGrob("Mean factor scores for edges",gp=gpar(fontsize=18,font=3)))
 ```
 
+We can also show the factor scores for network edges as square matrix of sub01 (subj1) and sub02 (subj8)
+
+```{r squaremat_fi, echo=F, fig.show = 'hide'}
+fi1_s1_sqmat <- vec2sqmat(svd.res$ExPosition.Data$fi[gtlabel$subjects_label=="sub01",1])
+fi1_s8_sqmat <- vec2sqmat(svd.res$ExPosition.Data$fi[gtlabel$subjects_label=="sub02",1])
+
+heats1 <- superheat(fi1_s1_sqmat, y.axis.reverse = T,
+                    membership.rows =parcel.list$sub01$vox.des$Comm.rcd,
+                    membership.cols =parcel.list$sub01$vox.des$Comm.rcd,                    
+                    left.label.col = labelcol$sub01,
+                    bottom.label.col = labelcol$sub01,
+                    left.label.size = 0.08,
+                    bottom.label.size = 0.05,
+                    extreme.values.na = FALSE,
+                    heat.lim = c(-.6, .6),
+                    heat.pal = kovesi.diverging_bwr_40_95_c42(200),
+                    heat.pal.values = c(0,0.35,0.5,0.65,1),
+                    left.label.text.size = 3,
+                    bottom.label.text.size = 2,
+                    left.label.text.col = textcol$sub01, 
+                    bottom.label.text.col = textcol$sub01, 
+                    title="sub01")
+
+# heats8 <- superheat(fi1_s8_sqmat, y.axis.reverse = T,
+#                     membership.rows =parcel.list$sub08$vox.des$Comm.rcd,
+#                     membership.cols =parcel.list$sub08$vox.des$Comm.rcd,                    
+#                     left.label.col = labelcol$sub08,
+#                     bottom.label.col = labelcol$sub08,
+#                     left.label.size = 0.08,
+#                     bottom.label.size = 0.05,
+#                     extreme.values.na = FALSE,
+#                     heat.lim = c(-.6, .6),
+#                     heat.pal = kovesi.diverging_bwr_40_95_c42(200),
+#                     heat.pal.values = c(0,0.35,0.5,0.65,1),
+#                     left.label.text.size = 3,
+#                     bottom.label.text.size = 2,
+#                     left.label.text.col = textcol$sub08,  
+#                     bottom.label.text.col = textcol$sub08, 
+#                     title="sub08")
+
+```
+
+```{r grid_heat_fi, echo=F, fig.height=8, fig.width=14}
+gridExtra::grid.arrange(as.grob(heats1$plot), #as.grob(heats8$plot), 
+                        ncol=2,
+                        top = textGrob("Node x Node Matrix of Factor Score: Dim 1",gp=gpar(fontsize=18,font=3)))
+```
+
+Factor score in squarem matrix that have significant contribution only
+```{r, squaremat_sigfi, echo=F, fig.show = 'hide'}
+fi_sig <- svd.res$ExPosition.Data$fi
+fi_sig[!importantEdg1] <- 0
+fi_sub1_sig_sqmat <- vec2sqmat(fi_sig[gtlabel$subjects_label=="sub01",1])
+fi_sub8_sig_sqmat <- vec2sqmat(fi_sig[gtlabel$subjects_label=="sub02",1])
+
+heat_sigfi_sub1 <- superheat(fi_sub1_sig_sqmat, y.axis.reverse = T,
+                             membership.rows =parcel.list$sub01$vox.des$Comm.rcd,
+                             membership.cols =parcel.list$sub01$vox.des$Comm.rcd,                    
+                             left.label.col = labelcol$sub01,
+                             bottom.label.col = labelcol$sub01,
+                             left.label.size = 0.08,
+                             bottom.label.size = 0.05,
+                             extreme.values.na = FALSE,
+                             heat.lim = c(-.6, .6),
+                             heat.pal = kovesi.diverging_bwr_40_95_c42(200),
+                             heat.pal.values = c(0,0.35,0.5,0.65,1),
+                             left.label.text.size = 3,
+                             bottom.label.text.size = 2,
+                             left.label.text.col = textcol$sub01, 
+                             bottom.label.text.col = textcol$sub01, 
+                             title="sub1: significant contribution")
+
+# heat_sigfi_sub8 <- superheat(fi_sub8_sig_sqmat, y.axis.reverse = T,
+#                              membership.rows =parcel.list$sub08$vox.des$Comm.rcd,
+#                              membership.cols =parcel.list$sub08$vox.des$Comm.rcd,                    
+#                              left.label.col = labelcol$sub08,
+#                              bottom.label.col = labelcol$sub08,
+#                              left.label.size = 0.08,
+#                              bottom.label.size = 0.05,
+#                              extreme.values.na = FALSE,
+#                              heat.lim = c(-.6, .6),
+#                              heat.pal = kovesi.diverging_bwr_40_95_c42(200),
+#                              heat.pal.values = c(0,0.35,0.5,0.65,1),
+#                              left.label.text.size = 3,
+#                              bottom.label.text.size = 2,
+#                              left.label.text.col = textcol$sub08,
+#                              bottom.label.text.col = textcol$sub08, 
+#                              title="sub8: significant contribution")
+
+```
+
+```{r, grid_heat_sigfi, echo=F, fig.height=8, fig.width=14}
+gridExtra::grid.arrange(as.grob(heat_sigfi_sub1$plot), #as.grob(heat_sigfi_sub8$plot), 
+                        ncol=2,
+                        top = textGrob("Node x Node Matrix of Factor Score w/ Sig Contribution: Dim 1",gp=gpar(fontsize=16,font=3)))
+```
+
+Smoothed Sig Factor Score
+```{r, sm_squaremat_sigfi, echo=F, fig.show = 'hide'}
+#--- the important variables are the ones that contribute more than or equal to the average
+sm_heat_sigfi_sub1 <- superheat(fi_sub1_sig_sqmat, y.axis.reverse = T, 
+                                smooth.heat = T, smooth.heat.type = "mean",
+                                membership.rows =parcel.list$sub01$vox.des$Comm.rcd,
+                                membership.cols =parcel.list$sub01$vox.des$Comm.rcd,                    
+                                left.label.col = labelcol$sub01,
+                                bottom.label.col = labelcol$sub01,
+                                left.label.size = 0.08,
+                                bottom.label.size = 0.05,
+                                extreme.values.na = FALSE,
+                                heat.lim = c(-.6, .6),
+                                heat.pal = kovesi.diverging_bwr_40_95_c42(200),
+                                heat.pal.values = c(0,0.35,0.5,0.65,1),
+                                left.label.text.size = 3,
+                                bottom.label.text.size = 2,
+                                left.label.text.col = textcol$sub01,
+                                bottom.label.text.col = textcol$sub01, 
+                                title="Node x Node Matrix of factor scores - sub1")
+
+# sm_heat_sigfi_sub8 <- superheat(fi_sub8_sig_sqmat, y.axis.reverse = T, 
+#                                 smooth.heat = T, smooth.heat.type = "mean",
+#                                 membership.rows =parcel.list$sub08$vox.des$Comm.rcd,
+#                                 membership.cols =parcel.list$sub08$vox.des$Comm.rcd,                    
+#                                 left.label.col = labelcol$sub08,
+#                                 bottom.label.col = labelcol$sub08,
+#                                 left.label.size = 0.08,
+#                                 bottom.label.size = 0.05,
+#                                 extreme.values.na = FALSE,
+#                                 heat.lim = c(-.6, .6),
+#                                 heat.pal = kovesi.diverging_bwr_40_95_c42(200),
+#                                 heat.pal.values = c(0,0.35,0.5,0.65,1),
+#                                 left.label.text.size = 3,
+#                                 bottom.label.text.size = 2,
+#                                 left.label.text.col = textcol$sub08,
+#                                 bottom.label.text.col = textcol$sub08, 
+#                                 title="Node x Node Matrix of factor scores - sub8")
+
+```
+
+```{r, grid_smheat_sigfi, echo=F, fig.height=8, fig.width=14}
+gridExtra::grid.arrange(as.grob(sm_heat_sigfi_sub1$plot), #as.grob(sm_heat_sigfi_sub8$plot), 
+                        ncol=2,
+                        top = textGrob("Smoothed Node x Node Matrix of Factor Score w/ Sig Contribution: Dim 1",gp=gpar(fontsize=16,font=3)))
+```
