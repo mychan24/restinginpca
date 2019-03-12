@@ -134,11 +134,13 @@ dim(t(gt_preproc))
 Then, the preprocessed data are decomposed by the SVD:
 
 ```{r svd}
-svd.res <- epPCA(t(gt_preproc),scale = FALSE, center = FALSE, DESIGN = gtlabel$subjects_edge_label, make_design_nominal = TRUE, graphs = FALSE)
+svd.res <- epPCA(t(gt_preproc),scale = FALSE, center = FALSE, DESIGN = gtlabel$subjects_wb, make_design_nominal = TRUE, graphs = FALSE)
 
 ```
 
 ##### Results:
+
+###### Scree plot
 
 First, the scree plot illustrates the eigen value with percentage of explained variance of each component. The results showed that there are three important components with the percentage of explained variance more than average (i.e., 1/10).
 
@@ -148,7 +150,11 @@ PlotScree(ev = svd.res$ExPosition.Data$t,
 
 ```
 
-Before checking the factor scores, we first plot the contribution to check the importance of each edge
+###### Contributions
+
+Before checking the factor scores, we first plot the contributions to check the importance of network edges. The important edges are defined as those that with significant mean contribution to both components 1 and 2.
+
+We first compute the contribution and find the important edges:
 
 ```{r contribution}
 #--- get the contribution of each component
@@ -162,12 +168,23 @@ absCtrEdg <- as.matrix(c_edge) %*% diag(svd.res$ExPosition.Data$eigs)
 edgCtr12 <- (absCtrEdg[,1] + absCtrEdg[,2])/(svd.res$ExPosition.Data$eigs[1] + svd.res$ExPosition.Data$eigs[2])
 #--- the important variables are the ones that contribute more than or equal to the average
 importantEdg <- (edgCtr12 >= 1/length(edgCtr12))
+#--- find the between/within description for each network edge
+net.edge <- matrix(NA, nrow = nrow(c_edge),ncol = 1)
+for (i in 1:nrow(c_edge)){
+  edge2check <- rownames(c_edge)[i]
+  net.edge[i,1] <- unique(gtlabel[which(gtlabel$subjects_edge_label == edge2check),"subjects_wb"])
+}
+#--- create color based on the between/within description for network edges
+net.edge.col <- net.edge %>% makeNominalData %>% createColorVectorsByDesign
+rownames(net.edge.col$gc) <- sub(".","",rownames(net.edge.col$gc))
 #--- color for networks
-col4ImportantEdg <- unique(svd.res$Plotting.Data$fi.col) # get colors
+col4ImportantEdg <- net.edge.col$oc # get colors
 col4NS <- 'gray90' # set color for not significant edges to gray
 col4ImportantEdg[!importantEdg] <- col4NS # replace them in the color vector
 
 ```
+
+Then the contributions are shown in plots
 
 ```{r plot_ci}
 ciplot_all <- createFactorMap(c_edge,
@@ -190,3 +207,4 @@ ciplot02 <- ciplot_imp$zeMap_background + ciplot_imp$zeMap_dots + ciplot_imp$zeM
 gridExtra::grid.arrange(as.grob(ciplot01), as.grob(ciplot02), ncol=2,
                         top = textGrob("Contribution plots",gp=gpar(fontsize=18,font=3)))
 ```
+
