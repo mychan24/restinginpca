@@ -20,13 +20,18 @@ suppressMessages(library(gridExtra))
 suppressMessages(library(ggplotify))
 suppressMessages(library(grid))
 suppressMessages(library(pals))
+# Read functions -----------------------------------
+tool.path <- "../tools/"
+# SScomm.R: the function that compute sums of squares of a square matrix according to a design matrix
+source(paste0(tool.path,"SScomm.R"))
+source(paste0(tool.path,"vec2sqmat.R"))
 ```
 
 > This is an SVD with centered columns.
 
 ##### Data:
 
-###### The data are from the morning scan club (MSC) resting-state data where each of the 10 participants were scanned 10 times. The data that are analyzed here are the z-transformed coefficients of correlation between regions. These regions can be categorized into 12 networks: 
+The data are from the morning scan club (MSC) resting-state data where the 2 participants (i.e., subjects 1 and 8 from the original study) were each scanned 10 times. The data that are analyzed here are the z-transformed coefficients of correlation between regions. These regions can be categorized into 12 networks: 
 
 ```{r community_list, echo = FALSE, fig.height= 10, fig.width = 2}
 # rename communities
@@ -44,7 +49,7 @@ pander::pander(CommName[,c("Comm", "Community","CommLabel.short")])
 
 ```
 
-###### As a result, the correlation matrix of each session of each subject will look like this:
+As a result, the correlation matrix of each session of each subject will look like this:
 
 ```{r data, echo = FALSE, include = TRUE, fig.height= 20, fig.width = 16}
 zmat.path <- "../data/zmat"
@@ -87,15 +92,29 @@ superheat(cubes$rcube[,,1],
 )
 ```
 
-###### This correlation matrix were then turned into a rectangular matrix
+This correlation matrix were then turned into a rectangular matrix
 
-#### Rectangular data:
+##### Rectangular data:
 
 + Rows: 5 sessions
 
 + Columns: Different edges (e.g, _within DMN_, _between DMN & CON_, _between DMN & FPN_, etc.) of different subjects
 
-_Note: The data was transformed from the upper triangle of the correlation matrices. From the correlation matrix of each session, its upper triangle are reshape as a vector. These sessions are concatenated on the rows and these of different subjects are concatenated on the columns._
+_Note: The data was transformed from the upper triangle of the correlation matrices. From the correlation matrix of each session, its upper triangle are reshape as a vector. These reshaped vectors of different sessions are then concatenated on the rows and those of different subjects are concatenated on the columns._
+
+```{r grandtable, echo = FALSE}
+# > Read grand table of subject 1 --------------------
+## grand table and the labels for each intersection of the correlation matirx
+load(paste0("../data/grandatble_and_labels_20190204.Rdata")) # read the labels of grandtable
+# gt: grand tabls
+# labels: information for each edge in the rectangular grand table
+
+## Categorize columns by between or within edges
+#--- Create new column of sub-edgetype
+labels[,'subjects_wb'] <- sprintf('%s_%s',labels$subjects_label,labels$wb)
+
+```
+
 
 ##### Method:
 
@@ -103,3 +122,28 @@ _Note: The data was transformed from the upper triangle of the correlation matri
 
 + Normalizing: none
 
+```{r preproc_step}
+# Centered across sessions
+gt_preproc <- expo.scale(gt, center = TRUE, scale = FALSE)
+# set the column names
+colnames(gt_preproc) <- labels$subjects_edge_label
+# check dimension
+dim(t(gt_preproc))
+```
+
+Then, the preprocessed data are decomposed by the SVD:
+
+```{r svd}
+svd.res <- epPCA(t(gt_preproc),scale = FALSE, center = FALSE, DESIGN = labels$subjects_edge_label, make_design_nominal = TRUE, graphs = FALSE)
+
+```
+
+##### Results:
+
+First, the scree plot illustrates the eigen value with percentage of explained variance of each component. The results showed that there are three important components with the percentage of explained variance more than average (i.e., 1/10).
+
+```{r scree, echo = FALSE}
+PlotScree(ev = svd.res$ExPosition.Data$t,
+          title = "Compromise: Explained variance per dimension")
+
+```

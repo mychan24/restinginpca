@@ -1,12 +1,15 @@
 MuSu\_(NA, c, NA)
 ================
 
-> This is an SVD with centered
-columns.
+> This is an SVD with centered columns.
 
 ##### Data:
 
-###### The data are from the morning scan club (MSC) resting-state data where each of the 10 participants were scanned 10 times. The data that are analyzed here are the z-transformed coefficients of correlation between regions. These regions can be categorized into 12 networks:
+The data are from the morning scan club (MSC) resting-state data where
+the 2 participants (i.e., subjects 1 and 8 from the original study) were
+each scanned 10 times. The data that are analyzed here are the
+z-transformed coefficients of correlation between regions. These regions
+can be categorized into 12 networks:
 
 | Comm |         Community         | CommLabel.short |
 | :--: | :-----------------------: | :-------------: |
@@ -30,13 +33,14 @@ columns.
 |  17  |    Sensorimotor - foot    |     17fSMN      |
 |  29  |          Unknown          |      18UN       |
 
-###### As a result, the correlation matrix of each session of each subject will look like this:
+As a result, the correlation matrix of each session of each subject will
+look like this:
 
 ![](MuSu__NA,_c,_NA__files/figure-gfm/data-1.png)<!-- -->
 
-###### This correlation matrix were then turned into a rectangular matrix
+This correlation matrix were then turned into a rectangular matrix
 
-#### Rectangular data:
+##### Rectangular data:
 
   - Rows: 5 sessions
 
@@ -45,12 +49,41 @@ columns.
 
 *Note: The data was transformed from the upper triangle of the
 correlation matrices. From the correlation matrix of each session, its
-upper triangle are reshape as a vector. These sessions are concatenated
-on the rows and these of different subjects are concatenated on the
-columns.*
+upper triangle are reshape as a vector. These reshaped vectors of
+different sessions are then concatenated on the rows and those of
+different subjects are concatenated on the columns.*
 
 ##### Method:
 
   - Centering: across sessions (rows) (i.e., the columns are centered)
 
   - Normalizing: none
+
+<!-- end list -->
+
+``` r
+# Centered across sessions
+gt_preproc <- expo.scale(gt, center = TRUE, scale = FALSE)
+# set the column names
+colnames(gt_preproc) <- labels$subjects_edge_label
+# check dimension
+dim(t(gt_preproc))
+```
+
+    ## [1] 533252     10
+
+Then, the preprocessed data are decomposed by the
+SVD:
+
+``` r
+svd.res <- epPCA(t(gt_preproc),scale = FALSE, center = FALSE, DESIGN = labels$subjects_edge_label, make_design_nominal = TRUE, graphs = FALSE)
+```
+
+##### Results:
+
+First, the scree plot illustrates the eigen value with percentage of
+explained variance of each component. The results showed that there are
+three important components with the percentage of explained variance
+more than average (i.e., 1/10).
+
+![](MuSu__NA,_c,_NA__files/figure-gfm/scree-1.png)<!-- -->
