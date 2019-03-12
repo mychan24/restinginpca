@@ -128,21 +128,37 @@ col4ImportantEdg[!importantEdg] <- col4NS # replace them in the color vector
 
 Then the contributions are shown in plots
 
+![](MuSu__NA,_c,_NA__files/figure-gfm/grid_ciplot-1.png)<!-- -->
+
+###### Factor scores
+
+First, we plot the factor scores for the 10 sessions
+
+![](MuSu__NA,_c,_NA__files/figure-gfm/plot_f_sess-1.png)<!-- -->
+
+To have a clearer view of the factor scores for the subject x edges, we
+first compute the mean factor scores for the each network edge.
+
 ``` r
-ciplot_all <- createFactorMap(c_edge,
-                          axis1 = 1, axis2 = 2,
-                          col.points = col4ImportantEdg,
-                          text.cex = 2,
-                          force = 0.5,
-                          title = "Contibutions for all subject x edges")
-ciplot_imp <- createFactorMap(c_edge[importantEdg,],
-                          axis1 = 1, axis2 = 2,
-                          col.points = col4ImportantEdg[importantEdg],
-                          text.cex = 2,
-                          force = 0.5,
-                          title = "Significant contribution")
-ciplot01 <- ciplot_all$zeMap_background + ciplot_all$zeMap_dots
-ciplot02 <- ciplot_imp$zeMap_background + ciplot_imp$zeMap_dots + ciplot_imp$zeMap_text
+# Compute means of factor scores for different edges----
+mean.fi <- getMeans(svd.res$ExPosition.Data$fi, gtlabel$subjects_edge_label) # with t(gt)
+
+# BootCube.Comm <- Boot4Mean(pca.res.subj$ExPosition.Data$fi,
+#                            design = labels$subjects_edge_label,
+#                            niter = 100,
+#                            suppressProgressBar = TRUE)
+
+
+# Compute means of factor scores for different types of edges
+mean.fi.bw <- getMeans(svd.res$ExPosition.Data$fi, gtlabel$subjects_wb) # with t(gt)
+
+# BootCube.Comm.bw <- Boot4Mean(pca.res.subj$ExPosition.Data$fi,
+#                            design = labels$subjects_wb,
+#                            niter = 100,
+#                            suppressProgressBar = TRUE)
 ```
 
-![](MuSu__NA,_c,_NA__files/figure-gfm/grid_ciplot-1.png)<!-- -->
+Next, we plot the factor scores for the subject x edges (a mess): Dim 1
+& 2
+
+![](MuSu__NA,_c,_NA__files/figure-gfm/grid_f_netedge_plot-1.png)<!-- -->

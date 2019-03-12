@@ -186,7 +186,7 @@ col4ImportantEdg[!importantEdg] <- col4NS # replace them in the color vector
 
 Then the contributions are shown in plots
 
-```{r plot_ci}
+```{r plot_ci, echo=F, fig.show = 'hide'}
 ciplot_all <- createFactorMap(c_edge,
                           axis1 = 1, axis2 = 2,
                           col.points = col4ImportantEdg,
@@ -206,5 +206,69 @@ ciplot02 <- ciplot_imp$zeMap_background + ciplot_imp$zeMap_dots + ciplot_imp$zeM
 ```{r grid_ciplot, echo=F, fig.height=6, fig.width=12}
 gridExtra::grid.arrange(as.grob(ciplot01), as.grob(ciplot02), ncol=2,
                         top = textGrob("Contribution plots",gp=gpar(fontsize=18,font=3)))
+```
+
+###### Factor scores
+
+First, we plot the factor scores for the 10 sessions
+
+```{r plot_f_sess, echo = FALSE}
+plot.f_sess <- createFactorMap(svd.res$ExPosition.Data$fj) # with t(gt)
+plot.f_sess$zeMap
+```
+
+To have a clearer view of the factor scores for the subject x edges, we first compute the mean factor scores for the each network edge.
+
+```{r mean_fi}
+# Compute means of factor scores for different edges----
+mean.fi <- getMeans(svd.res$ExPosition.Data$fi, gtlabel$subjects_edge_label) # with t(gt)
+
+# BootCube.Comm <- Boot4Mean(pca.res.subj$ExPosition.Data$fi,
+#                            design = labels$subjects_edge_label,
+#                            niter = 100,
+#                            suppressProgressBar = TRUE)
+
+
+# Compute means of factor scores for different types of edges
+mean.fi.bw <- getMeans(svd.res$ExPosition.Data$fi, gtlabel$subjects_wb) # with t(gt)
+
+# BootCube.Comm.bw <- Boot4Mean(pca.res.subj$ExPosition.Data$fi,
+#                            design = labels$subjects_wb,
+#                            niter = 100,
+#                            suppressProgressBar = TRUE)
+
+```
+
+Next, we plot the factor scores for the subject x edges (a mess): Dim 1 & 2
+```{r plot_f_edge, echo=FALSE, echo=F, fig.show = 'hide'}
+# plot all factor scores
+plot.f_edge <- createFactorMap(mean.fi, axis1 = 1, axis2 = 2,
+                           col.points = net.edge.col$oc,
+                           text.cex = 2,
+                           force = 0.5,
+                           title = "All factor scores - colored by subject_x_edge types")
+f_netedge_plot01 <- plot.f_edge$zeMap_background + plot.f_edge$zeMap_dots
+# plot the significantly contributed factor scores
+plot.f_edge_imp <- createFactorMap(mean.fi, axis1 = 1, axis2 = 2,
+                           col.points = col4ImportantEdg,
+                           col.labels = col4ImportantEdg,
+                           text.cex = 2,
+                           force = 0.5,
+                           title = "Significantly contributed factor scores - colored by subject_x_edge types")
+f_netedge_plot02 <- plot.f_edge_imp$zeMap_background + plot.f_edge_imp$zeMap_dots
+# plot mean factor scores of subject x edge type
+plot.f_edge_imp <- createFactorMap(mean.fi.bw, axis1 = 1, axis2 = 2,
+                           col.points = net.edge.col$gc[rownames(mean.fi.bw),],
+                           col.labels = net.edge.col$gc[rownames(mean.fi.bw),],
+                           text.cex = 2,
+                           force = 0.5,
+                           title = "Mean factor scores for subject_x_edge types")
+f_netedge_plot03 <- plot.f_edge_imp$zeMap_background + plot.f_edge_imp$zeMap_dots + plot.f_edge_imp$zeMap_text
+
+```
+
+```{r grid_f_netedge_plot, echo=F, fig.height=12, fig.width=12}
+gridExtra::grid.arrange(as.grob(f_netedge_plot01), as.grob(f_netedge_plot02),as.grob(f_netedge_plot03),nrow=2,
+                        top = textGrob("Mean factor scores for edges",gp=gpar(fontsize=18,font=3)))
 ```
 
