@@ -31,7 +31,11 @@ can be categorized into 12 networks:
 |  15  |      Parietal memory      |      15PMN      |
 |  16  |          Context          |      16CAN      |
 |  17  |    Sensorimotor - foot    |     17fSMN      |
-|  29  |          Unknown          |      18UN       |
+|  21  |          Unknown          |      21UN       |
+|  25  |          Unknown          |      25UN       |
+|  29  |          Unknown          |      29UN       |
+|  34  |          UnKnown          |      34UN       |
+|  37  |          UnKnown          |      37UN       |
 
 ``` r
 # read parcel labels for each subject
@@ -41,18 +45,13 @@ parcel.list <- lapply(1:length(parcelfile2read), function(x){
   parcel <- read.table(paste0(parcel.comm.path, parcelfile2read[x]),sep = ",")
   getVoxDes(parcel,CommName)
 })
-```
-
-    ## [1] "You have 17 NAs in your data. makeNominalData automatically imputes NA with the mean of the columns."
-
-``` r
 names(parcel.list) <- c("sub01","sub08")
 
 #--- Create colors for heatmap
 labelcol <- list(sub01 = parcel.list$sub01$Comm.col$gc[order(rownames(parcel.list$sub01$Comm.col$gc))],
                  sub08 = parcel.list$sub08$Comm.col$gc[order(rownames(parcel.list$sub08$Comm.col$gc))])
 textcol <- list(sub01 = c(rep("black",8),rep("white",2),rep("black",3),"white",rep("black",3),rep("white",2)),
-                sub08 = c(rep("black",8),rep("white",2),rep("black",3),"white",rep("black",3),rep("white",2)))
+                sub08 = c(rep("black",8),rep("white",2),rep("black",3),"white",rep("black",1),rep("white",3)))
 ```
 
 As a result, the correlation matrix of each session of each subject will
@@ -160,6 +159,7 @@ for (i in 1:nrow(c_edge)){
 #--- create color based on the between/within description for network edges
 net.edge.col <- net.edge %>% makeNominalData %>% createColorVectorsByDesign
 rownames(net.edge.col$gc) <- sub(".","",rownames(net.edge.col$gc))
+rownames(net.edge.col$oc) <- rownames(c_edge)
 #--- color for networks
 col4ImportantEdg <- net.edge.col$oc # get colors
 col4NS <- 'gray90' # set color for not significant edges to gray
@@ -168,7 +168,11 @@ col4ImportantEdg[!importantEdg] <- col4NS # replace them in the color vector
 
 Then the contributions are shown in plots
 
-![](MuSu__NA,_c,_NA__files/figure-gfm/grid_ciplot-1.png)<!-- -->
+![](MuSu__NA,_c,_NA__files/figure-gfm/grid_ciplot-1.png)<!-- --> The
+contribution for each network edge is computed by dividing its total SS
+across region edges and dimensions (i.e., the cross product of
+contribution and eigenvalues) by the total eigenvalues of the two
+components.
 
 ###### Factor scores
 
@@ -182,26 +186,44 @@ first compute the mean factor scores for the each network edge.
 ``` r
 # Compute means of factor scores for different edges----
 mean.fi <- getMeans(svd.res$ExPosition.Data$fi, gtlabel$subjects_edge_label) # with t(gt)
+colnames(mean.fi) <- sapply(c(1:ncol(mean.fi)), function(x){sprintf("Factor %s",x)})
 
-# BootCube.Comm <- Boot4Mean(pca.res.subj$ExPosition.Data$fi,
-#                            design = labels$subjects_edge_label,
-#                            niter = 100,
-#                            suppressProgressBar = TRUE)
+BootCube.Comm <- Boot4Mean(svd.res$ExPosition.Data$fi,
+                           design = gtlabel$subjects_edge_label,
+                           niter = 100,
+                           suppressProgressBar = TRUE)
 
 
 # Compute means of factor scores for different types of edges
 mean.fi.bw <- getMeans(svd.res$ExPosition.Data$fi, gtlabel$subjects_wb) # with t(gt)
+colnames(mean.fi.bw) <- sapply(c(1:ncol(mean.fi.bw)), function(x){sprintf("Factor %s",x)})
 
-# BootCube.Comm.bw <- Boot4Mean(pca.res.subj$ExPosition.Data$fi,
-#                            design = labels$subjects_wb,
-#                            niter = 100,
-#                            suppressProgressBar = TRUE)
+BootCube.Comm.bw <- Boot4Mean(svd.res$ExPosition.Data$fi,
+                           design = gtlabel$subjects_wb,
+                           niter = 100,
+                           suppressProgressBar = TRUE)
 ```
 
 Next, we plot the factor scores for the subject x edges (a mess): Dim 1
 & 2
 
 ![](MuSu__NA,_c,_NA__files/figure-gfm/grid_f_netedge_plot-1.png)<!-- -->
+Note that a network edge with its region edges significantly contribute
+to the components both positively and negatively results in a
+significant mean factor score that is close to the origin. Also, a
+network edge with only few region edges will lead to a small total SS as
+compared to the total eigenvalues; this type of network edge might not
+be significant even when being far away from the origin. (This is shown
+in the chunk named `checkCtr` which is hidden/commented in the .rmd.)
+
+We can also add boostrap intervals for the factor
+    scores
+
+    ## Warning: Removed 3 rows containing non-finite values (stat_ellipse).
+
+    ## Warning: Removed 35 rows containing non-finite values (stat_ellipse).
+
+![](MuSu__NA,_c,_NA__files/figure-gfm/grid_f_netedgeCI_plot-1.png)<!-- -->
 
 We can also show the factor scores for network edges as square matrix of
 sub01 (subj1) and sub02 (subj8)
