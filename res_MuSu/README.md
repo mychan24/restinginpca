@@ -2,7 +2,7 @@ This directory contains all results using MuSu (different preprocessing)
 
 > Updated 03/29/2019 by MC
 
-*nopreproc/sub0108*:
+*[NA,c,NA]/sub0108*:
 
 + Data: 
   
@@ -12,11 +12,11 @@ This directory contains all results using MuSu (different preprocessing)
    
    + See how data will look with a very bad sub (MSC 08)
 
-*nopreproc/sub0108*:
+*[NA,c,NA]/sub0108*:
 
 + Data: 
    
-  + Subject 1, Subject 2
+  + MSC 01, MSC02
    
    + Purpose: 
    
