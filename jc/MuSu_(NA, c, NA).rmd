@@ -72,7 +72,7 @@ textcol <- list(sub01 = c(rep("black",8),rep("white",2),rep("black",3),"white",r
 
 As a result, the correlation matrix of each session of each subject will look like this:
 
-```{r data, echo = FALSE, include = TRUE, fig.height= 20, fig.width = 16}
+```{r data, echo = FALSE, include = FALSE, fig.show='hide'}
 # read examplar data
 zmat.path <- "../data/zmat"
 subj.num <- c("01","02")
