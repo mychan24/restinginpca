@@ -21,7 +21,7 @@ suppressMessages(library(ggplotify))
 suppressMessages(library(grid))
 suppressMessages(library(pals))
 # Read functions -----------------------------------
-tool.path <- "../tools/"
+tool.path <- "../../../tools/"
 # SScomm.R: the function that compute sums of squares of a square matrix according to a design matrix
 source(paste0(tool.path,"SScomm.R"))
 source(paste0(tool.path,"vec2sqmat.R"))
@@ -38,7 +38,7 @@ The data are from the morning scan club (MSC) resting-state data where the 2 par
 # rename communities
 #--- read the file with community information: label number & community name & color & abbreviation for community name
 parcel.comm.path <- "data/parcel_community"
-CommName <- read.csv("../data/parcel_community/systemlabel.txt",header = FALSE)
+CommName <- read.csv("../../../data/parcel_community/systemlabel.txt",header = FALSE)
 colnames(CommName) <- c("Comm", "CommLabel","CommColor","CommLabel.short")
 CommName[,'Community'] <- c("UnAssign", "Default","lateral Visual","Frontoparietal",
                             "medial Visual","dorsal Attention","Premotor",
@@ -52,7 +52,7 @@ pander::pander(CommName[,c("Comm", "Community","CommLabel.short")])
 
 ```{r data_info}
 # read parcel labels for each subject
-parcel.comm.path <- "../data/parcel_community"
+parcel.comm.path <- "../../../data/parcel_community"
 parcelfile2read <- c("/sub-MSC01_node_parcel_comm.txt","/sub-MSC02_node_parcel_comm.txt")
 subj.name <- c("sub01","sub02")
 parcel.list <- lapply(1:length(parcelfile2read), function(x){
@@ -72,7 +72,7 @@ As a result, the correlation matrix of each session of each subject will look li
 
 ```{r data, echo = FALSE, include = FALSE, fig.show='hide'}
 # read examplar data
-zmat.path <- "../data/zmat"
+zmat.path <- "../../../data/zmat"
 subj.num <- c("01","02")
 #--- plot heatmap
 for(subj.count in 1:length(parcel.list)){
@@ -150,7 +150,7 @@ _Note: The data was transformed from the upper triangle of the correlation matri
 ```{r grandtable}
 # > Read grand table of subject 1 --------------------
 ## grand table and the labels for each intersection of the correlation matirx
-load(paste0("../data/grandatble_and_labels_MSC01_MSC02_20190329.Rdata")) # read the labels of grandtable
+load(paste0("../../../data/grandatble_and_labels_MSC01_MSC02_20190329.Rdata")) # read the labels of grandtable
 # gt: grand tabls
 # labels: information for each edge in the rectangular grand table
 
@@ -432,7 +432,7 @@ heats1 <- superheat(fi1_s1_sqmat, y.axis.reverse = T,
                     bottom.label.text.col = textcol$sub01, 
                     title="sub01")
 
-heats8 <- superheat(fi1_s8_sqmat, y.axis.reverse = T,
+heats2 <- superheat(fi1_s2_sqmat, y.axis.reverse = T,
                     membership.rows =parcel.list$sub02$vox.des$Comm.rcd,
                     membership.cols =parcel.list$sub02$vox.des$Comm.rcd,
                     left.label.col = labelcol$sub02,
@@ -452,7 +452,7 @@ heats8 <- superheat(fi1_s8_sqmat, y.axis.reverse = T,
 ```
 
 ```{r grid_heat_fi, echo=F, fig.height=8, fig.width=14}
-gridExtra::grid.arrange(as.grob(heats1$plot), as.grob(heats8$plot), 
+gridExtra::grid.arrange(as.grob(heats1$plot), as.grob(heats2$plot), 
                         ncol=2,
                         top = textGrob("Node x Node Matrix of Factor Score: Dim 1",gp=gpar(fontsize=18,font=3)))
 ```
