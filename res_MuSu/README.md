@@ -1,25 +1,23 @@
-This is the first attempt to do MuSu with centered columns.
+This directory contains all results using MuSu (different preprocessing)
 
-> Updated 03/05/2019 by JC
+> Updated 03/29/2019 by MC
 
-*MuSuDemo_Cent_x_Sess*:
+*nopreproc/sub0108*:
 
 + Data: 
   
-  + Subject 1, sessions 1-10
+  + MSC 01, MSC 08
 
- + Method: 
+ + Purpose: 
    
-   + The data are centered across sessions.
+   + See how data will look with a very bad sub (MSC 08)
 
-*MuSuDemo_Cent_x_Sess_2_x_5_sessions*:
+*nopreproc/sub0108*:
 
 + Data: 
    
-  + Subject 1, sessions 1- 5 => fake subject 1
+  + Subject 1, Subject 2
    
-  + Subject 2, sessions 6-10 => fake subject 2
-
-+ Mehtod: 
+   + Purpose: 
    
-  + The data are centered across sessions.
+   + See how data will look with a similar subjects, do subject-diff still dominate? 
