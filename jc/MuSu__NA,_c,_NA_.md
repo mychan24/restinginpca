@@ -41,11 +41,12 @@ can be categorized into 12 networks:
 # read parcel labels for each subject
 parcel.comm.path <- "../data/parcel_community"
 parcelfile2read <- c("/sub-MSC01_node_parcel_comm.txt","/sub-MSC08_node_parcel_comm.txt")
+subj.name <- c("sub01","sub08")
 parcel.list <- lapply(1:length(parcelfile2read), function(x){
   parcel <- read.table(paste0(parcel.comm.path, parcelfile2read[x]),sep = ",")
   getVoxDes(parcel,CommName)
 })
-names(parcel.list) <- c("sub01","sub08")
+names(parcel.list) <- subj.name
 
 #--- Create colors for heatmap
 labelcol <- list(sub01 = parcel.list$sub01$Comm.col$gc[order(rownames(parcel.list$sub01$Comm.col$gc))],
@@ -55,9 +56,14 @@ textcol <- list(sub01 = c(rep("black",8),rep("white",2),rep("black",3),"white",r
 ```
 
 As a result, the correlation matrix of each session of each subject will
-look like this:
+look like
+this:
 
-![](MuSu__NA,_c,_NA__files/figure-gfm/data-1.png)<!-- -->
+![](MuSu__NA,_c,_NA__files/figure-gfm/data-1.png)<!-- -->![](MuSu__NA,_c,_NA__files/figure-gfm/data-2.png)<!-- -->![](MuSu__NA,_c,_NA__files/figure-gfm/data-3.png)<!-- -->![](MuSu__NA,_c,_NA__files/figure-gfm/data-4.png)<!-- -->![](MuSu__NA,_c,_NA__files/figure-gfm/data-5.png)<!-- -->![](MuSu__NA,_c,_NA__files/figure-gfm/data-6.png)<!-- -->![](MuSu__NA,_c,_NA__files/figure-gfm/data-7.png)<!-- -->![](MuSu__NA,_c,_NA__files/figure-gfm/data-8.png)<!-- -->![](MuSu__NA,_c,_NA__files/figure-gfm/data-9.png)<!-- -->![](MuSu__NA,_c,_NA__files/figure-gfm/data-10.png)<!-- -->![](MuSu__NA,_c,_NA__files/figure-gfm/data-11.png)<!-- -->![](MuSu__NA,_c,_NA__files/figure-gfm/data-12.png)<!-- -->![](MuSu__NA,_c,_NA__files/figure-gfm/data-13.png)<!-- -->![](MuSu__NA,_c,_NA__files/figure-gfm/data-14.png)<!-- -->![](MuSu__NA,_c,_NA__files/figure-gfm/data-15.png)<!-- -->![](MuSu__NA,_c,_NA__files/figure-gfm/data-16.png)<!-- -->![](MuSu__NA,_c,_NA__files/figure-gfm/data-17.png)<!-- -->![](MuSu__NA,_c,_NA__files/figure-gfm/data-18.png)<!-- -->![](MuSu__NA,_c,_NA__files/figure-gfm/data-19.png)<!-- -->![](MuSu__NA,_c,_NA__files/figure-gfm/data-20.png)<!-- -->
+
+![](MuSu__NA,_c,_NA__files/figure-gfm/plot_sub01_10hmap-1.png)<!-- -->
+
+![](MuSu__NA,_c,_NA__files/figure-gfm/plot_sub08_10hmap-1.png)<!-- -->
 
 This correlation matrix were then turned into a rectangular matrix
 
@@ -73,6 +79,18 @@ correlation matrices. From the correlation matrix of each session, its
 upper triangle are reshape as a vector. These reshaped vectors of
 different sessions are then concatenated on the rows and those of
 different subjects are concatenated on the columns.*
+
+``` r
+# > Read grand table of subject 1 --------------------
+## grand table and the labels for each intersection of the correlation matirx
+load(paste0("../data/grandatble_and_labels_MSC01_MSC08_20190312.Rdata")) # read the labels of grandtable
+# gt: grand tabls
+# labels: information for each edge in the rectangular grand table
+
+## Categorize columns by between or within edges
+#--- Create new column of sub-edgetype
+gtlabel[,'subjects_wb'] <- sprintf('%s_%s',gtlabel$subjects_label,gtlabel$wb)
+```
 
 ##### Method:
 
@@ -219,7 +237,7 @@ in the chunk named `checkCtr` which is hidden/commented in the .rmd.)
 We can also add boostrap intervals for the factor
     scores
 
-    ## Warning: Removed 27 rows containing non-finite values (stat_ellipse).
+    ## Warning: Removed 24 rows containing non-finite values (stat_ellipse).
 
 ![](MuSu__NA,_c,_NA__files/figure-gfm/grid_f_netedgeCI_plot-1.png)<!-- -->
 

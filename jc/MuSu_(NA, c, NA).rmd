@@ -53,17 +53,20 @@ pander::pander(CommName[,c("Comm", "Community","CommLabel.short")])
 ```{r data_info}
 # read parcel labels for each subject
 parcel.comm.path <- "../data/parcel_community"
-parcelfile2read <- c("/sub-MSC01_node_parcel_comm.txt","/sub-MSC08_node_parcel_comm.txt")
+parcelfile2read <- c("/sub-MSC01_node_parcel_comm.txt","/sub-MSC02_node_parcel_comm.txt")
+subj.name <- c("sub01","sub02")
 parcel.list <- lapply(1:length(parcelfile2read), function(x){
   parcel <- read.table(paste0(parcel.comm.path, parcelfile2read[x]),sep = ",")
   getVoxDes(parcel,CommName)
 })
-names(parcel.list) <- c("sub01","sub08")
+names(parcel.list) <- subj.name
 
 #--- Create colors for heatmap
 labelcol <- list(sub01 = parcel.list$sub01$Comm.col$gc[order(rownames(parcel.list$sub01$Comm.col$gc))],
+                 sub02 = parcel.list$sub01$Comm.col$gc[order(rownames(parcel.list$sub01$Comm.col$gc))],
                  sub08 = parcel.list$sub08$Comm.col$gc[order(rownames(parcel.list$sub08$Comm.col$gc))])
 textcol <- list(sub01 = c(rep("black",8),rep("white",2),rep("black",3),"white",rep("black",3),rep("white",2)),
+                sub02 = c(rep("black",8),rep("white",2),rep("black",3),"white",rep("black",3),rep("white",2)),
                 sub08 = c(rep("black",7),rep("white",2),rep("black",3),"white",rep("black",2),rep("white",3)))
 ```
 
@@ -72,7 +75,7 @@ As a result, the correlation matrix of each session of each subject will look li
 ```{r data, echo = FALSE, include = TRUE, fig.height= 20, fig.width = 16}
 # read examplar data
 zmat.path <- "../data/zmat"
-subj.num <- c("01","08")
+subj.num <- c("01","02")
 #--- plot heatmap
 for(subj.count in 1:length(parcel.list)){
   load(paste0(zmat.path,"/sub-MSC",subj.num[subj.count],"_zcube_rcube.RData"))
@@ -80,19 +83,19 @@ for(session.count in 1:dim(cubes$rcube)[3]){
   # heat map of correlation matrices
   hmap.name <- sprintf("sub%s_hmap%s",subj.num[subj.count],session.count)
   assign(hmap.name, superheat(cubes$rcube[,,session.count],
-                              membership.cols = parcel.list[[names(parcel.list)[subj.count]]]vox.des$Comm.rcd,
-                              membership.rows = parcel.list$sub01$vox.des$Comm.rcd,
+                              membership.cols = parcel.list[[subj.count]]$vox.des$Comm.rcd,
+                              membership.rows = parcel.list[[subj.count]]$vox.des$Comm.rcd,
                               clustering.method = NULL,
                               heat.col.scheme = "viridis",
                               left.label.size = 0.08,
                               bottom.label.size = 0.05,
                               y.axis.reverse = TRUE,
-                              left.label.col = labelcol$sub01, # order by community name
-                              bottom.label.col = labelcol$sub01,
+                              left.label.col = labelcol[[subj.count]], # order by community name
+                              bottom.label.col = labelcol[[subj.count]],
                               left.label.text.size = 3,
                               bottom.label.text.size = 2,
-                              left.label.text.col = textcol$sub01,
-                              bottom.label.text.col = textcol$sub01,
+                              left.label.text.col = textcol[[subj.count]],
+                              bottom.label.text.col = textcol[[subj.count]],
                               left.label.text.alignment = "left",
                               title = sprintf("Correlation matrix of #%s session",session.count)
   ))
@@ -128,12 +131,12 @@ gridExtra::grid.arrange(as.grob(sub01_hmap1$plot),as.grob(sub01_hmap2$plot),as.g
                         top = textGrob("Subject 01",gp=gpar(fontsize=18,font=3)))
 ```
 
-```{r plot_sub08_10hmap, echo=F, fig.height=16, fig.width= 40}
+```{r plot_sub02_10hmap, echo=F, fig.height=16, fig.width= 40}
 gridExtra::grid.arrange(as.grob(sub08_hmap1$plot),as.grob(sub08_hmap2$plot),as.grob(sub08_hmap3$plot),
                         as.grob(sub08_hmap4$plot),as.grob(sub08_hmap5$plot),as.grob(sub08_hmap6$plot),
                         as.grob(sub08_hmap7$plot),as.grob(sub08_hmap8$plot),as.grob(sub08_hmap9$plot),
                         as.grob(sub08_hmap10$plot),ncol=5,
-                        top = textGrob("Subject 01",gp=gpar(fontsize=18,font=3)))
+                        top = textGrob("Subject 02",gp=gpar(fontsize=18,font=3)))
 ```
 
 This correlation matrix were then turned into a rectangular matrix
@@ -146,7 +149,7 @@ This correlation matrix were then turned into a rectangular matrix
 
 _Note: The data was transformed from the upper triangle of the correlation matrices. From the correlation matrix of each session, its upper triangle are reshape as a vector. These reshaped vectors of different sessions are then concatenated on the rows and those of different subjects are concatenated on the columns._
 
-```{r grandtable, echo = FALSE}
+```{r grandtable}
 # > Read grand table of subject 1 --------------------
 ## grand table and the labels for each intersection of the correlation matirx
 load(paste0("../data/grandatble_and_labels_MSC01_MSC08_20190312.Rdata")) # read the labels of grandtable
@@ -412,7 +415,7 @@ We can also show the factor scores for network edges as square matrix of sub01 (
 
 ```{r squaremat_fi, echo=F, fig.show = 'hide'}
 fi1_s1_sqmat <- vec2sqmat(svd.res$ExPosition.Data$fi[gtlabel$subjects_label=="sub01",1])
-fi1_s8_sqmat <- vec2sqmat(svd.res$ExPosition.Data$fi[gtlabel$subjects_label=="sub02",1])
+fi1_s2_sqmat <- vec2sqmat(svd.res$ExPosition.Data$fi[gtlabel$subjects_label=="sub02",1])
 
 heats1 <- superheat(fi1_s1_sqmat, y.axis.reverse = T,
                     membership.rows =parcel.list$sub01$vox.des$Comm.rcd,
@@ -432,10 +435,10 @@ heats1 <- superheat(fi1_s1_sqmat, y.axis.reverse = T,
                     title="sub01")
 
 heats8 <- superheat(fi1_s8_sqmat, y.axis.reverse = T,
-                    membership.rows =parcel.list$sub08$vox.des$Comm.rcd,
-                    membership.cols =parcel.list$sub08$vox.des$Comm.rcd,
-                    left.label.col = labelcol$sub08,
-                    bottom.label.col = labelcol$sub08,
+                    membership.rows =parcel.list$sub02$vox.des$Comm.rcd,
+                    membership.cols =parcel.list$sub02$vox.des$Comm.rcd,
+                    left.label.col = labelcol$sub02,
+                    bottom.label.col = labelcol$sub02,
                     left.label.size = 0.08,
                     bottom.label.size = 0.05,
                     extreme.values.na = FALSE,
@@ -444,9 +447,9 @@ heats8 <- superheat(fi1_s8_sqmat, y.axis.reverse = T,
                     heat.pal.values = c(0,0.35,0.5,0.65,1),
                     left.label.text.size = 3,
                     bottom.label.text.size = 2,
-                    left.label.text.col = textcol$sub08,
-                    bottom.label.text.col = textcol$sub08,
-                    title="sub08")
+                    left.label.text.col = textcol$sub02,
+                    bottom.label.text.col = textcol$sub02,
+                    title="sub02")
 
 ```
 
@@ -481,10 +484,10 @@ heat_sigfi_sub1 <- superheat(fi_sub1_sig_sqmat, y.axis.reverse = T,
                              title="sub1: significant contribution")
 
 heat_sigfi_sub8 <- superheat(fi_sub8_sig_sqmat, y.axis.reverse = T,
-                             membership.rows =parcel.list$sub08$vox.des$Comm.rcd,
-                             membership.cols =parcel.list$sub08$vox.des$Comm.rcd,
-                             left.label.col = labelcol$sub08,
-                             bottom.label.col = labelcol$sub08,
+                             membership.rows =parcel.list$sub02$vox.des$Comm.rcd,
+                             membership.cols =parcel.list$sub02$vox.des$Comm.rcd,
+                             left.label.col = labelcol$sub02,
+                             bottom.label.col = labelcol$sub02,
                              left.label.size = 0.08,
                              bottom.label.size = 0.05,
                              extreme.values.na = FALSE,
@@ -493,8 +496,8 @@ heat_sigfi_sub8 <- superheat(fi_sub8_sig_sqmat, y.axis.reverse = T,
                              heat.pal.values = c(0,0.35,0.5,0.65,1),
                              left.label.text.size = 3,
                              bottom.label.text.size = 2,
-                             left.label.text.col = textcol$sub08,
-                             bottom.label.text.col = textcol$sub08,
+                             left.label.text.col = textcol$sub02,
+                             bottom.label.text.col = textcol$sub02,
                              title="sub8: significant contribution")
 
 ```
@@ -528,10 +531,10 @@ sm_heat_sigfi_sub1 <- superheat(fi_sub1_sig_sqmat, y.axis.reverse = T,
 
 sm_heat_sigfi_sub8 <- superheat(fi_sub8_sig_sqmat, y.axis.reverse = T,
                                 smooth.heat = T, smooth.heat.type = "mean",
-                                membership.rows =parcel.list$sub08$vox.des$Comm.rcd,
-                                membership.cols =parcel.list$sub08$vox.des$Comm.rcd,
-                                left.label.col = labelcol$sub08,
-                                bottom.label.col = labelcol$sub08,
+                                membership.rows =parcel.list$sub02$vox.des$Comm.rcd,
+                                membership.cols =parcel.list$sub02$vox.des$Comm.rcd,
+                                left.label.col = labelcol$sub02,
+                                bottom.label.col = labelcol$sub02,
                                 left.label.size = 0.08,
                                 bottom.label.size = 0.05,
                                 extreme.values.na = FALSE,
@@ -540,9 +543,9 @@ sm_heat_sigfi_sub8 <- superheat(fi_sub8_sig_sqmat, y.axis.reverse = T,
                                 heat.pal.values = c(0,0.35,0.5,0.65,1),
                                 left.label.text.size = 3,
                                 bottom.label.text.size = 2,
-                                left.label.text.col = textcol$sub08,
-                                bottom.label.text.col = textcol$sub08,
-                                title="Node x Node Matrix of factor scores - sub8")
+                                left.label.text.col = textcol$sub02,
+                                bottom.label.text.col = textcol$sub02,
+                                title="Node x Node Matrix of factor scores - sub2")
 
 ```
 
