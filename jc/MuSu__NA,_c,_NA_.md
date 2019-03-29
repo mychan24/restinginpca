@@ -51,7 +51,7 @@ names(parcel.list) <- c("sub01","sub08")
 labelcol <- list(sub01 = parcel.list$sub01$Comm.col$gc[order(rownames(parcel.list$sub01$Comm.col$gc))],
                  sub08 = parcel.list$sub08$Comm.col$gc[order(rownames(parcel.list$sub08$Comm.col$gc))])
 textcol <- list(sub01 = c(rep("black",8),rep("white",2),rep("black",3),"white",rep("black",3),rep("white",2)),
-                sub08 = c(rep("black",8),rep("white",2),rep("black",3),"white",rep("black",1),rep("white",3)))
+                sub08 = c(rep("black",7),rep("white",2),rep("black",3),"white",rep("black",2),rep("white",3)))
 ```
 
 As a result, the correlation matrix of each session of each subject will
@@ -219,9 +219,7 @@ in the chunk named `checkCtr` which is hidden/commented in the .rmd.)
 We can also add boostrap intervals for the factor
     scores
 
-    ## Warning: Removed 3 rows containing non-finite values (stat_ellipse).
-
-    ## Warning: Removed 35 rows containing non-finite values (stat_ellipse).
+    ## Warning: Removed 27 rows containing non-finite values (stat_ellipse).
 
 ![](MuSu__NA,_c,_NA__files/figure-gfm/grid_f_netedgeCI_plot-1.png)<!-- -->
 

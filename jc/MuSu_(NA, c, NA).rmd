@@ -64,7 +64,7 @@ names(parcel.list) <- c("sub01","sub08")
 labelcol <- list(sub01 = parcel.list$sub01$Comm.col$gc[order(rownames(parcel.list$sub01$Comm.col$gc))],
                  sub08 = parcel.list$sub08$Comm.col$gc[order(rownames(parcel.list$sub08$Comm.col$gc))])
 textcol <- list(sub01 = c(rep("black",8),rep("white",2),rep("black",3),"white",rep("black",3),rep("white",2)),
-                sub08 = c(rep("black",8),rep("white",2),rep("black",3),"white",rep("black",1),rep("white",3)))
+                sub08 = c(rep("black",7),rep("white",2),rep("black",3),"white",rep("black",2),rep("white",3)))
 ```
 
 As a result, the correlation matrix of each session of each subject will look like this:
@@ -72,25 +72,68 @@ As a result, the correlation matrix of each session of each subject will look li
 ```{r data, echo = FALSE, include = TRUE, fig.height= 20, fig.width = 16}
 # read examplar data
 zmat.path <- "../data/zmat"
-load(paste0(zmat.path,"/sub-MSC01_zcube_rcube.RData"))
+subj.num <- c("01","08")
 #--- plot heatmap
-superheat(cubes$rcube[,,1],
-          membership.cols = parcel.list$sub01$vox.des$Comm.rcd,
-          membership.rows = parcel.list$sub01$vox.des$Comm.rcd,
-          clustering.method = NULL,
-          heat.col.scheme = "viridis",
-          left.label.size = 0.08,
-          bottom.label.size = 0.05,
-          y.axis.reverse = TRUE,
-          left.label.col = labelcol$sub01,
-          bottom.label.col = labelcol$sub01,
-          left.label.text.size = c(rep(6,4), rep(3,3),6,3,  rep(6,2),3,rep(6,5),3,3),
-          bottom.label.text.size = 2,
-          left.label.text.col = textcol$sub01,
-          bottom.label.text.col = textcol$sub01,
-          left.label.text.alignment = "left",
-          title = "Correlation matric of the 1st session of Subject 1"
-)
+for(subj.count in 1:length(parcel.list)){
+  load(paste0(zmat.path,"/sub-MSC",subj.num[subj.count],"_zcube_rcube.RData"))
+for(session.count in 1:dim(cubes$rcube)[3]){
+  # heat map of correlation matrices
+  hmap.name <- sprintf("sub%s_hmap%s",subj.num[subj.count],session.count)
+  assign(hmap.name, superheat(cubes$rcube[,,session.count],
+                              membership.cols = parcel.list[[names(parcel.list)[subj.count]]]vox.des$Comm.rcd,
+                              membership.rows = parcel.list$sub01$vox.des$Comm.rcd,
+                              clustering.method = NULL,
+                              heat.col.scheme = "viridis",
+                              left.label.size = 0.08,
+                              bottom.label.size = 0.05,
+                              y.axis.reverse = TRUE,
+                              left.label.col = labelcol$sub01, # order by community name
+                              bottom.label.col = labelcol$sub01,
+                              left.label.text.size = 3,
+                              bottom.label.text.size = 2,
+                              left.label.text.col = textcol$sub01,
+                              bottom.label.text.col = textcol$sub01,
+                              left.label.text.alignment = "left",
+                              title = sprintf("Correlation matrix of #%s session",session.count)
+  ))
+}
+}
+```
+
+```{r hide_hmap, echo = FALSE, include = FALSE}
+# superheat(cubes$rcube[,,1],
+#           membership.cols = parcel.list$sub01$vox.des$Comm.rcd,
+#           membership.rows = parcel.list$sub01$vox.des$Comm.rcd,
+#           clustering.method = NULL,
+#           heat.col.scheme = "viridis",
+#           left.label.size = 0.08,
+#           bottom.label.size = 0.05,
+#           y.axis.reverse = TRUE,
+#           left.label.col = labelcol$sub01,
+#           bottom.label.col = labelcol$sub01,
+#           left.label.text.size = c(rep(6,4), rep(3,3),6,3,  rep(6,2),3,rep(6,5),3,3),
+#           bottom.label.text.size = 2,
+#           left.label.text.col = textcol$sub01,
+#           bottom.label.text.col = textcol$sub01,
+#           left.label.text.alignment = "left",
+#           title = "Correlation matric of the 1st session of Subject 1"
+# )
+```
+
+```{r plot_sub01_10hmap, echo=F, fig.height=16, fig.width= 40}
+gridExtra::grid.arrange(as.grob(sub01_hmap1$plot),as.grob(sub01_hmap2$plot),as.grob(sub01_hmap3$plot),
+                        as.grob(sub01_hmap4$plot),as.grob(sub01_hmap5$plot),as.grob(sub01_hmap6$plot),
+                        as.grob(sub01_hmap7$plot),as.grob(sub01_hmap8$plot),as.grob(sub01_hmap9$plot),
+                        as.grob(sub01_hmap10$plot),ncol=5,
+                        top = textGrob("Subject 01",gp=gpar(fontsize=18,font=3)))
+```
+
+```{r plot_sub08_10hmap, echo=F, fig.height=16, fig.width= 40}
+gridExtra::grid.arrange(as.grob(sub08_hmap1$plot),as.grob(sub08_hmap2$plot),as.grob(sub08_hmap3$plot),
+                        as.grob(sub08_hmap4$plot),as.grob(sub08_hmap5$plot),as.grob(sub08_hmap6$plot),
+                        as.grob(sub08_hmap7$plot),as.grob(sub08_hmap8$plot),as.grob(sub08_hmap9$plot),
+                        as.grob(sub08_hmap10$plot),ncol=5,
+                        top = textGrob("Subject 01",gp=gpar(fontsize=18,font=3)))
 ```
 
 This correlation matrix were then turned into a rectangular matrix
