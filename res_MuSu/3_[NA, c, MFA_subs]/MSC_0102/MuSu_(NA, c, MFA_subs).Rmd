@@ -33,7 +33,7 @@ source(paste0(tool.path,"getVoxDes.R"))
 
 ##### Data:
 
-The data are from the morning scan club (MSC) resting-state data where the 2 participants (i.e., subjects 1 and 8 from the original study) were each scanned 10 times. The data that are analyzed here are the z-transformed coefficients of correlation between regions. These regions can be categorized into 12 networks: 
+The data are from the morning scan club (MSC) resting-state data where the 2 participants (i.e., subjects 1 and 2 from the original study) were each scanned 10 times. The data that are analyzed here are the z-transformed coefficients of correlation between regions. These regions can be categorized into 12 networks: 
 
 ```{r community_list, echo = FALSE, fig.height= 10, fig.width = 2}
 # rename communities
@@ -142,7 +142,7 @@ This correlation matrix were then turned into a rectangular matrix
 
 ##### Rectangular data:
 
-+ Rows: 5 sessions
++ Rows: 10 sessions
 
 + Columns: Different edges (e.g, _within DMN_, _between DMN & CON_, _between DMN & FPN_, etc.) of different subjects
 
@@ -166,26 +166,44 @@ gtlabel[,'subjects_wb'] <- sprintf('%s_%s',gtlabel$subjects_label,gtlabel$wb)
 
 + Centering: across sessions (rows) (i.e., the columns are centered)
 
-+ Normalizing: none
++ Normalizing: MFA-normalized subtable for each subject
 
 ```{r preproc_step, include = FALSE, message=FALSE}
 # Center Columns (across rows) + MFA normalize mini-block (Subjects)
-mfa_preproc <- mpSTATIS.preprocess(data = gt, column.design = as.matrix(t(gtlabel$subjects_label)), row.design = NULL, 
-                    row.preprocess = 'None', column.preprocess = 'Center', 
-                    table.preprocess = 'MFA_Normalization', 
-                    make.columndesign.nominal = TRUE, make.rowdesign.nominal = TRUE)
+cgt <- expo.scale(gt, center = T, scale = F)
+cgt[is.nan(cgt)] <- 0   # replace NaN with zero 
+
+subtab_i <-  gtlabel$subjects_label     # Use subjects as mini table
+n_subtable <- length(unique(subtab_i))  # Number of mini tables
+sv <- matrix(NA, 1, n_subtable)     # Initialize eigenvalues object
+for(i in 1:n_subtable){
+  sv[i] <- (svd(cgt[,subtab_i==unique(subtab_i)[i]])$d[1]) # singular value from svd 
+}
+eigens <- sv^2
+
+mfa_preproc <- cgt
+for(i in 1:n_subtable){
+   mfa_preproc[,subtab_i==unique(subtab_i)[i]] <- mfa_preproc[,subtab_i==unique(subtab_i)[i]]/sv[i]
+}
+
+## Not using mpSTATIS.preprocess so we can have sv and eigan saved out for partial factor score. 
+## This also shows exact steps of normalization
+# mfa_preproc <- mpSTATIS.preprocess(data = cgt, column.design = as.matrix(t(gtlabel$subjects_label)), row.design = NULL, 
+#                                    row.preprocess = 'None', column.preprocess = 'None', # did col normalize with expo.scale 
+#                                    table.preprocess = 'MFA_Normalization', 
+#                                    make.columndesign.nominal = TRUE, make.rowdesign.nominal = TRUE)
 
 # set the column names
-gt_preproc <- mfa_preproc$data
+gt_preproc <- mfa_preproc
 colnames(gt_preproc) <- gtlabel$subjects_edge_label
 # check dimension
-dim(t(gt_preproc))
+dim(gt_preproc)
 ```
 
 Then, the preprocessed data are decomposed by the SVD:
 
 ```{r svd, include = FALSE}
-svd.res <- epPCA(t(gt_preproc),scale = FALSE, center = FALSE, DESIGN = gtlabel$subjects_wb, make_design_nominal = TRUE, graphs = FALSE)
+svd.res <- epPCA(gt_preproc,scale = FALSE, center = FALSE, graphs = FALSE)
 
 ```
 
@@ -212,18 +230,18 @@ We first compute the contribution and find the important edges and sessions:
 cI <- svd.res$ExPosition.Data$ci
 cJ <- svd.res$ExPosition.Data$cj
 #--- get the sum of contribution for each edge
-c_edge <- gtlabel$subjects_edge_label %>% as.matrix %>% makeNominalData %>% t %>% "%*%"(cI)
+c_edge <- gtlabel$subjects_edge_label %>% as.matrix %>% makeNominalData %>% t %>% "%*%"(cJ)
 rownames(c_edge) <- sub(".","",rownames(c_edge))
-rownames(cJ) <- c(1:10)
+rownames(cI) <- c(1:10)
 ## Find important sessions
 #--- get the contribution for component 1 AND 2 by sum(SS from 1, SS from 2)/sum(eigs 1, eigs 2)
-sesCtr12 <- (cJ[,1]+cJ[,2])/(svd.res$ExPosition.Data$eigs[1] + svd.res$ExPosition.Data$eigs[2])
+sesCtr12 <- (cI[,1]+cI[,2])/(svd.res$ExPosition.Data$eigs[1] + svd.res$ExPosition.Data$eigs[2])
 #--- the important sessions are the ones that contribute more than or equal to the average
 importantSes <- (sesCtr12 >= 1/length(sesCtr12))
-importantSes1 <- (cJ[,1] >= 1/length(cJ[,1]))
-importantSes2 <- (cJ[,2] >= 1/length(cJ[,2]))
+importantSes1 <- (cI[,1] >= 1/length(cI[,1]))
+importantSes2 <- (cI[,2] >= 1/length(cI[,2]))
 #--- color for sessions
-col4ImportantSes <- svd.res$Plotting.Data$fj.col # get colors
+col4ImportantSes <- as.matrix(rep("mediumorchid4",nrow(cI))) # get colors
 col4NS <- 'gray48' # set color for not significant edges to gray
 col4ImportantSes[!importantSes] <- col4NS # replace them in the color vector
 
@@ -234,8 +252,8 @@ absCtrEdg <- as.matrix(c_edge) %*% diag(svd.res$ExPosition.Data$eigs)
 edgCtr12 <- (absCtrEdg[,1] + absCtrEdg[,2])/(svd.res$ExPosition.Data$eigs[1] + svd.res$ExPosition.Data$eigs[2])
 #--- the important variables are the ones that contribute more than or equal to the average
 importantEdg <- (edgCtr12 >= 1/length(edgCtr12))
-importantEdg1 <- (cI[,1] >= 1/length(cI[,1]))
-importantEdg2 <- (cI[,2] >= 1/length(cI[,2]))
+importantEdg1 <- (cJ[,1] >= 1/length(cJ[,1]))
+importantEdg2 <- (cJ[,2] >= 1/length(cJ[,2]))
 #--- find the between/within description for each network edge
 net.edge <- matrix(NA, nrow = nrow(c_edge),ncol = 1)
 for (i in 1:nrow(c_edge)){
@@ -266,8 +284,8 @@ col4ImportantEdg[!importantEdg] <- col4NS # replace them in the color vector
 
 Then the contributions are shown in plots
 
-```{r plot_ci, echo=F, fig.show = 'hide'}
-cjplot <- createFactorMap(cJ,
+```{r plot_cj, echo=F, fig.show = 'hide'}
+ciplot <- createFactorMap(cI,
                               axis1 = 1, axis2 = 2,
                               col.points = col4ImportantSes,
                               text.cex = 5,
@@ -275,13 +293,13 @@ cjplot <- createFactorMap(cJ,
                               force = 0.5,
                               title = "Contibutions for sessions")
 
-ciplot_all <- createFactorMap(c_edge,
+cjplot_all <- createFactorMap(c_edge,
                               axis1 = 1, axis2 = 2,
                               col.points = col4ImportantEdg,
                               text.cex = 2,
                               force = 0.5,
                               title = "Contibutions for all subject x edges")
-ciplot_imp <- createFactorMap(c_edge[importantEdg,],
+cjplot_imp <- createFactorMap(c_edge[importantEdg,],
                               axis1 = 1, axis2 = 2,
                               col.points = col4ImportantEdg[importantEdg],
                               col.labels = col4ImportantEdg[importantEdg],
@@ -294,13 +312,13 @@ f.labels <- createxyLabels.gen(x_axis = 1, y_axis = 2,
                                tau = svd.res$ExPosition.Data$t,
                                axisName = "Dimension ")
 
-cjplot01 <- cjplot$zeMap + f.labels
-ciplot01 <- ciplot_all$zeMap_background + ciplot_all$zeMap_dots + f.labels
-ciplot02 <- ciplot_imp$zeMap_background + ciplot_imp$zeMap_dots + ciplot_imp$zeMap_text + f.labels
+ciplot01 <- ciplot$zeMap + f.labels
+cjplot01 <- cjplot_all$zeMap_background + cjplot_all$zeMap_dots + f.labels
+cjplot02 <- cjplot_imp$zeMap_background + cjplot_imp$zeMap_dots + cjplot_imp$zeMap_text + f.labels
 ```
 
 ```{r grid_ciplot, echo=F, fig.height=12, fig.width=12}
-gridExtra::grid.arrange(as.grob(ciplot01), as.grob(ciplot02), as.grob(cjplot01),ncol=2,
+gridExtra::grid.arrange(as.grob(cjplot01), as.grob(cjplot02), as.grob(ciplot01),ncol=2,
                         top = textGrob("Contribution plots",gp=gpar(fontsize=18,font=3)))
 ```
 The contribution for each network edge is computed by dividing its total SS across region edges and dimensions (i.e., the cross product of contribution and eigenvalues) by the total eigenvalues of the two components.
@@ -310,28 +328,76 @@ The contribution for each network edge is computed by dividing its total SS acro
 First, we plot the factor scores for the 10 sessions
 
 ```{r plot_f_sess, echo = FALSE}
-plot.f_sess <- createFactorMap(svd.res$ExPosition.Data$fj) # with t(gt)
+# Change column names for fi for later use
+colnames(svd.res$ExPosition.Data$fi) <- sapply(c(1:ncol(svd.res$ExPosition.Data$fi)), function(x) {sprintf("Dimension %s", x)})
+
+# Plot factor scores
+plot.f_sess <- createFactorMap(svd.res$ExPosition.Data$fi)
 plot.f_sess$zeMap + f.labels
 ```
 
+We can also compute the partial factor scores for each participant:
+
+```{r partial_f_sess}
+# compute partial factor scores: K x sv[1] x X_k x Q_k
+pFi <- sapply(1:n_subtable, function(x){
+  n_subtable/(sv[x])*cgt[,which(subtab_i == unique(subtab_i)[x])] %*% (svd.res$ExPosition.Data$pdq$q[which(subtab_i == unique(subtab_i)[x]),])
+}, simplify = "array")
+# name the dimension of the array that stores partial F
+dimnames(pFi) <- list(rownames(cgt),colnames(svd.res$ExPosition.Data$fi),unique(subtab_i))
+
+## Check barycentric
+# ch1 <- apply(pFi,c(1:2),mean)
+# ch2 <- cgt %*% (svd.res$ExPosition.Data$pdq$q)
+
+```
+
+And plot them on the same factor map:
+
+```{r plot_pf_sess, echo = FALSE}
+# find the constraints for the pF map
+pF.constraints <- minmaxHelper4Partial(
+                                    FactorScores = svd.res$ExPosition.Data$fi,
+                                    partialFactorScores = pFi)
+# plot again the factor map
+plot.f_sess4pF <- createFactorMap(svd.res$ExPosition.Data$fi,
+                                  constraints = pF.constraints) # with t(gt)
+
+# select color for subjects (subtables)
+plot.pf_sess <- createPartialFactorScoresMap(
+  factorScores = svd.res$ExPosition.Data$fi,
+  partialFactorScores = pFi,
+  axis1 = 1, axis2 = 2,
+  # color4Items = col4ImportantSes,
+  names4Partial = dimnames(pFi)[[3]],
+  font.labels = "bold"
+)
+
+# add it to the factor map
+plot.f_sess4pF$zeMap + f.labels + plot.pf_sess$mapColByBlocks
+
+```
+
+
+
 To have a clearer view of the factor scores for the subject x edges, we first compute the mean factor scores for the each network edge.
 
-```{r mean_fi}
+```{r mean_fj}
 # Compute means of factor scores for different edges----
-mean.fi <- getMeans(svd.res$ExPosition.Data$fi, gtlabel$subjects_edge_label) # with t(gt)
-colnames(mean.fi) <- sapply(c(1:ncol(mean.fi)), function(x){sprintf("Factor %s",x)})
+mean.fj <- getMeans(svd.res$ExPosition.Data$fj, gtlabel$subjects_edge_label) # with t(gt)
+colnames(mean.fj) <- sapply(c(1:ncol(mean.fj)), function(x){sprintf("Factor %s",x)})
 
-BootCube.Comm <- Boot4Mean(svd.res$ExPosition.Data$fi,
+BootCube.Comm <- Boot4Mean(svd.res$ExPosition.Data$fj,
                            design = gtlabel$subjects_edge_label,
                            niter = 100,
                            suppressProgressBar = TRUE)
 
 
 # Compute means of factor scores for different types of edges
-mean.fi.bw <- getMeans(svd.res$ExPosition.Data$fi, gtlabel$subjects_wb) # with t(gt)
-colnames(mean.fi.bw) <- sapply(c(1:ncol(mean.fi.bw)), function(x){sprintf("Factor %s",x)})
+mean.fj.bw <- getMeans(svd.res$ExPosition.Data$fj, gtlabel$subjects_wb) # with t(gt)
+colnames(mean.fj.bw) <- sapply(c(1:ncol(mean.fj.bw)), function(x){sprintf("Factor %s",x)})
 
-BootCube.Comm.bw <- Boot4Mean(svd.res$ExPosition.Data$fi,
+BootCube.Comm.bw <- Boot4Mean(svd.res$ExPosition.Data$fj,
                            design = gtlabel$subjects_wb,
                            niter = 100,
                            suppressProgressBar = TRUE)
@@ -341,14 +407,14 @@ BootCube.Comm.bw <- Boot4Mean(svd.res$ExPosition.Data$fi,
 Next, we plot the factor scores for the subject x edges (a mess): Dim 1 & 2
 ```{r plot_f_edge, echo=FALSE, fig.show = 'hide'}
 # plot all factor scores
-plot.f_edge <- createFactorMap(mean.fi, axis1 = 1, axis2 = 2,
+plot.f_edge <- createFactorMap(mean.fj, axis1 = 1, axis2 = 2,
                                col.points = net.edge.col$oc,
                                text.cex = 2,
                                force = 0.5,
                                title = "All factor scores - colored by subject_x_edge types")
 f_netedge_plot01 <- plot.f_edge$zeMap_background + plot.f_edge$zeMap_dots + f.labels
 # plot the significantly contributed factor scores
-plot.f_edge_imp <- createFactorMap(mean.fi, axis1 = 1, axis2 = 2,
+plot.f_edge_imp <- createFactorMap(mean.fj, axis1 = 1, axis2 = 2,
                                    col.points = col4ImportantEdg,
                                    col.labels = col4ImportantEdg,
                                    text.cex = 2,
@@ -357,7 +423,7 @@ plot.f_edge_imp <- createFactorMap(mean.fi, axis1 = 1, axis2 = 2,
 f_netedge_plot02 <- plot.f_edge_imp$zeMap_background + plot.f_edge_imp$zeMap_dots + f.labels
 
 # plot only the significant network edges
-plot.f_impedge <- createFactorMap(mean.fi[importantEdg,], axis1 = 1, axis2 = 2,
+plot.f_impedge <- createFactorMap(mean.fj[importantEdg,], axis1 = 1, axis2 = 2,
                                    col.points = col4ImportantEdg[importantEdg,],
                                    col.labels = col4ImportantEdg[importantEdg,],
                                    constraints = plot.f_edge_imp$constraints,
@@ -367,9 +433,9 @@ plot.f_impedge <- createFactorMap(mean.fi[importantEdg,], axis1 = 1, axis2 = 2,
 f_netedge_plot03 <- plot.f_impedge$zeMap + f.labels
 
 # plot mean factor scores of subject x edge type
-plot.f_bw_imp <- createFactorMap(mean.fi.bw, axis1 = 1, axis2 = 2,
-                                   col.points = net.edge.col$gc[rownames(mean.fi.bw),],
-                                   col.labels = net.edge.col$gc[rownames(mean.fi.bw),],
+plot.f_bw_imp <- createFactorMap(mean.fj.bw, axis1 = 1, axis2 = 2,
+                                   col.points = net.edge.col$gc[rownames(mean.fj.bw),],
+                                   col.labels = net.edge.col$gc[rownames(mean.fj.bw),],
                                    text.cex = 3,
                                    force = 0.5,
                                    title = "Mean factor scores for subject_x_edge types")
@@ -415,30 +481,30 @@ gridExtra::grid.arrange(as.grob(f_CInetedge_plot01), as.grob(f_CInetedge_plot02)
 
 
 
-We can also show the factor scores for network edges as square matrix of sub01 (subj1) and sub02 (subj8)
+We can also show the factor scores for network edges as square matrix of sub01 (MSC 01) and sub02 (MSC 02)
 
 ```{r squaremat_fi, echo=F, fig.show = 'hide'}
-fi1_s1_sqmat <- vec2sqmat(svd.res$ExPosition.Data$fi[gtlabel$subjects_label=="sub01",1])
-fi1_s2_sqmat <- vec2sqmat(svd.res$ExPosition.Data$fi[gtlabel$subjects_label=="sub02",1])
-
-heats1 <- superheat(fi1_s1_sqmat, y.axis.reverse = T,
+fj1_s1_sqmat <- vec2sqmat(svd.res$ExPosition.Data$fj[gtlabel$subjects_label=="sub01",1])
+fj1_s2_sqmat <- vec2sqmat(svd.res$ExPosition.Data$fj[gtlabel$subjects_label=="sub02",1])
+fj2_s1_sqmat <- vec2sqmat(svd.res$ExPosition.Data$fj[gtlabel$subjects_label=="sub01",2])
+fj2_s2_sqmat <- vec2sqmat(svd.res$ExPosition.Data$fj[gtlabel$subjects_label=="sub02",2])
+heat_fj1_s1 <- superheat(fj1_s1_sqmat, y.axis.reverse = T,
                     membership.rows =parcel.list$sub01$vox.des$Comm.rcd,
-                    membership.cols =parcel.list$sub01$vox.des$Comm.rcd,                    
+                    membership.cols =parcel.list$sub01$vox.des$Comm.rcd,                 
                     left.label.col = labelcol$sub01,
                     bottom.label.col = labelcol$sub01,
                     left.label.size = 0.08,
                     bottom.label.size = 0.05,
                     extreme.values.na = FALSE,
-                    heat.lim = c(-.6, .6),
+                    heat.lim = c(-.02, .02),
                     heat.pal = kovesi.diverging_bwr_40_95_c42(200),
-                    heat.pal.values = c(0,0.35,0.5,0.65,1),
+                    heat.pal.values = c(0,0.45,0.5,0.55,1),
                     left.label.text.size = 3,
                     bottom.label.text.size = 2,
                     left.label.text.col = textcol$sub01, 
                     bottom.label.text.col = textcol$sub01, 
-                    title="sub01")
-
-heats2 <- superheat(fi1_s2_sqmat, y.axis.reverse = T,
+                    title="sub01, dim1")
+heat_fj1_s2 <- superheat(fj1_s2_sqmat, y.axis.reverse = T,
                     membership.rows =parcel.list$sub02$vox.des$Comm.rcd,
                     membership.cols =parcel.list$sub02$vox.des$Comm.rcd,
                     left.label.col = labelcol$sub02,
@@ -446,48 +512,78 @@ heats2 <- superheat(fi1_s2_sqmat, y.axis.reverse = T,
                     left.label.size = 0.08,
                     bottom.label.size = 0.05,
                     extreme.values.na = FALSE,
-                    heat.lim = c(-.6, .6),
+                    heat.lim = c(-.02, .02),
                     heat.pal = kovesi.diverging_bwr_40_95_c42(200),
-                    heat.pal.values = c(0,0.35,0.5,0.65,1),
+                    heat.pal.values = c(0,0.45,0.5,0.55,1),
                     left.label.text.size = 3,
                     bottom.label.text.size = 2,
                     left.label.text.col = textcol$sub02,
                     bottom.label.text.col = textcol$sub02,
-                    title="sub02")
-
+                    title="sub02, dim1")
+heat_fj2_s1 <- superheat(fj2_s1_sqmat, y.axis.reverse = T,
+                    membership.rows =parcel.list$sub01$vox.des$Comm.rcd,
+                    membership.cols =parcel.list$sub01$vox.des$Comm.rcd,                 
+                    left.label.col = labelcol$sub01,
+                    bottom.label.col = labelcol$sub01,
+                    left.label.size = 0.08,
+                    bottom.label.size = 0.05,
+                    extreme.values.na = FALSE,
+                    heat.lim = c(-.03, .03),
+                    heat.pal = kovesi.diverging_bwr_40_95_c42(200),
+                    heat.pal.values = c(0,0.45,0.5,0.55,1),
+                    left.label.text.size = 3,
+                    bottom.label.text.size = 2,
+                    left.label.text.col = textcol$sub01, 
+                    bottom.label.text.col = textcol$sub01, 
+                    title="sub01, dim2")
+heat_fj2_s2 <- superheat(fj2_s2_sqmat, y.axis.reverse = T,
+                    membership.rows =parcel.list$sub02$vox.des$Comm.rcd,
+                    membership.cols =parcel.list$sub02$vox.des$Comm.rcd,                
+                    left.label.col = labelcol$sub02,
+                    bottom.label.col = labelcol$sub02,
+                    left.label.size = 0.08,
+                    bottom.label.size = 0.05,
+                    extreme.values.na = FALSE,
+                    heat.lim = c(-.03, .03),
+                    heat.pal = kovesi.diverging_bwr_40_95_c42(200),
+                    heat.pal.values = c(0,0.45,0.5,0.55,1),
+                    left.label.text.size = 3,
+                    bottom.label.text.size = 2,
+                    left.label.text.col = textcol$sub02, 
+                    bottom.label.text.col = textcol$sub02, 
+                    title="sub02, dim2")
 ```
 
-```{r grid_heat_fi, echo=F, fig.height=8, fig.width=14}
-gridExtra::grid.arrange(as.grob(heats1$plot), as.grob(heats2$plot), 
+```{r grid_heat_fi, echo=F, fig.height=15, fig.width=14}
+gridExtra::grid.arrange(as.grob(heat_fj1_s1$plot), as.grob(heat_fj1_s2$plot), 
+                        as.grob(heat_fj2_s1$plot), as.grob(heat_fj2_s2$plot), 
                         ncol=2,
-                        top = textGrob("Node x Node Matrix of Factor Score: Dim 1",gp=gpar(fontsize=18,font=3)))
+                        top = textGrob("Node x Node Matrix of Factor Score: Dim 1 & Dim 2",gp=gpar(fontsize=18,font=3)))
 ```
 
-Factor score in squarem matrix that have significant contribution only
-```{r, squaremat_sigfi, echo=F, fig.show = 'hide'}
-fi_sig <- svd.res$ExPosition.Data$fi
-fi_sig[!importantEdg1] <- 0
-fi_sub1_sig_sqmat <- vec2sqmat(fi_sig[gtlabel$subjects_label=="sub01",1])
-fi_sub2_sig_sqmat <- vec2sqmat(fi_sig[gtlabel$subjects_label=="sub02",1])
-
-heat_sigfi_sub1 <- superheat(fi_sub1_sig_sqmat, y.axis.reverse = T,
+Factor score (Dim 1) in square matrix that have significant contribution only
+```{r, squaremat_sigfj1, echo=F, fig.show = 'hide'}
+fj_sig <- svd.res$ExPosition.Data$fj
+fj_sig[!importantEdg1] <- 0
+fj1_sub1_sig_sqmat <- vec2sqmat(fj_sig[gtlabel$subjects_label=="sub01",1])
+fj1_sub2_sig_sqmat <- vec2sqmat(fj_sig[gtlabel$subjects_label=="sub02",1])
+heat_sigfj1_sub1 <- superheat(fj1_sub1_sig_sqmat, y.axis.reverse = T,
                              membership.rows =parcel.list$sub01$vox.des$Comm.rcd,
-                             membership.cols =parcel.list$sub01$vox.des$Comm.rcd,                    
+                             membership.cols =parcel.list$sub01$vox.des$Comm.rcd,     
                              left.label.col = labelcol$sub01,
                              bottom.label.col = labelcol$sub01,
                              left.label.size = 0.08,
                              bottom.label.size = 0.05,
                              extreme.values.na = FALSE,
-                             heat.lim = c(-.6, .6),
+                             heat.lim = c(-.02, .02),
                              heat.pal = kovesi.diverging_bwr_40_95_c42(200),
-                             heat.pal.values = c(0,0.35,0.5,0.65,1),
+                             heat.pal.values = c(0,0.45,0.5,0.55,1),
                              left.label.text.size = 3,
                              bottom.label.text.size = 2,
                              left.label.text.col = textcol$sub01, 
                              bottom.label.text.col = textcol$sub01, 
                              title="sub1: significant contribution")
-
-heat_sigfi_sub2 <- superheat(fi_sub2_sig_sqmat, y.axis.reverse = T,
+heat_sigfj1_sub2 <- superheat(fj1_sub2_sig_sqmat, y.axis.reverse = T,
                              membership.rows =parcel.list$sub02$vox.des$Comm.rcd,
                              membership.cols =parcel.list$sub02$vox.des$Comm.rcd,
                              left.label.col = labelcol$sub02,
@@ -495,66 +591,153 @@ heat_sigfi_sub2 <- superheat(fi_sub2_sig_sqmat, y.axis.reverse = T,
                              left.label.size = 0.08,
                              bottom.label.size = 0.05,
                              extreme.values.na = FALSE,
-                             heat.lim = c(-.6, .6),
+                             heat.lim = c(-.02, .02),
                              heat.pal = kovesi.diverging_bwr_40_95_c42(200),
-                             heat.pal.values = c(0,0.35,0.5,0.65,1),
+                             heat.pal.values = c(0,0.45,0.5,0.55,1),
                              left.label.text.size = 3,
                              bottom.label.text.size = 2,
                              left.label.text.col = textcol$sub02,
                              bottom.label.text.col = textcol$sub02,
                              title="sub2: significant contribution")
-
 ```
 
-```{r, grid_heat_sigfi, echo=F, fig.height=8, fig.width=14}
-gridExtra::grid.arrange(as.grob(heat_sigfi_sub1$plot), as.grob(heat_sigfi_sub2$plot), 
+```{r, grid_heat_sigfj1, echo=F, fig.height=8, fig.width=14}
+gridExtra::grid.arrange(as.grob(heat_sigfj1_sub1$plot), as.grob(heat_sigfj1_sub2$plot), 
                         ncol=2,
                         top = textGrob("Node x Node Matrix of Factor Score w/ Sig Contribution: Dim 1",gp=gpar(fontsize=16,font=3)))
 ```
 
-Smoothed Sig Factor Score
-```{r, sm_squaremat_sigfi, echo=F, fig.show = 'hide'}
+Smoothed Sig Factor Score (Dim 1)
+```{r, sm_squaremat_sigfj1, echo=F, fig.show = 'hide'}
 #--- the important variables are the ones that contribute more than or equal to the average
-sm_heat_sigfi_sub1 <- superheat(fi_sub1_sig_sqmat, y.axis.reverse = T, 
-                                smooth.heat = T, smooth.heat.type = "mean",
-                                membership.rows =parcel.list$sub01$vox.des$Comm.rcd,
-                                membership.cols =parcel.list$sub01$vox.des$Comm.rcd,                    
-                                left.label.col = labelcol$sub01,
-                                bottom.label.col = labelcol$sub01,
-                                left.label.size = 0.08,
-                                bottom.label.size = 0.05,
-                                extreme.values.na = FALSE,
-                                heat.lim = c(-.6, .6),
-                                heat.pal = kovesi.diverging_bwr_40_95_c42(200),
-                                heat.pal.values = c(0,0.35,0.5,0.65,1),
-                                left.label.text.size = 3,
-                                bottom.label.text.size = 2,
-                                left.label.text.col = textcol$sub01,
-                                bottom.label.text.col = textcol$sub01, 
-                                title="Node x Node Matrix of factor scores - sub1")
-
-sm_heat_sigfi_sub2 <- superheat(fi_sub2_sig_sqmat, y.axis.reverse = T,
-                                smooth.heat = T, smooth.heat.type = "mean",
-                                membership.rows =parcel.list$sub02$vox.des$Comm.rcd,
-                                membership.cols =parcel.list$sub02$vox.des$Comm.rcd,
-                                left.label.col = labelcol$sub02,
-                                bottom.label.col = labelcol$sub02,
-                                left.label.size = 0.08,
-                                bottom.label.size = 0.05,
-                                extreme.values.na = FALSE,
-                                heat.lim = c(-.6, .6),
-                                heat.pal = kovesi.diverging_bwr_40_95_c42(200),
-                                heat.pal.values = c(0,0.35,0.5,0.65,1),
-                                left.label.text.size = 3,
-                                bottom.label.text.size = 2,
-                                left.label.text.col = textcol$sub02,
-                                bottom.label.text.col = textcol$sub02,
-                                title="Node x Node Matrix of factor scores - sub2")
-
+sm_heat_sigfj1_sub1 <- superheat(fj1_sub1_sig_sqmat, y.axis.reverse = T, 
+                                 smooth.heat = T, smooth.heat.type = "mean",
+                                 membership.rows =parcel.list$sub01$vox.des$Comm.rcd,
+                                 membership.cols =parcel.list$sub01$vox.des$Comm.rcd,   
+                                 left.label.col = labelcol$sub01,
+                                 bottom.label.col = labelcol$sub01,
+                                 left.label.size = 0.08,
+                                 bottom.label.size = 0.05,
+                                 extreme.values.na = FALSE,
+                                 heat.lim = c(-.02, .02),
+                                 heat.pal = kovesi.diverging_bwr_40_95_c42(200),
+                                 heat.pal.values = c(0,0.45,0.5,0.55,1),
+                                 left.label.text.size = 3,
+                                 bottom.label.text.size = 2,
+                                 left.label.text.col = textcol$sub01,
+                                 bottom.label.text.col = textcol$sub01, 
+                                 title="Node x Node Matrix of factor scores - sub1")
+sm_heat_sigfj1_sub2 <- superheat(fj1_sub2_sig_sqmat, y.axis.reverse = T,
+                                 smooth.heat = T, smooth.heat.type = "mean",
+                                 membership.rows =parcel.list$sub02$vox.des$Comm.rcd,
+                                 membership.cols =parcel.list$sub02$vox.des$Comm.rcd,
+                                 left.label.col = labelcol$sub02,
+                                 bottom.label.col = labelcol$sub02,
+                                 left.label.size = 0.08,
+                                 bottom.label.size = 0.05,
+                                 extreme.values.na = FALSE,
+                                 heat.lim = c(-.02, .02),
+                                 heat.pal = kovesi.diverging_bwr_40_95_c42(200),
+                                 heat.pal.values = c(0,0.45,0.5,0.55,1),
+                                 left.label.text.size = 3,
+                                 bottom.label.text.size = 2,
+                                 left.label.text.col = textcol$sub02,
+                                 bottom.label.text.col = textcol$sub02,
+                                 title="Node x Node Matrix of factor scores - sub2")
 ```
 
-```{r, grid_smheat_sigfi, echo=F, fig.height=8, fig.width=14}
-gridExtra::grid.arrange(as.grob(sm_heat_sigfi_sub1$plot), as.grob(sm_heat_sigfi_sub2$plot), 
+```{r, grid_smheat_sigfj1, echo=F, fig.height=8, fig.width=14}
+gridExtra::grid.arrange(as.grob(sm_heat_sigfj1_sub1$plot), as.grob(sm_heat_sigfj1_sub2$plot), 
                         ncol=2,
                         top = textGrob("Smoothed Node x Node Matrix of Factor Score w/ Sig Contribution: Dim 1",gp=gpar(fontsize=16,font=3)))
 ```
+
+Factor score (Dim 2) in square matrix that have significant contribution only
+
+```{r, squaremat_sigfj2, echo=F, fig.show = 'hide'}
+fj2_sub1_sig_sqmat <- vec2sqmat(fj_sig[gtlabel$subjects_label=="sub01",2])
+fj2_sub2_sig_sqmat <- vec2sqmat(fj_sig[gtlabel$subjects_label=="sub02",2])
+heat_sigfj2_sub1 <- superheat(fj2_sub1_sig_sqmat, y.axis.reverse = T,
+                              membership.rows =parcel.list$sub01$vox.des$Comm.rcd,
+                              membership.cols =parcel.list$sub01$vox.des$Comm.rcd,    
+                              left.label.col = labelcol$sub01,
+                              bottom.label.col = labelcol$sub01,
+                              left.label.size = 0.08,
+                              bottom.label.size = 0.05,
+                              extreme.values.na = FALSE,
+                              heat.lim = c(-.03, .03),
+                              heat.pal = kovesi.diverging_bwr_40_95_c42(200),
+                              heat.pal.values = c(0,0.45,0.5,0.55,1),
+                              left.label.text.size = 3,
+                              bottom.label.text.size = 2,
+                              left.label.text.col = textcol$sub01, 
+                              bottom.label.text.col = textcol$sub01, 
+                              title="sub1: significant contribution")
+heat_sigfj2_sub2 <- superheat(fj2_sub2_sig_sqmat, y.axis.reverse = T,
+                              membership.rows =parcel.list$sub02$vox.des$Comm.rcd,
+                              membership.cols =parcel.list$sub02$vox.des$Comm.rcd,
+                              left.label.col = labelcol$sub02,
+                              bottom.label.col = labelcol$sub02,
+                              left.label.size = 0.08,
+                              bottom.label.size = 0.05,
+                              extreme.values.na = FALSE,
+                              heat.lim = c(-.03, .03),
+                              heat.pal = kovesi.diverging_bwr_40_95_c42(200),
+                              heat.pal.values = c(0,0.45,0.5,0.65,1),
+                              left.label.text.size = 3,
+                              bottom.label.text.size = 2,
+                              left.label.text.col = textcol$sub02,
+                              bottom.label.text.col = textcol$sub02,
+                              title="sub2: significant contribution")
+```
+
+```{r, grid_heat_sigfj2, echo=F, fig.height=8, fig.width=14}
+gridExtra::grid.arrange(as.grob(heat_sigfj2_sub1$plot), as.grob(heat_sigfj2_sub2$plot), 
+                        ncol=2,
+                        top = textGrob("Node x Node Matrix of Factor Score w/ Sig Contribution: Dim 2",gp=gpar(fontsize=16,font=3)))
+```
+
+Smoothed Sig Factor Score (Dim 2)
+```{r, sm_squaremat_sigfj2, echo=F, fig.show = 'hide'}
+#--- the important variables are the ones that contribute more than or equal to the average
+sm_heat_sigfj2_sub1 <- superheat(fj2_sub1_sig_sqmat, y.axis.reverse = T, 
+                                 smooth.heat = T, smooth.heat.type = "mean",
+                                 membership.rows =parcel.list$sub01$vox.des$Comm.rcd,
+                                 membership.cols =parcel.list$sub01$vox.des$Comm.rcd,   
+                                 left.label.col = labelcol$sub01,
+                                 bottom.label.col = labelcol$sub01,
+                                 left.label.size = 0.08,
+                                 bottom.label.size = 0.05,
+                                 extreme.values.na = FALSE,
+                                 heat.lim = c(-.03, .03),
+                                 heat.pal = kovesi.diverging_bwr_40_95_c42(200),
+                                 heat.pal.values = c(0,0.45,0.5,0.55,1),
+                                 left.label.text.size = 3,
+                                 bottom.label.text.size = 2,
+                                 left.label.text.col = textcol$sub01,
+                                 bottom.label.text.col = textcol$sub01, 
+                                 title="Node x Node Matrix of 2nd component factor scores - sub1")
+sm_heat_sigfj2_sub2 <- superheat(fj2_sub2_sig_sqmat, y.axis.reverse = T,
+                                 smooth.heat = T, smooth.heat.type = "mean",
+                                 membership.rows =parcel.list$sub02$vox.des$Comm.rcd,
+                                 membership.cols =parcel.list$sub02$vox.des$Comm.rcd,
+                                 left.label.col = labelcol$sub02,
+                                 bottom.label.col = labelcol$sub02,
+                                 left.label.size = 0.08,
+                                 bottom.label.size = 0.05,
+                                 extreme.values.na = FALSE,
+                                 heat.lim = c(-.03, .03),
+                                 heat.pal = kovesi.diverging_bwr_40_95_c42(200),
+                                 heat.pal.values = c(0,0.45,0.5,0.55,1),
+                                 left.label.text.size = 3,
+                                 bottom.label.text.size = 2,
+                                 left.label.text.col = textcol$sub02,
+                                 bottom.label.text.col = textcol$sub02,
+                                 title="Node x Node Matrix of 2nd component factor scores - sub2")
+```
+
+```{r, grid_smheat_sigfj2, echo=F, fig.height=8, fig.width=14}
+gridExtra::grid.arrange(as.grob(sm_heat_sigfj2_sub1$plot), as.grob(sm_heat_sigfj2_sub2$plot), 
+                        ncol=2,
+                        top = textGrob("Smoothed Node x Node Matrix of Factor Score w/ Sig Contribution: Dim 2",gp=gpar(fontsize=16,font=3)))
+``````

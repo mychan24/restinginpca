@@ -6,7 +6,7 @@ MuSu\_(NA, c, MFA\_subs)
 ##### Data:
 
 The data are from the morning scan club (MSC) resting-state data where
-the 2 participants (i.e., subjects 1 and 8 from the original study) were
+the 2 participants (i.e., subjects 1 and 2 from the original study) were
 each scanned 10 times. The data that are analyzed here are the
 z-transformed coefficients of correlation between regions. These regions
 can be categorized into 12 networks:
@@ -67,7 +67,7 @@ This correlation matrix were then turned into a rectangular matrix
 
 ##### Rectangular data:
 
-  - Rows: 5 sessions
+  - Rows: 10 sessions
 
   - Columns: Different edges (e.g, *within DMN*, *between DMN & CON*,
     *between DMN & FPN*, etc.) of different subjects
@@ -94,7 +94,7 @@ gtlabel[,'subjects_wb'] <- sprintf('%s_%s',gtlabel$subjects_label,gtlabel$wb)
 
   - Centering: across sessions (rows) (i.e., the columns are centered)
 
-  - Normalizing: none
+  - Normalizing: MFA-normalized subtable for each subject
 
 Then, the preprocessed data are decomposed by the SVD:
 
@@ -124,18 +124,18 @@ sessions:
 cI <- svd.res$ExPosition.Data$ci
 cJ <- svd.res$ExPosition.Data$cj
 #--- get the sum of contribution for each edge
-c_edge <- gtlabel$subjects_edge_label %>% as.matrix %>% makeNominalData %>% t %>% "%*%"(cI)
+c_edge <- gtlabel$subjects_edge_label %>% as.matrix %>% makeNominalData %>% t %>% "%*%"(cJ)
 rownames(c_edge) <- sub(".","",rownames(c_edge))
-rownames(cJ) <- c(1:10)
+rownames(cI) <- c(1:10)
 ## Find important sessions
 #--- get the contribution for component 1 AND 2 by sum(SS from 1, SS from 2)/sum(eigs 1, eigs 2)
-sesCtr12 <- (cJ[,1]+cJ[,2])/(svd.res$ExPosition.Data$eigs[1] + svd.res$ExPosition.Data$eigs[2])
+sesCtr12 <- (cI[,1]+cI[,2])/(svd.res$ExPosition.Data$eigs[1] + svd.res$ExPosition.Data$eigs[2])
 #--- the important sessions are the ones that contribute more than or equal to the average
 importantSes <- (sesCtr12 >= 1/length(sesCtr12))
-importantSes1 <- (cJ[,1] >= 1/length(cJ[,1]))
-importantSes2 <- (cJ[,2] >= 1/length(cJ[,2]))
+importantSes1 <- (cI[,1] >= 1/length(cI[,1]))
+importantSes2 <- (cI[,2] >= 1/length(cI[,2]))
 #--- color for sessions
-col4ImportantSes <- svd.res$Plotting.Data$fj.col # get colors
+col4ImportantSes <- as.matrix(rep("mediumorchid4",nrow(cI))) # get colors
 col4NS <- 'gray48' # set color for not significant edges to gray
 col4ImportantSes[!importantSes] <- col4NS # replace them in the color vector
 
@@ -146,8 +146,8 @@ absCtrEdg <- as.matrix(c_edge) %*% diag(svd.res$ExPosition.Data$eigs)
 edgCtr12 <- (absCtrEdg[,1] + absCtrEdg[,2])/(svd.res$ExPosition.Data$eigs[1] + svd.res$ExPosition.Data$eigs[2])
 #--- the important variables are the ones that contribute more than or equal to the average
 importantEdg <- (edgCtr12 >= 1/length(edgCtr12))
-importantEdg1 <- (cI[,1] >= 1/length(cI[,1]))
-importantEdg2 <- (cI[,2] >= 1/length(cI[,2]))
+importantEdg1 <- (cJ[,1] >= 1/length(cJ[,1]))
+importantEdg2 <- (cJ[,2] >= 1/length(cJ[,2]))
 #--- find the between/within description for each network edge
 net.edge <- matrix(NA, nrow = nrow(c_edge),ncol = 1)
 for (i in 1:nrow(c_edge)){
@@ -178,25 +178,44 @@ First, we plot the factor scores for the 10 sessions
 
 ![](MuSu__NA,_c,_MFA_subs__files/figure-gfm/plot_f_sess-1.png)<!-- -->
 
+We can also compute the partial factor scores for each participant:
+
+``` r
+# compute partial factor scores: K x sv[1] x X_k x Q_k
+pFi <- sapply(1:n_subtable, function(x){
+  n_subtable/(sv[x])*cgt[,which(subtab_i == unique(subtab_i)[x])] %*% (svd.res$ExPosition.Data$pdq$q[which(subtab_i == unique(subtab_i)[x]),])
+}, simplify = "array")
+# name the dimension of the array that stores partial F
+dimnames(pFi) <- list(rownames(cgt),colnames(svd.res$ExPosition.Data$fi),unique(subtab_i))
+
+## Check barycentric
+# ch1 <- apply(pFi,c(1:2),mean)
+# ch2 <- cgt %*% (svd.res$ExPosition.Data$pdq$q)
+```
+
+And plot them on the same factor map:
+
+![](MuSu__NA,_c,_MFA_subs__files/figure-gfm/plot_pf_sess-1.png)<!-- -->
+
 To have a clearer view of the factor scores for the subject x edges, we
 first compute the mean factor scores for the each network edge.
 
 ``` r
 # Compute means of factor scores for different edges----
-mean.fi <- getMeans(svd.res$ExPosition.Data$fi, gtlabel$subjects_edge_label) # with t(gt)
-colnames(mean.fi) <- sapply(c(1:ncol(mean.fi)), function(x){sprintf("Factor %s",x)})
+mean.fj <- getMeans(svd.res$ExPosition.Data$fj, gtlabel$subjects_edge_label) # with t(gt)
+colnames(mean.fj) <- sapply(c(1:ncol(mean.fj)), function(x){sprintf("Factor %s",x)})
 
-BootCube.Comm <- Boot4Mean(svd.res$ExPosition.Data$fi,
+BootCube.Comm <- Boot4Mean(svd.res$ExPosition.Data$fj,
                            design = gtlabel$subjects_edge_label,
                            niter = 100,
                            suppressProgressBar = TRUE)
 
 
 # Compute means of factor scores for different types of edges
-mean.fi.bw <- getMeans(svd.res$ExPosition.Data$fi, gtlabel$subjects_wb) # with t(gt)
-colnames(mean.fi.bw) <- sapply(c(1:ncol(mean.fi.bw)), function(x){sprintf("Factor %s",x)})
+mean.fj.bw <- getMeans(svd.res$ExPosition.Data$fj, gtlabel$subjects_wb) # with t(gt)
+colnames(mean.fj.bw) <- sapply(c(1:ncol(mean.fj.bw)), function(x){sprintf("Factor %s",x)})
 
-BootCube.Comm.bw <- Boot4Mean(svd.res$ExPosition.Data$fi,
+BootCube.Comm.bw <- Boot4Mean(svd.res$ExPosition.Data$fj,
                            design = gtlabel$subjects_wb,
                            niter = 100,
                            suppressProgressBar = TRUE)
@@ -216,21 +235,33 @@ be significant even when being far away from the origin. (This is shown
 in the chunk named `checkCtr` which is hidden/commented in the .rmd.)
 
 We can also add boostrap intervals for the factor
-scores
+    scores
+
+    ## Warning: Removed 1 rows containing non-finite values (stat_ellipse).
 
 ![](MuSu__NA,_c,_MFA_subs__files/figure-gfm/grid_f_netedgeCI_plot-1.png)<!-- -->
 
 We can also show the factor scores for network edges as square matrix of
-sub01 (subj1) and sub02 (subj8)
+sub01 (MSC 01) and sub02 (MSC 02)
 
 ![](MuSu__NA,_c,_MFA_subs__files/figure-gfm/grid_heat_fi-1.png)<!-- -->
 
-Factor score in squarem matrix that have significant contribution
+Factor score (Dim 1) in square matrix that have significant contribution
 only
 
-![](MuSu__NA,_c,_MFA_subs__files/figure-gfm/grid_heat_sigfi-1.png)<!-- -->
+![](MuSu__NA,_c,_MFA_subs__files/figure-gfm/grid_heat_sigfj1-1.png)<!-- -->
 
-Smoothed Sig Factor
-Score
+Smoothed Sig Factor Score (Dim
+1)
 
-![](MuSu__NA,_c,_MFA_subs__files/figure-gfm/grid_smheat_sigfi-1.png)<!-- -->
+![](MuSu__NA,_c,_MFA_subs__files/figure-gfm/grid_smheat_sigfj1-1.png)<!-- -->
+
+Factor score (Dim 2) in square matrix that have significant contribution
+only
+
+![](MuSu__NA,_c,_MFA_subs__files/figure-gfm/grid_heat_sigfj2-1.png)<!-- -->
+
+Smoothed Sig Factor Score (Dim
+2)
+
+![](MuSu__NA,_c,_MFA_subs__files/figure-gfm/grid_smheat_sigfj2-1.png)<!-- -->
