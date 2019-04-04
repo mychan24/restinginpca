@@ -1,6 +1,6 @@
 
 ---
-title: "MuSu_(NA, n, MFA_subs) - MSC01 & MSC08 (bad sub)"
+title: "MuSu_(NA, n, MFA_subs) - MSC01, MSC02, MSC08 (bad sub)"
 output: github_document
 ---
 
@@ -23,10 +23,20 @@ suppressMessages(library(grid))
 suppressMessages(library(pals))
 # Read functions -----------------------------------
 tool.path <- "../../../tools/"
-# SScomm.R: the function that compute sums of squares of a square matrix according to a design matrix
-source(paste0(tool.path,"SScomm.R"))
+source(paste0(tool.path,"SScomm.R")) # SScomm.R: computes sums of squares of a square matrix according to a design matrix
 source(paste0(tool.path,"vec2sqmat.R"))
 source(paste0(tool.path,"getVoxDes.R"))
+
+#### == DEFINE Parameters (e.g., subj name, paths) == ####
+# This section will hopefully become parameterized for RMD in the future 
+
+parcelfile2read <- c("/sub-MSC01_node_parcel_comm.txt",
+                     "/sub-MSC02_node_parcel_comm.txt",
+                     "/sub-MSC08_node_parcel_comm.txt")
+subj.name <- c("sub01","sub02", "sub08")
+
+
+
 ```
 
 > This is an SVD with centered & normalized columns.
@@ -46,7 +56,8 @@ CommName[,'Community'] <- c("UnAssign", "Default","lateral Visual","Frontopariet
                             "ventral Attention","Salience","Cingular opercular",
                             "Sensorimotor - hand","Sensorimotor - face","Auditory",
                             "anterior Medial temporal","posterior Medial temporal",
-                            "Parietal memory","Context","Sensorimotor - foot","Unknown","Unknown","Unknown","UnKnown","UnKnown")
+                            "Parietal memory","Context","Sensorimotor - foot", 
+                            "Unknown","Unknown","Unknown","UnKnown","UnKnown")
 pander::pander(CommName[,c("Comm", "Community","CommLabel.short")])
 
 ```
@@ -54,27 +65,32 @@ pander::pander(CommName[,c("Comm", "Community","CommLabel.short")])
 ```{r data_info}
 # read parcel labels for each subject
 parcel.comm.path <- "../../../data/parcel_community"
-parcelfile2read <- c("/sub-MSC01_node_parcel_comm.txt","/sub-MSC08_node_parcel_comm.txt")
-subj.name <- c("sub01","sub02")
 parcel.list <- lapply(1:length(parcelfile2read), function(x){
-  parcel <- read.table(paste0(parcel.comm.path, parcelfile2read[x]),sep = ",")
-  getVoxDes(parcel,CommName)
-})
+                      parcel <- read.table(paste0(parcel.comm.path, parcelfile2read[x]),sep = ",")
+                      getVoxDes(parcel,CommName)
+                      })
 names(parcel.list) <- subj.name
 
-#--- Create colors for heatmap
-labelcol <- list(sub01 = parcel.list$sub01$Comm.col$gc[order(rownames(parcel.list$sub01$Comm.col$gc))],
-                 sub02 = parcel.list$sub02$Comm.col$gc[order(rownames(parcel.list$sub02$Comm.col$gc))])
-textcol <- list(sub01 = c(rep("black",8),rep("white",2),rep("black",3),"white",rep("black",3),rep("white",2)),
-                sub02 = c(rep("black",7),rep("white",2),rep("black",3),"white",rep("black",2),rep("white",3)))
+#-- Create colors for heatmap 
+labelcol <- list()
+textcol <- list()
+for(i in 1:length(subj.name)){
+  labelcol[[i]] <- parcel.list[[i]]$Comm.col$gc[order(rownames(parcel.list[[i]]$Comm.col$gc))]
+  names(labelcol)[i] <- subj.name[i]
+  
+  textcol[[i]] <- rep("black", length(labelcol[[i]]))
+  textcol[[i]][as(hex2RGB(labelcol[[i]]), "polarLUV")@coords[,1] < 35] <- "white"  # Convert hex2RGB to lum
+}
+
 ```
 
 As a result, the correlation matrix of each session of each subject will look like this:
 
 ```{r data, echo = FALSE, include = FALSE, fig.show='hide'}
+### Make these not objects, but part of a list? ### MYC NEED TO CHANGE 20190404
 # read examplar data
 zmat.path <- "../../../data/zmat"
-subj.num <- c("01","08")
+subj.num <- csubstr(subj.name, start = 4, stop = 6) # only works with format like "sub06" or "MSC06"
 #--- plot heatmap
 for(subj.count in 1:length(parcel.list)){
   load(paste0(zmat.path,"/sub-MSC",subj.num[subj.count],"_zcube_rcube.RData"))
