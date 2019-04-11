@@ -1,6 +1,6 @@
 
 ---
-title: "MuSu_(NA, n, HMFA) - MSC01, MSC02, MSC08 (bad sub)"
+title: "MuSu_(NA, c, HMFA) - MSC01, MSC02, MSC08 (bad sub)"
 output: github_document
 ---
 

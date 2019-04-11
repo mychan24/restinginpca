@@ -1,4 +1,4 @@
-MuSu\_(NA, n, HMFA)
+MuSu\_(NA, c, HMFA)
 ================
 
 > This is an SVD with centered columns.
@@ -56,12 +56,11 @@ textcol <- list(sub01 = c(rep("black",8),rep("white",2),rep("black",3),"white",r
 ```
 
 As a result, the correlation matrix of each session of each subject will
-look like
-this:
+look like this:
 
-![](MuSu__NA,_c,_MFA_HMFA__files/figure-gfm/plot_sub01_10hmap-1.png)<!-- -->
+![](MuSu__NA,_c,_HMFA__files/figure-gfm/plot_sub01_10hmap-1.png)<!-- -->
 
-![](MuSu__NA,_c,_MFA_HMFA__files/figure-gfm/plot_sub02_10hmap-1.png)<!-- -->
+![](MuSu__NA,_c,_HMFA__files/figure-gfm/plot_sub02_10hmap-1.png)<!-- -->
 
 This correlation matrix were then turned into a rectangular matrix
 
@@ -94,7 +93,7 @@ gtlabel[,'subjects_wb'] <- sprintf('%s_%s',gtlabel$subjects_label,gtlabel$wb)
 
   - Centering: across sessions (rows) (i.e., the columns are centered)
 
-  - Normalizing: HMFA-normalized subtable for each network edge then for
+  - Normalizing: HMFA-normalized subtable for each network edge then
     each subject
 
 Then, the preprocessed data are decomposed by the SVD:
@@ -108,7 +107,7 @@ explained variance of each component. The results showed that there are
 three important components with the percentage of explained variance
 more than average (i.e., 1/10).
 
-![](MuSu__NA,_c,_MFA_HMFA__files/figure-gfm/scree-1.png)<!-- -->
+![](MuSu__NA,_c,_HMFA__files/figure-gfm/scree-1.png)<!-- -->
 
 ###### Contributions
 
@@ -167,9 +166,9 @@ col4ImportantEdg[!importantEdg] <- col4NS # replace them in the color vector
 
 Then the contributions are shown in plots
 
-![](MuSu__NA,_c,_MFA_HMFA__files/figure-gfm/grid_ciplot-1.png)<!-- -->
-The contribution for each network edge is computed by dividing its total
-SS across region edges and dimensions (i.e., the cross product of
+![](MuSu__NA,_c,_HMFA__files/figure-gfm/grid_ciplot-1.png)<!-- --> The
+contribution for each network edge is computed by dividing its total SS
+across region edges and dimensions (i.e., the cross product of
 contribution and eigenvalues) by the total eigenvalues of the two
 components.
 
@@ -177,7 +176,7 @@ components.
 
 First, we plot the factor scores for the 10 sessions
 
-![](MuSu__NA,_c,_MFA_HMFA__files/figure-gfm/plot_f_sess-1.png)<!-- -->
+![](MuSu__NA,_c,_HMFA__files/figure-gfm/plot_f_sess-1.png)<!-- -->
 
 We can also compute the partial factor scores for each participant:
 
@@ -191,7 +190,7 @@ n_table2normalize <- sapply(1:n_subj, function(x){
 # compute partial factor scores: K x sv[1] x X_k x Q_k
 pFi <- sapply(1:n_subj, function(x){
   # weighted by the inverse of "the # of tables contributed for each subject"
-  (sum(n_table2normalize)/n_table2normalize[x])/(sv[[1]][x])*(sv[[2]][x])*cgt[,which(subj.table == unique(subj.table)[x])] %*% (svd.res$ExPosition.Data$pdq$q[which(subj.table == unique(subj.table)[x]),])
+  (sum(n_table2normalize)/n_table2normalize[x])/((sv[[1]][x])*(sv[[2]][x]))*cgt[,which(subj.table == unique(subj.table)[x])] %*% (svd.res$ExPosition.Data$pdq$q[which(subj.table == unique(subj.table)[x]),])
 }, simplify = "array")
 # name the dimension of the array that stores partial F
 dimnames(pFi) <- list(rownames(cgt),colnames(svd.res$ExPosition.Data$fi),unique(subj.table))
@@ -203,7 +202,7 @@ dimnames(pFi) <- list(rownames(cgt),colnames(svd.res$ExPosition.Data$fi),unique(
 
 And plot them on the same factor map:
 
-![](MuSu__NA,_c,_MFA_HMFA__files/figure-gfm/plot_pf_sess-1.png)<!-- -->
+![](MuSu__NA,_c,_HMFA__files/figure-gfm/plot_pf_sess-1.png)<!-- -->
 
 To have a clearer view of the factor scores for the subject x edges, we
 first compute the mean factor scores for the each network edge.
@@ -233,7 +232,7 @@ Next, we plot the factor scores for the subject x edges (a mess): Dim 1
 &
 2
 
-![](MuSu__NA,_c,_MFA_HMFA__files/figure-gfm/grid_f_netedge_plot-1.png)<!-- -->
+![](MuSu__NA,_c,_HMFA__files/figure-gfm/grid_f_netedge_plot-1.png)<!-- -->
 Note that a network edge with its region edges significantly contribute
 to the components both positively and negatively results in a
 significant mean factor score that is close to the origin. Also, a
@@ -245,33 +244,33 @@ in the chunk named `checkCtr` which is hidden/commented in the .rmd.)
 We can also add boostrap intervals for the factor
     scores
 
-    ## Warning: Removed 1 rows containing non-finite values (stat_ellipse).
+    ## Warning: Removed 2 rows containing non-finite values (stat_ellipse).
 
-    ## Warning: Removed 9 rows containing non-finite values (stat_ellipse).
+    ## Warning: Removed 7 rows containing non-finite values (stat_ellipse).
 
-![](MuSu__NA,_c,_MFA_HMFA__files/figure-gfm/grid_f_netedgeCI_plot-1.png)<!-- -->
+![](MuSu__NA,_c,_HMFA__files/figure-gfm/grid_f_netedgeCI_plot-1.png)<!-- -->
 
 We can also show the factor scores for network edges as square matrix of
 sub01 (MSC 01) and sub02 (MSC 02)
 
-![](MuSu__NA,_c,_MFA_HMFA__files/figure-gfm/grid_heat_fi-1.png)<!-- -->
+![](MuSu__NA,_c,_HMFA__files/figure-gfm/grid_heat_fi-1.png)<!-- -->
 
 Factor score (Dim 1) in square matrix that have significant contribution
 only
 
-![](MuSu__NA,_c,_MFA_HMFA__files/figure-gfm/grid_heat_sigfj1-1.png)<!-- -->
+![](MuSu__NA,_c,_HMFA__files/figure-gfm/grid_heat_sigfj1-1.png)<!-- -->
 
 Smoothed Sig Factor Score (Dim
 1)
 
-![](MuSu__NA,_c,_MFA_HMFA__files/figure-gfm/grid_smheat_sigfj1-1.png)<!-- -->
+![](MuSu__NA,_c,_HMFA__files/figure-gfm/grid_smheat_sigfj1-1.png)<!-- -->
 
 Factor score (Dim 2) in square matrix that have significant contribution
 only
 
-![](MuSu__NA,_c,_MFA_HMFA__files/figure-gfm/grid_heat_sigfj2-1.png)<!-- -->
+![](MuSu__NA,_c,_HMFA__files/figure-gfm/grid_heat_sigfj2-1.png)<!-- -->
 
 Smoothed Sig Factor Score (Dim
 2)
 
-![](MuSu__NA,_c,_MFA_HMFA__files/figure-gfm/grid_smheat_sigfj2-1.png)<!-- -->
+![](MuSu__NA,_c,_HMFA__files/figure-gfm/grid_smheat_sigfj2-1.png)<!-- -->
