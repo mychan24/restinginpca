@@ -155,7 +155,8 @@ _Note: The data was transformed from the upper triangle of the correlation matri
 
 ```{r preproc_step, include = FALSE, message=FALSE}
 # Center & Normalize Columns (across rows) 
-gt_preproc <- expo.scale(gt, center = TRUE, scale = FALSE)# check dimension
+gt_preproc <- expo.scale(gt, center = TRUE, scale = "ss1")# check dimension
+gt_preproc[is.nan(gt_preproc)] <- 0
 
 subtab_i <-  gtlabel$subjects_label     # Use subjects as mini table
 n_subtable <- length(unique(subtab_i))  # Number of mini tables
@@ -297,6 +298,7 @@ plot.f_sess$zeMap + f.labels
 We can also compute the partial factor scores for each participant:
 
 ```{r partial_f_sess}
+cgt <- gt_preproc
 subj.table <- gtlabel$subjects_label
 n_subj <- length(unique(gtlabel$subjects_label))
 # compute partial factor scores: K x sv[1] x X_k x Q_k
