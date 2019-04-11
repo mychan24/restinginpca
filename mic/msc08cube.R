@@ -22,5 +22,5 @@ for(i in 1:10){
 save(file = "./data/zmat/sub-MSC08_zcube_rcube.Rdata", cubes)
 
 # sanity check
-superheat::superheat(cubes$rcube[,,1], y.axis.reverse = T, membership.rows = par_label$V3, membership.cols = par_label$V3)
-superheat::superheat(cubes$rcube[,,2], y.axis.reverse = T, membership.rows = par_label$V3, membership.cols = par_label$V3)
+#superheat::superheat(cubes$rcube[,,1], y.axis.reverse = T, membership.rows = par_label$V3, membership.cols = par_label$V3)
+#superheat::superheat(cubes$rcube[,,2], y.axis.reverse = T, membership.rows = par_label$V3, membership.cols = par_label$V3)
