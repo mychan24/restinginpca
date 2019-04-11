@@ -1,6 +1,6 @@
 
 ---
-title: "MuSu_(NA, c, MFA_NetEdge)"
+title: "MuSu_(NA, c, HMFA)"
 output: github_document
 ---
 
@@ -166,7 +166,7 @@ gtlabel[,'subjects_wb'] <- sprintf('%s_%s',gtlabel$subjects_label,gtlabel$wb)
 
 + Centering: across sessions (rows) (i.e., the columns are centered)
 
-+ Normalizing: MFA-normalized subtable for each network edge
++ Normalizing: HMFA-normalized subtable for each network edge then each subject
 
 ```{r preproc_step, include = FALSE, message=FALSE}
 # Center Columns (across rows) + MFA normalize mini-block (Subjects)

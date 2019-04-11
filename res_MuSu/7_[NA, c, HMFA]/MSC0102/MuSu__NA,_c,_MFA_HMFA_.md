@@ -1,4 +1,4 @@
-MuSu\_(NA, c, MFA\_NetEdge)
+MuSu\_(NA, c, HMFA)
 ================
 
 > This is an SVD with centered columns.
@@ -94,7 +94,8 @@ gtlabel[,'subjects_wb'] <- sprintf('%s_%s',gtlabel$subjects_label,gtlabel$wb)
 
   - Centering: across sessions (rows) (i.e., the columns are centered)
 
-  - Normalizing: MFA-normalized subtable for each network edge
+  - Normalizing: HMFA-normalized subtable for each network edge then
+    each subject
 
 Then, the preprocessed data are decomposed by the SVD:
 
@@ -244,11 +245,11 @@ in the chunk named `checkCtr` which is hidden/commented in the .rmd.)
 We can also add boostrap intervals for the factor
     scores
 
-    ## Warning: Removed 4 rows containing non-finite values (stat_ellipse).
+    ## Warning: Removed 2 rows containing non-finite values (stat_ellipse).
+
+    ## Warning: Removed 17 rows containing non-finite values (stat_ellipse).
 
     ## Warning: Removed 1 rows containing non-finite values (stat_ellipse).
-
-    ## Warning: Removed 12 rows containing non-finite values (stat_ellipse).
 
 ![](MuSu__NA,_c,_MFA_HMFA__files/figure-gfm/grid_f_netedgeCI_plot-1.png)<!-- -->
 
