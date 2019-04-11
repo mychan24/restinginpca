@@ -6,12 +6,15 @@
 #           comm_paths,   paths to node community to organize grand table. 
 #                         e.g., comm_paths <- list.files("./data/parcel_community/", pattern = "comm.txt", full.names = T)
 #           out_file,     Rdata to save gt and gtlabel to. Default = NULL (won't save a file)
+#           subj_list,    vector of subjID as string, corresponding to order in cube/comm_paths
+#
 # Ouput:    gt,           grand table based on zcube
 #           gtlabel,     grand table labels (edges_label, subjects_label, subjects_edge_label, within_between)
 # #########################################################################
+# myc, UTD 2019/04/11 - Add subj_list input
 # myc, UTD 2019/03/01 - Initial
 # #########################################################################
-cube2gt <- function(cube_paths, comm_paths, out_file=NULL){
+cube2gt <- function(cube_paths, comm_paths, out_file=NULL, subj_list=NULL){
   if(!exists("label_edges")){
     stop("Source label_edges.R (in ./tools)")
   }
@@ -52,7 +55,7 @@ cube2gt <- function(cube_paths, comm_paths, out_file=NULL){
     
     # Make edges label
     l <- label_edges(Ci = c)
-    sublabel <- data.frame(edges_label=l, subjects_label=sprintf("sub%02d", i))
+    sublabel <- data.frame(edges_label=l, subjects_label=sprintf("%s", subj_list[i]))
     
     # append to grand table
     if(exists("gt")){
