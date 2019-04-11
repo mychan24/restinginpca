@@ -151,6 +151,8 @@ _Note: The data was transformed from the upper triangle of the correlation matri
 
 + Normalizing: across sessions (rows) (i.e., the columns are normalized to SS = 1); MFA-normalized the table of each subject 
 
+First we compute the weights that are used to MFA-normalized each subject table. These weights are computed as the inverse of the first singular value:
+
 ```{r preproc_step, include = FALSE, message=FALSE}
 # Center Columns (across rows) + MFA normalize mini-block (Subjects)
 cgt <- expo.scale(gt, center = T, scale = "ss1")
@@ -159,6 +161,8 @@ cgt[is.nan(cgt)] <- 0   # replace NaN with zero
 subtab_i <-  gtlabel$subjects_label     # Use subjects as mini table
 n_subtable <- length(unique(subtab_i))  # Number of mini tables
 sv <- matrix(NA, 1, n_subtable)     # Initialize eigenvalues object
+colnames(sv) <- gtlabel$subjects_label
+
 for(i in 1:n_subtable){
   sv[i] <- (svd(cgt[,subtab_i==unique(subtab_i)[i]])$d[1]) # singular value from svd 
 }
@@ -173,6 +177,9 @@ gt_preproc <- mfa_preproc
 gt_preproc[is.nan(gt_preproc)] <- 0   # replace NaN with zero 
 colnames(gt_preproc) <- gtlabel$subjects_edge_label
 dim(gt_preproc) # check dimension
+
+# show the weight for each subject
+1/sv
 ```
 
 Then, the preprocessed data are decomposed by the SVD:

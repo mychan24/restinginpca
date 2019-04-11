@@ -45,11 +45,11 @@ gtlabel[,'subjects_wb'] <- sprintf('%s_%s',gtlabel$subjects_label,gtlabel$wb)
 
 ```
 
-> This is an SVD with centered & normalized columns.
+> This is an SVD with centered & normalized columnsm as well as hierarchical (network edges --> subjects) MFA-normalized tables.
 
 ##### Data:
 
-The data are from the morning scan club (MSC) resting-state data where the participants were each scanned 10 times. The data that are analyzed here are the z-transformed coefficients of correlation between regions. These regions can be categorized into 12 networks: 
+The data are from the morning scan club (MSC) resting-state data where the participants were each scanned 10 times. The data that are analyzed here are the z-transformed coefficients of correlation between regions. These regions can be categorized into different networks: 
 
 ```{r community_list, echo = FALSE, fig.height= 10, fig.width = 2}
 # rename communities
@@ -149,7 +149,9 @@ _Note: The data was transformed from the upper triangle of the correlation matri
 
 + Centering: across sessions (rows) (i.e., the columns are centered)
 
-+ Normalizing: across sessions (rows) (i.e., the columns are normalized); hierarchical MFA normalized by edge then subjects 
++ Normalizing: across sessions (rows) (i.e., the columns are normalized to SS = 1); hierarchical MFA normalized by network edges then subjects 
+
+First we compute the weights that are used to MFA-normalized each subject table. These weights are computed as the inverse of the first singular value:
 
 ```{r preproc_step, include = FALSE, message=FALSE}
 # Center Columns (across rows) + MFA normalize mini-block (Subjects)
@@ -167,7 +169,9 @@ for (k in 1:n_lv){
   if (k == 1){
     mfa_preproc <- cgt
   }
-  sv[[k]] <- matrix(NA, 1, n_subtable[[k]])  
+  sv[[k]] <- matrix(NA, 1, n_subtable[[k]])
+  colnames(sv[[k]]) <- subtab_i[[k]]
+
   for(i in 1:n_subtable[[k]]){
     sv[[k]][i] <- (svd(cgt[,subtab_i[[k]]==unique(subtab_i[[k]])[i]])$d[1]) # singular value from svd 
     
@@ -181,6 +185,10 @@ gt_preproc <- mfa_preproc
 gt_preproc[is.nan(gt_preproc)] <- 0   # replace NaN with zero 
 colnames(gt_preproc) <- gtlabel$subjects_edge_label
 dim(gt_preproc) # check dimension
+
+# show the weights for each table
+lapply(1:n_lv, function(x){1/sv[[x]]})
+
 ```
 
 Then, the preprocessed data are decomposed by the SVD:
@@ -306,6 +314,7 @@ plot.f_sess <- createFactorMap(svd.res$ExPosition.Data$fi)
 plot.f_sess$zeMap + f.labels
 ```
 
+We can also plot the partial factor scores to see how each subject contributes to different sessions:
 
 ```{r partial_f_sess}
 # We can also compute the partial factor scores for each participant:
