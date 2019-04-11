@@ -249,24 +249,21 @@ First, we plot the factor scores for the 10 sessions
 
 ![](MuSu__NA,_n,_MFA_subs__files/figure-markdown_github/plot_f_sess-1.png)
 
-We can also compute the partial factor scores for each participant:
-
 ``` r
-subj.table <- gtlabel$subjects_label
-n_subj <- length(unique(gtlabel$subjects_label))
-# compute partial factor scores: K x sv[1] x X_k x Q_k
-pFi <- sapply(1:n_subj, function(x){
-  n_subj/(sv[x])*cgt[,which(subj.table == unique(subj.table)[x])] %*% (svd.res$ExPosition.Data$pdq$q[which(subj.table == unique(subj.table)[x]),])
-}, simplify = "array")
-# name the dimension of the array that stores partial F
-dimnames(pFi) <- list(rownames(cgt),colnames(svd.res$ExPosition.Data$fi),unique(subj.table))
-
-## Check barycentric
+## We can also compute the partial factor scores for each participant:
+# subj.table <- gtlabel$subjects_label
+# n_subj <- length(unique(gtlabel$subjects_label))
+# # compute partial factor scores: K x sv[1] x X_k x Q_k
+# pFi <- sapply(1:n_subj, function(x){
+#   n_subj/(sv[x])*cgt[,which(subj.table == unique(subj.table)[x])] %*% (svd.res$ExPosition.Data$pdq$q[which(subj.table == unique(subj.table)[x]),])
+# }, simplify = "array")
+# # name the dimension of the array that stores partial F
+# dimnames(pFi) <- list(rownames(cgt),colnames(svd.res$ExPosition.Data$fi),unique(subj.table))
+# 
+# ## Check barycentric
 # ch1 <- apply(pFi,c(1:2),mean)
 # ch2 <- cgt %*% (svd.res$ExPosition.Data$pdq$q)
 ```
-
-And plot them on the same factor map:
 
 To have a clearer view of the factor scores for the subject x edges, we first compute the mean factor scores for the each network edge.
 

@@ -1,6 +1,6 @@
 
 ---
-title: "MuSu_(NA, n, MFA_subs) - MSC01, MSC02, MSC08 (bad sub)"
+title: "MuSu_(NA, n, NA) - MSC01, MSC02, MSC08 (bad sub)"
 output: github_document
 ---
 
@@ -151,38 +151,12 @@ _Note: The data was transformed from the upper triangle of the correlation matri
 
 + Centering: across sessions (rows) (i.e., the columns are centered)
 
-+ Normalizing: across sessions (rows) (i.e., the columns are normalized); MFA normalized by subjects 
++ Normalizing: across sessions (rows) (i.e., the columns are normalized)
 
 ```{r preproc_step, include = FALSE, message=FALSE}
-# Center Columns (across rows) + MFA normalize mini-block (Subjects)
-cgt <- expo.scale(gt, center = T, scale = "ss1")
-cgt[is.nan(cgt)] <- 0   # replace NaN with zero 
+# Center & Normalize Columns (across rows) 
 
-subtab_i <-  gtlabel$subjects_label     # Use subjects as mini table
-n_subtable <- length(unique(subtab_i))  # Number of mini tables
-sv <- matrix(NA, 1, n_subtable)     # Initialize eigenvalues object
-for(i in 1:n_subtable){
-  sv[i] <- (svd(cgt[,subtab_i==unique(subtab_i)[i]])$d[1]) # singular value from svd 
-}
-eigens <- sv^2
-
-mfa_preproc <- cgt
-for(i in 1:n_subtable){
-   mfa_preproc[,subtab_i==unique(subtab_i)[i]] <- mfa_preproc[,subtab_i==unique(subtab_i)[i]]/sv[i]
-}
-
-## Not using mpSTATIS.preprocess so we can have sv and eigan saved out for partial factor score. 
-## This also shows exact steps of normalization
-# mfa_preproc <- mpSTATIS.preprocess(data = cgt, column.design = as.matrix(t(gtlabel$subjects_label)), row.design = NULL, 
-#                                    row.preprocess = 'None', column.preprocess = 'None', # did col normalize with expo.scale 
-#                                    table.preprocess = 'MFA_Normalization', 
-#                                    make.columndesign.nominal = TRUE, make.rowdesign.nominal = TRUE)
-
-# set the column names
-gt_preproc <- mfa_preproc
-gt_preproc[is.nan(gt_preproc)] <- 0   # replace NaN with zero 
-colnames(gt_preproc) <- gtlabel$subjects_edge_label
-# check dimension
+gt_preproc <- expo.scale(gt, center = TRUE, scale = FALSE)# check dimension
 dim(gt_preproc)
 ```
 
@@ -323,43 +297,43 @@ plot.f_sess$zeMap + f.labels
 ```
 
 
+We can also compute the partial factor scores for each participant:
 
 ```{r partial_f_sess}
-## We can also compute the partial factor scores for each participant:
-# subj.table <- gtlabel$subjects_label
-# n_subj <- length(unique(gtlabel$subjects_label))
-# # compute partial factor scores: K x sv[1] x X_k x Q_k
-# pFi <- sapply(1:n_subj, function(x){
-#   n_subj/(sv[x])*cgt[,which(subj.table == unique(subj.table)[x])] %*% (svd.res$ExPosition.Data$pdq$q[which(subj.table == unique(subj.table)[x]),])
-# }, simplify = "array")
-# # name the dimension of the array that stores partial F
-# dimnames(pFi) <- list(rownames(cgt),colnames(svd.res$ExPosition.Data$fi),unique(subj.table))
-# 
-# ## Check barycentric
+subj.table <- gtlabel$subjects_label
+n_subj <- length(unique(gtlabel$subjects_label))
+# compute partial factor scores: K x sv[1] x X_k x Q_k
+pFi <- sapply(1:n_subj, function(x){
+  n_subj/(sv[x])*cgt[,which(subj.table == unique(subj.table)[x])] %*% (svd.res$ExPosition.Data$pdq$q[which(subj.table == unique(subj.table)[x]),])
+}, simplify = "array")
+# name the dimension of the array that stores partial F
+dimnames(pFi) <- list(rownames(cgt),colnames(svd.res$ExPosition.Data$fi),unique(subj.table))
+
+## Check barycentric
 # ch1 <- apply(pFi,c(1:2),mean)
 # ch2 <- cgt %*% (svd.res$ExPosition.Data$pdq$q)
 ```
 
+And plot them on the same factor map:
 
 ```{r plot_pf_sess, echo = FALSE}
-##  And plot them on the same factor map:
 # find the constraints for the pF map
-# pF.constraints <- minmaxHelper4Partial(
-#                                     FactorScores = svd.res$ExPosition.Data$fi,
-#                                     partialFactorScores = pFi)
-# # plot again the factor map
-# plot.f_sess4pF <- createFactorMap(svd.res$ExPosition.Data$fi,
-#                                   constraints = pF.constraints) # with t(gt)
-# 
-# # select color for subjects (subtables)
-# plot.pf_sess <- createPartialFactorScoresMap(
-#   factorScores = svd.res$ExPosition.Data$fi,
-#   partialFactorScores = pFi,
-#   axis1 = 1, axis2 = 2,
-#   # color4Items = col4ImportantSes,
-#   names4Partial = subj.name,
-#   font.labels = "bold"
-# )
+pF.constraints <- minmaxHelper4Partial(
+                                    FactorScores = svd.res$ExPosition.Data$fi,
+                                    partialFactorScores = pFi)
+# plot again the factor map
+plot.f_sess4pF <- createFactorMap(svd.res$ExPosition.Data$fi,
+                                  constraints = pF.constraints) # with t(gt)
+
+# select color for subjects (subtables)
+plot.pf_sess <- createPartialFactorScoresMap(
+  factorScores = svd.res$ExPosition.Data$fi,
+  partialFactorScores = pFi,
+  axis1 = 1, axis2 = 2,
+  # color4Items = col4ImportantSes,
+  names4Partial = subj.name,
+  font.labels = "bold"
+)
 
 # add it to the factor map ** MYC this broke when there is 3 subjects, ask JC 20190410
 # plot.f_sess4pF$zeMap + f.labels + plot.pf_sess$mapColByBlocks

@@ -323,43 +323,43 @@ plot.f_sess$zeMap + f.labels
 ```
 
 
+We can also compute the partial factor scores for each participant:
 
 ```{r partial_f_sess}
-## We can also compute the partial factor scores for each participant:
-# subj.table <- gtlabel$subjects_label
-# n_subj <- length(unique(gtlabel$subjects_label))
-# # compute partial factor scores: K x sv[1] x X_k x Q_k
-# pFi <- sapply(1:n_subj, function(x){
-#   n_subj/(sv[x])*cgt[,which(subj.table == unique(subj.table)[x])] %*% (svd.res$ExPosition.Data$pdq$q[which(subj.table == unique(subj.table)[x]),])
-# }, simplify = "array")
-# # name the dimension of the array that stores partial F
-# dimnames(pFi) <- list(rownames(cgt),colnames(svd.res$ExPosition.Data$fi),unique(subj.table))
-# 
-# ## Check barycentric
+subj.table <- gtlabel$subjects_label
+n_subj <- length(unique(gtlabel$subjects_label))
+# compute partial factor scores: K x sv[1] x X_k x Q_k
+pFi <- sapply(1:n_subj, function(x){
+  n_subj/(sv[x])*cgt[,which(subj.table == unique(subj.table)[x])] %*% (svd.res$ExPosition.Data$pdq$q[which(subj.table == unique(subj.table)[x]),])
+}, simplify = "array")
+# name the dimension of the array that stores partial F
+dimnames(pFi) <- list(rownames(cgt),colnames(svd.res$ExPosition.Data$fi),unique(subj.table))
+
+## Check barycentric
 # ch1 <- apply(pFi,c(1:2),mean)
 # ch2 <- cgt %*% (svd.res$ExPosition.Data$pdq$q)
 ```
 
+And plot them on the same factor map:
 
 ```{r plot_pf_sess, echo = FALSE}
-##  And plot them on the same factor map:
 # find the constraints for the pF map
-# pF.constraints <- minmaxHelper4Partial(
-#                                     FactorScores = svd.res$ExPosition.Data$fi,
-#                                     partialFactorScores = pFi)
-# # plot again the factor map
-# plot.f_sess4pF <- createFactorMap(svd.res$ExPosition.Data$fi,
-#                                   constraints = pF.constraints) # with t(gt)
-# 
-# # select color for subjects (subtables)
-# plot.pf_sess <- createPartialFactorScoresMap(
-#   factorScores = svd.res$ExPosition.Data$fi,
-#   partialFactorScores = pFi,
-#   axis1 = 1, axis2 = 2,
-#   # color4Items = col4ImportantSes,
-#   names4Partial = subj.name,
-#   font.labels = "bold"
-# )
+pF.constraints <- minmaxHelper4Partial(
+                                    FactorScores = svd.res$ExPosition.Data$fi,
+                                    partialFactorScores = pFi)
+# plot again the factor map
+plot.f_sess4pF <- createFactorMap(svd.res$ExPosition.Data$fi,
+                                  constraints = pF.constraints) # with t(gt)
+
+# select color for subjects (subtables)
+plot.pf_sess <- createPartialFactorScoresMap(
+  factorScores = svd.res$ExPosition.Data$fi,
+  partialFactorScores = pFi,
+  axis1 = 1, axis2 = 2,
+  # color4Items = col4ImportantSes,
+  names4Partial = subj.name,
+  font.labels = "bold"
+)
 
 # add it to the factor map ** MYC this broke when there is 3 subjects, ask JC 20190410
 # plot.f_sess4pF$zeMap + f.labels + plot.pf_sess$mapColByBlocks
