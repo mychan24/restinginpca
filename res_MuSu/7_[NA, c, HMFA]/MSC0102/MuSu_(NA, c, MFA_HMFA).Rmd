@@ -173,18 +173,27 @@ gtlabel[,'subjects_wb'] <- sprintf('%s_%s',gtlabel$subjects_label,gtlabel$wb)
 cgt <- expo.scale(gt, center = T, scale = F)
 cgt[is.nan(cgt)] <- 0   # replace NaN with zero 
 
-subtab_i <-  gtlabel$subjects_edge_label    # Use subjects_edge_label as mini table
-n_subtable <- length(unique(subtab_i))  # Number of mini tables
-sv <- matrix(NA, 1, n_subtable)     # Initialize eigenvalues object
-for(i in 1:n_subtable){
-  sv[i] <- (svd(cgt[,subtab_i==unique(subtab_i)[i]])$d[1]) # singular value from svd 
-}
-eigens <- sv^2
+# Different levels of tables
+## First
+subtab_i <-  list(gtlabel$subjects_edge_label, gtlabel$subjects_label)    # Use subjects_edge_label as mini table
+n_subtable <- list(length(unique(subtab_i[[1]])), length(unique(subtab_i[[2]])))  # Number of mini tables
+n_lv <- length(subtab_i)
+sv <- list()
 
-mfa_preproc <- cgt
-for(i in 1:n_subtable){
-   mfa_preproc[,subtab_i==unique(subtab_i)[i]] <- mfa_preproc[,subtab_i==unique(subtab_i)[i]]/sv[i]
+for (k in 1:n_lv){
+  if (k == 1){
+    mfa_preproc <- cgt
+  }
+  sv[[k]] <- matrix(NA, 1, n_subtable[[k]])  
+  for(i in 1:n_subtable[[k]]){
+    sv[[k]][i] <- (svd(cgt[,subtab_i[[k]]==unique(subtab_i[[k]])[i]])$d[1]) # singular value from svd 
+    
+    # mfa-normalization
+    mfa_preproc[,subtab_i[[k]]==unique(subtab_i[[k]])[i]] <- mfa_preproc[,subtab_i[[k]]==unique(subtab_i[[k]])[i]]/sv[[k]][i]
+  }
 }
+# Initialize eigenvalues object
+
 
 ## Not using mpSTATIS.preprocess so we can have sv and eigan saved out for partial factor score. 
 ## This also shows exact steps of normalization
@@ -349,7 +358,7 @@ n_table2normalize <- sapply(1:n_subj, function(x){
 # compute partial factor scores: K x sv[1] x X_k x Q_k
 pFi <- sapply(1:n_subj, function(x){
   # weighted by the inverse of "the # of tables contributed for each subject"
-  (sum(n_table2normalize)/n_table2normalize[x])/(sv[x])*cgt[,which(subj.table == unique(subj.table)[x])] %*% (svd.res$ExPosition.Data$pdq$q[which(subj.table == unique(subj.table)[x]),])
+  (sum(n_table2normalize)/n_table2normalize[x])/(sv[[1]][x])*(sv[[2]][x])*cgt[,which(subj.table == unique(subj.table)[x])] %*% (svd.res$ExPosition.Data$pdq$q[which(subj.table == unique(subj.table)[x]),])
 }, simplify = "array")
 # name the dimension of the array that stores partial F
 dimnames(pFi) <- list(rownames(cgt),colnames(svd.res$ExPosition.Data$fi),unique(subj.table))
