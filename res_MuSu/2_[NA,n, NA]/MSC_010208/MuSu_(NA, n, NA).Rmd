@@ -49,7 +49,7 @@ gtlabel[,'subjects_wb'] <- sprintf('%s_%s',gtlabel$subjects_label,gtlabel$wb)
 
 ##### Data:
 
-The data are from the morning scan club (MSC) resting-state data where the participants were each scanned 10 times. The data that are analyzed here are the z-transformed coefficients of correlation between regions. These regions can be categorized into 12 networks: 
+The data are from the morning scan club (MSC) resting-state data where the participants were each scanned 10 times. The data that are analyzed here are the z-transformed coefficients of correlation between regions. These regions can be categorized into different networks: 
 
 ```{r community_list, echo = FALSE, fig.height= 10, fig.width = 2}
 # rename communities
@@ -141,7 +141,7 @@ This correlation matrix were then turned into a rectangular matrix
 
 ##### Rectangular data:
 
-+ Rows: 5 sessions
++ Rows: 10 sessions
 
 + Columns: Different edges (e.g, _within DMN_, _between DMN & CON_, _between DMN & FPN_, etc.) of different subjects
 
@@ -151,20 +151,12 @@ _Note: The data was transformed from the upper triangle of the correlation matri
 
 + Centering: across sessions (rows) (i.e., the columns are centered)
 
-+ Normalizing: across sessions (rows) (i.e., the columns are normalized)
++ Normalizing: across sessions (rows) (i.e., the columns are normalized to SS = 1)
 
 ```{r preproc_step, include = FALSE, message=FALSE}
 # Center & Normalize Columns (across rows) 
 gt_preproc <- expo.scale(gt, center = TRUE, scale = "ss1")# check dimension
 gt_preproc[is.nan(gt_preproc)] <- 0
-
-subtab_i <-  gtlabel$subjects_label     # Use subjects as mini table
-n_subtable <- length(unique(subtab_i))  # Number of mini tables
-sv <- matrix(NA, 1, n_subtable)     # Initialize eigenvalues object
-for(i in 1:n_subtable){
-  sv[i] <- (svd(gt_preproc[,subtab_i==unique(subtab_i)[i]])$d[1]) # singular value from svd 
-}
-
 
 dim(gt_preproc)
 ```
@@ -297,13 +289,14 @@ plot.f_sess$zeMap + f.labels
 
 We can also compute the partial factor scores for each participant:
 
+
 ```{r partial_f_sess}
 cgt <- gt_preproc
 subj.table <- gtlabel$subjects_label
 n_subj <- length(unique(gtlabel$subjects_label))
-# compute partial factor scores: K x sv[1] x X_k x Q_k
+# compute partial factor scores: K x X_k x Q_k
 pFi <- sapply(1:n_subj, function(x){
-  n_subj/(sv[x])*cgt[,which(subj.table == unique(subj.table)[x])] %*% (svd.res$ExPosition.Data$pdq$q[which(subj.table == unique(subj.table)[x]),])
+  n_subj*cgt[,which(subj.table == unique(subj.table)[x])] %*% (svd.res$ExPosition.Data$pdq$q[which(subj.table == unique(subj.table)[x]),])
 }, simplify = "array")
 # name the dimension of the array that stores partial F
 dimnames(pFi) <- list(rownames(cgt),colnames(svd.res$ExPosition.Data$fi),unique(subj.table))
