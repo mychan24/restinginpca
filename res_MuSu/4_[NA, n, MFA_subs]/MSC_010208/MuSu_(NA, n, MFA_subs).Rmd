@@ -45,11 +45,11 @@ gtlabel[,'subjects_wb'] <- sprintf('%s_%s',gtlabel$subjects_label,gtlabel$wb)
 
 ```
 
-> This is an SVD with centered & normalized columns.
+> This is an SVD with centered & normalized columns as well as MFA-normalized subject tables.
 
 ##### Data:
 
-The data are from the morning scan club (MSC) resting-state data where the participants were each scanned 10 times. The data that are analyzed here are the z-transformed coefficients of correlation between regions. These regions can be categorized into 12 networks: 
+The data are from the morning scan club (MSC) resting-state data where the participants were each scanned 10 times. The data that are analyzed here are the z-transformed coefficients of correlation between regions. These regions can be categorized into different networks: 
 
 ```{r community_list, echo = FALSE, fig.height= 10, fig.width = 2}
 # rename communities
@@ -139,7 +139,7 @@ This correlation matrix were then turned into a rectangular matrix
 
 ##### Rectangular data:
 
-+ Rows: 5 sessions
++ Rows: 10 sessions
 
 + Columns: Different edges (e.g, _within DMN_, _between DMN & CON_, _between DMN & FPN_, etc.) of different subjects
 
@@ -149,7 +149,7 @@ _Note: The data was transformed from the upper triangle of the correlation matri
 
 + Centering: across sessions (rows) (i.e., the columns are centered)
 
-+ Normalizing: across sessions (rows) (i.e., the columns are normalized); MFA normalized by subjects 
++ Normalizing: across sessions (rows) (i.e., the columns are normalized to SS = 1); MFA-normalized the table of each subject 
 
 ```{r preproc_step, include = FALSE, message=FALSE}
 # Center Columns (across rows) + MFA normalize mini-block (Subjects)
@@ -298,6 +298,7 @@ plot.f_sess <- createFactorMap(svd.res$ExPosition.Data$fi)
 plot.f_sess$zeMap + f.labels
 ```
 
+We can also plot the partial factor scores that show how each subject contributes to different sessions:
 
 ```{r partial_f_sess}
 # We can also compute the partial factor scores for each participant:
