@@ -93,47 +93,47 @@ for(i in 1:length(subj.name)){
 As a result, the correlation matrix of each session of each subject will look like this:
 
 ```{r data, echo = FALSE, include = FALSE, fig.show='hide'}
-# ### Make these not objects, but part of a list? ### MYC NEED TO CHANGE 20190404
-# # read examplar data
-# zmat.path <- "../../../data/zmat"
-# subj.num <- substr(subj.name, start = 4, stop = 6) # only works with format like "sub06" or "MSC06"
-# #--- plot heatmap
-# hmaplist <- list()
-# hmaplist_i <- 1
-# for(subj.count in 1:length(parcel.list)){
-#   load(paste0(zmat.path,"/sub-MSC",subj.num[subj.count],"_zcube_rcube.RData"))
-#   hmaplist[[subj.count]] <- list()
-#   for(session.count in 1:dim(cubes$rcube)[3]){
-#     # heat map of correlation matrices
-#     hmap.name <- sprintf("sub%s_hmap%s",subj.num[subj.count],session.count)
-#     hmaplist[[subj.count]][session.count] <- superheat(cubes$rcube[,,session.count],
-#                                 membership.cols = parcel.list[[subj.count]]$vox.des$Comm.rcd,
-#                                 membership.rows = parcel.list[[subj.count]]$vox.des$Comm.rcd,
-#                                 clustering.method = NULL,
-#                                 heat.col.scheme = "viridis",
-#                                 left.label.size = 0.08,
-#                                 bottom.label.size = 0.05,
-#                                 y.axis.reverse = TRUE,
-#                                 left.label.col = labelcol[[subj.count]], # order by community name
-#                                 bottom.label.col = labelcol[[subj.count]],
-#                                 left.label.text.size = 3,
-#                                 bottom.label.text.size = 2,
-#                                 left.label.text.col = textcol[[subj.count]],
-#                                 bottom.label.text.col = textcol[[subj.count]],
-#                                 left.label.text.alignment = "left",
-#                                 title = sprintf("Correlation matrix of #%s session",session.count)
-#                                 )
-#     # hmaplist_i <- hmaplist_i + 1
-#   }
-# }
+### Make these not objects, but part of a list? ### MYC NEED TO CHANGE 20190404
+# read examplar data
+zmat.path <- "../../../data/zmat"
+subj.num <- substr(subj.name, start = 4, stop = 6) # only works with format like "sub06" or "MSC06"
+#--- plot heatmap
+hmaplist <- list()
+hmaplist_i <- 1
+for(subj.count in 1:length(parcel.list)){
+  load(paste0(zmat.path,"/sub-MSC",subj.num[subj.count],"_zcube_rcube.RData"))
+  hmaplist[[subj.count]] <- list()
+  for(session.count in 1:dim(cubes$rcube)[3]){
+    # heat map of correlation matrices
+    hmap.name <- sprintf("sub%s_hmap%s",subj.num[subj.count],session.count)
+    hmaplist[[subj.count]][session.count] <- superheat(cubes$rcube[,,session.count],
+                                membership.cols = parcel.list[[subj.count]]$vox.des$Comm.rcd,
+                                membership.rows = parcel.list[[subj.count]]$vox.des$Comm.rcd,
+                                clustering.method = NULL,
+                                heat.col.scheme = "viridis",
+                                left.label.size = 0.08,
+                                bottom.label.size = 0.05,
+                                y.axis.reverse = TRUE,
+                                left.label.col = labelcol[[subj.count]], # order by community name
+                                bottom.label.col = labelcol[[subj.count]],
+                                left.label.text.size = 3,
+                                bottom.label.text.size = 2,
+                                left.label.text.col = textcol[[subj.count]],
+                                bottom.label.text.col = textcol[[subj.count]],
+                                left.label.text.alignment = "left",
+                                title = sprintf("Correlation matrix of #%s session",session.count)
+                                )
+    # hmaplist_i <- hmaplist_i + 1
+  }
+}
 
 ```
 
 ```{r plot_all_sub_session_hmap, echo=F, fig.height=(8*length(subj.name)), fig.width= 40}
-# for(i in 1:length(hmaplist)){
-#   print(sprintf("%s", subj.name[i]))
-#   do.call(grid.arrange, c(hmaplist[[i]], ncol=5))
-# }
+for(i in 1:length(hmaplist)){
+  print(sprintf("%s", subj.name[i]))
+  do.call(grid.arrange, c(hmaplist[[i]], ncol=5))
+}
 ```
 
 
