@@ -175,7 +175,7 @@ n_table2normalize <- sapply(1:n_subj, function(x){
 # compute partial factor scores: K x sv[1] x X_k x Q_k
 pFi <- sapply(1:n_subj, function(x){
   # weighted by the inverse of "the # of tables contributed for each subject"
-  (sum(n_table2normalize)/n_table2normalize[x])/(sv[[1]][x])*(sv[[2]][x])*cgt[,which(subj.table == unique(subj.table)[x])] %*% (svd.res$ExPosition.Data$pdq$q[which(subj.table == unique(subj.table)[x]),])
+  (sum(n_table2normalize)/n_table2normalize[x])/((sv[[1]][x])*(sv[[2]][x]))*cgt[,which(subj.table == unique(subj.table)[x])] %*% (svd.res$ExPosition.Data$pdq$q[which(subj.table == unique(subj.table)[x]),])
 }, simplify = "array")
 
 # name the dimension of the array that stores partial F
@@ -231,11 +231,9 @@ We can also add boostrap intervals for the factor scores
     ## Warning: Computation failed in `stat_ellipse()`:
     ## missing value where TRUE/FALSE needed
 
-    ## Warning: Removed 1 rows containing non-finite values (stat_ellipse).
-
     ## Warning: Removed 2 rows containing non-finite values (stat_ellipse).
 
-    ## Warning: Removed 1 rows containing non-finite values (stat_ellipse).
+    ## Warning: Removed 3 rows containing non-finite values (stat_ellipse).
 
 ![](MuSu__NA,_n,_HMFA__files/figure-gfm/grid_f_netedgeCI_plot-1.png)<!-- -->
 

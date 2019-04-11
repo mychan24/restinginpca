@@ -318,7 +318,7 @@ n_table2normalize <- sapply(1:n_subj, function(x){
 # compute partial factor scores: K x sv[1] x X_k x Q_k
 pFi <- sapply(1:n_subj, function(x){
   # weighted by the inverse of "the # of tables contributed for each subject"
-  (sum(n_table2normalize)/n_table2normalize[x])/(sv[[1]][x])*(sv[[2]][x])*cgt[,which(subj.table == unique(subj.table)[x])] %*% (svd.res$ExPosition.Data$pdq$q[which(subj.table == unique(subj.table)[x]),])
+  (sum(n_table2normalize)/n_table2normalize[x])/((sv[[1]][x])*(sv[[2]][x]))*cgt[,which(subj.table == unique(subj.table)[x])] %*% (svd.res$ExPosition.Data$pdq$q[which(subj.table == unique(subj.table)[x]),])
 }, simplify = "array")
 
 # name the dimension of the array that stores partial F
