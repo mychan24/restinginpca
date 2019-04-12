@@ -1,4 +1,4 @@
-MuSu\_(NA, c, MFA\_NetEdge) - MSC01, MSC02, MSC08 (bad sub)
+MuSu\_(NA, n, MFA\_NetEdge) - MSC01, MSC02, MSC08 (bad sub)
 ================
 
 > This is an SVD with centered & normalized columns as well as
@@ -80,7 +80,8 @@ different subjects are concatenated on the columns.*
 
   - Centering: across sessions (rows) (i.e., the columns are centered)
 
-  - Normalizing: MFA-normalized the table of each edge type
+  - Normalizing: across sessions (rows) (i.e., the columns are
+    normalized to SS = 1); MFA-normalized the table of each edge type
 
 First we compute the weights that are used to MFA-normalized each
 subject table. These weights are computed as the inverse of the first
@@ -97,7 +98,7 @@ explained variance of each component. The results showed that there are
 three important components with the percentage of explained variance
 more than average (i.e., 1/10).
 
-![](MuSu__NA,_c,_MFA_NetEdge__files/figure-gfm/scree-1.png)<!-- -->
+![](MuSu__NA,_n,_MFA_NetEdge__files/figure-gfm/scree-1.png)<!-- -->
 
 ###### Contributions
 
@@ -157,7 +158,7 @@ col4ImportantEdg[!importantEdg] <- col4NS # replace them in the color vector
 Then the contributions are shown in
 plots
 
-![](MuSu__NA,_c,_MFA_NetEdge__files/figure-gfm/grid_ciplot-1.png)<!-- -->
+![](MuSu__NA,_n,_MFA_NetEdge__files/figure-gfm/grid_ciplot-1.png)<!-- -->
 The contribution for each network edge is computed by dividing its total
 SS across region edges and dimensions (i.e., the cross product of
 contribution and eigenvalues) by the total eigenvalues of the two
@@ -168,7 +169,7 @@ components.
 First, we plot the factor scores for the 10
 sessions
 
-![](MuSu__NA,_c,_MFA_NetEdge__files/figure-gfm/plot_f_sess-1.png)<!-- -->
+![](MuSu__NA,_n,_MFA_NetEdge__files/figure-gfm/plot_f_sess-1.png)<!-- -->
 
 We can also plot the partial factor scores that show how each subject
 contributes to different sessions:
@@ -190,7 +191,7 @@ ch2 <- cgt %*% (svd.res$ExPosition.Data$pdq$q)
 ```
 
 And plot them on the same factor map:
-![](MuSu__NA,_c,_MFA_NetEdge__files/figure-gfm/plot_pf_sess-1.png)<!-- -->
+![](MuSu__NA,_n,_MFA_NetEdge__files/figure-gfm/plot_pf_sess-1.png)<!-- -->
 
 To have a clearer view of the factor scores for the subject x edges, we
 first compute the mean factor scores for the each network edge.
@@ -220,7 +221,7 @@ Next, we plot the factor scores for the subject x edges (a mess): Dim 1
 &
 2
 
-![](MuSu__NA,_c,_MFA_NetEdge__files/figure-gfm/grid_f_netedge_plot-1.png)<!-- -->
+![](MuSu__NA,_n,_MFA_NetEdge__files/figure-gfm/grid_f_netedge_plot-1.png)<!-- -->
 
 Note that a network edge with its region edges significantly contribute
 to the components both positively and negatively results in a
@@ -258,14 +259,16 @@ We can also add boostrap intervals for the factor scores
     
     ## Warning: Computation failed in `stat_ellipse()`:
     ## missing value where TRUE/FALSE needed
-    
+
+    ## Warning: Removed 41 rows containing non-finite values (stat_ellipse).
+
     ## Warning: Computation failed in `stat_ellipse()`:
     ## missing value where TRUE/FALSE needed
     
     ## Warning: Computation failed in `stat_ellipse()`:
     ## missing value where TRUE/FALSE needed
 
-![](MuSu__NA,_c,_MFA_NetEdge__files/figure-gfm/grid_f_netedgeCI_plot-1.png)<!-- -->
+![](MuSu__NA,_n,_MFA_NetEdge__files/figure-gfm/grid_f_netedgeCI_plot-1.png)<!-- -->
 
 We can also show the factor scores for network edges as square matrix of
 each subject.
@@ -296,11 +299,11 @@ Node x Node Matrix of Factor Score: Dim 1 & Dim
 
     ## [1] "Dimension 1"
 
-![](MuSu__NA,_c,_MFA_NetEdge__files/figure-gfm/grid_heat_fi-1.png)<!-- -->
+![](MuSu__NA,_n,_MFA_NetEdge__files/figure-gfm/grid_heat_fi-1.png)<!-- -->
 
     ## [1] "Dimension 2"
 
-![](MuSu__NA,_c,_MFA_NetEdge__files/figure-gfm/grid_heat_fi-2.png)<!-- -->
+![](MuSu__NA,_n,_MFA_NetEdge__files/figure-gfm/grid_heat_fi-2.png)<!-- -->
 
 Factor score (Dim 1) in square matrix that have significant contribution
 only
@@ -315,7 +318,7 @@ only
     ## T, : number of items to replace is not a multiple of replacement length
 
 Node x Node Matrix of Factor Score w/ Sig Contribution: Dim 1
-![](MuSu__NA,_c,_MFA_NetEdge__files/figure-gfm/grid_heat_sigfj1-1.png)<!-- -->
+![](MuSu__NA,_n,_MFA_NetEdge__files/figure-gfm/grid_heat_sigfj1-1.png)<!-- -->
 
 Smoothed Sig Factor Score (Dim 1)
 
@@ -332,7 +335,7 @@ Smoothed Sig Factor Score (Dim 1)
     ## replacement length
 
 Smoothed Node x Node Matrix of Factor Score w/ Sig Contribution: Dim 1
-![](MuSu__NA,_c,_MFA_NetEdge__files/figure-gfm/grid_smheat_sigfj1-1.png)<!-- -->
+![](MuSu__NA,_n,_MFA_NetEdge__files/figure-gfm/grid_smheat_sigfj1-1.png)<!-- -->
 
 Factor score (Dim 2) in square matrix that have significant contribution
 only
@@ -347,7 +350,7 @@ only
     ## T, : number of items to replace is not a multiple of replacement length
 
 Node x Node Matrix of Factor Score w/ Sig Contribution: Dim 2
-![](MuSu__NA,_c,_MFA_NetEdge__files/figure-gfm/grid_heat_sigfj2-1.png)<!-- -->
+![](MuSu__NA,_n,_MFA_NetEdge__files/figure-gfm/grid_heat_sigfj2-1.png)<!-- -->
 
 Smoothed Sig Factor Score (Dim 2)
 
@@ -364,4 +367,4 @@ Smoothed Sig Factor Score (Dim 2)
     ## replacement length
 
 Smoothed Node x Node Matrix of Factor Score w/ Sig Contribution: Dim 2
-![](MuSu__NA,_c,_MFA_NetEdge__files/figure-gfm/grid_smheat_sigfj2-1.png)<!-- -->
+![](MuSu__NA,_n,_MFA_NetEdge__files/figure-gfm/grid_smheat_sigfj2-1.png)<!-- -->

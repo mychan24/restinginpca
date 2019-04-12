@@ -364,20 +364,20 @@ To have a clearer view of the factor scores for the subject x edges, we first co
 mean.fj <- getMeans(svd.res$ExPosition.Data$fj, gtlabel$subjects_edge_label) # with t(gt)
 colnames(mean.fj) <- sapply(c(1:ncol(mean.fj)), function(x){sprintf("Factor %s",x)})
 
-# BootCube.Comm <- Boot4Mean(svd.res$ExPosition.Data$fj,
-#                            design = gtlabel$subjects_edge_label,
-#                            niter = 100,
-#                            suppressProgressBar = TRUE)
-# 
+BootCube.Comm <- Boot4Mean(svd.res$ExPosition.Data$fj,
+                           design = gtlabel$subjects_edge_label,
+                           niter = 100,
+                           suppressProgressBar = TRUE)
+
 
 # Compute means of factor scores for different types of edges
 mean.fj.bw <- getMeans(svd.res$ExPosition.Data$fj, gtlabel$subjects_wb) # with t(gt)
 colnames(mean.fj.bw) <- sapply(c(1:ncol(mean.fj.bw)), function(x){sprintf("Factor %s",x)})
 
-# BootCube.Comm.bw <- Boot4Mean(svd.res$ExPosition.Data$fj,
-#                            design = gtlabel$subjects_wb,
-#                            niter = 100,
-#                            suppressProgressBar = TRUE)
+BootCube.Comm.bw <- Boot4Mean(svd.res$ExPosition.Data$fj,
+                           design = gtlabel$subjects_wb,
+                           niter = 100,
+                           suppressProgressBar = TRUE)
 
 ```
 
@@ -429,32 +429,32 @@ Note that a network edge with its region edges significantly contribute to the c
 
 We can also add boostrap intervals for the factor scores
 ```{r CI_plot, echo = FALSE, fig.show='hide', message= FALSE}
-# # plot the only significantly contributed factor scores
-# # get the bootstrap data for each network edge
-# getBoot2plot_edge <- BootCube.Comm$BootCube[importantEdg,c(1,2),]
-# # plot the CI ellipses
-# f_impedge.CI <- MakeCIEllipses(getBoot2plot_edge,
-#                                  names.of.factors = c(sprintf("Factor %s", 1),sprintf("Factor %s", 2)),
-#                                  col = col4ImportantEdg[importantEdg,],
-#                                  p.level = .95)
-# # create plot
-# f_CInetedge_plot01 <- plot.f_impedge$zeMap_background + plot.f_impedge$zeMap_dots + f.labels
-# f_CInetedge_plot02 <- plot.f_impedge$zeMap_background + plot.f_impedge$zeMap_dots + f_impedge.CI + f.labels
-# 
-# # get the bootstrap data for each type of network edges
-# getBoot2plot_edge_bw <- BootCube.Comm.bw$BootCube[,c(1,2),]
-# # plot the CI ellipses
-# plot.CI.f_bw <- MakeCIEllipses(getBoot2plot_edge_bw,
-#                                  names.of.factors = c(sprintf("Factor %s", 1),sprintf("Factor %s", 2)),
-#                                  col = net.edge.col$gc[rownames(getBoot2plot_edge_bw),],
-#                                  p.level = .95)
-# # create plot
-# f_CInetedge_plot03 <- plot.f_bw_imp$zeMap + plot.CI.f_bw + f.labels
+# plot the only significantly contributed factor scores
+# get the bootstrap data for each network edge
+getBoot2plot_edge <- BootCube.Comm$BootCube[importantEdg,c(1,2),]
+# plot the CI ellipses
+f_impedge.CI <- MakeCIEllipses(getBoot2plot_edge,
+                                 names.of.factors = c(sprintf("Factor %s", 1),sprintf("Factor %s", 2)),
+                                 col = col4ImportantEdg[importantEdg,],
+                                 p.level = .95)
+# create plot
+f_CInetedge_plot01 <- plot.f_impedge$zeMap_background + plot.f_impedge$zeMap_dots + f.labels
+f_CInetedge_plot02 <- plot.f_impedge$zeMap_background + plot.f_impedge$zeMap_dots + f_impedge.CI + f.labels
+
+# get the bootstrap data for each type of network edges
+getBoot2plot_edge_bw <- BootCube.Comm.bw$BootCube[,c(1,2),]
+# plot the CI ellipses
+plot.CI.f_bw <- MakeCIEllipses(getBoot2plot_edge_bw,
+                                 names.of.factors = c(sprintf("Factor %s", 1),sprintf("Factor %s", 2)),
+                                 col = net.edge.col$gc[rownames(getBoot2plot_edge_bw),],
+                                 p.level = .95)
+# create plot
+f_CInetedge_plot03 <- plot.f_bw_imp$zeMap + plot.CI.f_bw + f.labels
 ```
 
 ```{r grid_f_netedgeCI_plot, echo=F, fig.height=12, fig.width=12, message=FALSE}
-# gridExtra::grid.arrange(as.grob(f_CInetedge_plot01), as.grob(f_CInetedge_plot02), as.grob(f_CInetedge_plot03),ncol=2,
-#                         top = textGrob("Mean factor scores with CIs for significantly contributed edges",gp=gpar(fontsize=18,font=3)))
+gridExtra::grid.arrange(as.grob(f_CInetedge_plot01), as.grob(f_CInetedge_plot02), as.grob(f_CInetedge_plot03),ncol=2,
+                        top = textGrob("Mean factor scores with CIs for significantly contributed edges",gp=gpar(fontsize=18,font=3)))
 ```
 
 We can also show the factor scores for network edges as square matrix of each subject.
