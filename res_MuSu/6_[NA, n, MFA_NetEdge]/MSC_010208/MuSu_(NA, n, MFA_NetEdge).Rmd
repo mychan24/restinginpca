@@ -35,7 +35,7 @@ parcelfile2read <- c("/sub-MSC01_node_parcel_comm.txt",
                      "/sub-MSC08_node_parcel_comm.txt")
 subj.name <- c("sub01","sub02", "sub08")
 
-load(paste0("../../../data/grandatble_and_labels_MSC01_MSC02_MSC08_20190411.Rdata")) # read the labels of grandtable
+load(paste0("../../../data/grandatble_and_labels_MSC01_MSC02_MSC08_20190410.Rdata")) # read the labels of grandtable
 # gt: grand tabls
 # labels: information for each edge in the rectangular grand table
 
@@ -158,28 +158,20 @@ First we compute the weights that are used to MFA-normalized each subject table.
 cgt <- expo.scale(gt, center = T, scale = "ss1")
 cgt[is.nan(cgt)] <- 0   # replace NaN with zero 
 
-# == Get singular value of subjects == #
+# == Get singular value of net work edges == #
 # for partial factor score?
-subtab_i <-  gtlabel$subjects_label     # Define subjects mini-table
-n_subtable <- length(unique(subtab_i))  # Number of subject mini tables
+subtab_i <-  gtlabel$subjects_edge_label      # Define network edges mini-table
+n_subtable <- length(unique(subtab_i))  # Number of subject x network edges mini tables
 
-sv_sub <- matrix(NA, 1, n_subtable)     # Initialize eigenvalues object
-colnames(sv_sub) <- levels(gtlabel$subjects_label)
+sv <- matrix(NA, 1, n_subtable)     # Initialize eigenvalues object
+colnames(sv) <- levels(gtlabel$subjects_edge_label)
 for(i in 1:n_subtable){
-  sv_sub[i] <- (svd(cgt[,subtab_i==unique(subtab_i)[i]])$d[1]) # singular value from svd 
-}
-
-# == MFA-preproc with edges_label == #
-edgetab_i <- gtlabel$edges_label        # Define edge-type mini-table
-n_edgetable <- length(unique(edgetab_i))  # Number of edge-type mini tables
-sv_edge <- matrix(NA, 1, n_edgetable) 
-for(i in 1:n_edgetable){
-  sv_edge[i] <- (svd(cgt[,edgetab_i==unique(edgetab_i)[i]])$d[1]) # singular value from svd 
+  sv[i] <- (svd(cgt[,subtab_i==unique(subtab_i)[i]])$d[1]) # singular value from svd 
 }
 
 mfa_preproc <- cgt
-for(i in 1:n_edgetable){
-   mfa_preproc[,edgetab_i==unique(edgetab_i)[i]] <- mfa_preproc[,edgetab_i==unique(edgetab_i)[i]]/sv_edge[i]
+for(i in 1:n_subtable){
+   mfa_preproc[,subtab_i==unique(subtab_i)[i]] <- mfa_preproc[,subtab_i==unique(subtab_i)[i]]/sv[i]
 }
 
 # set the column names
@@ -190,7 +182,7 @@ colnames(gt_preproc) <- gtlabel$subjects_edge_label
 dim(gt_preproc) # check dimension
 
 # show the weight for each subject
-1/sv_sub
+1/sv
 ```
 
 Then, the preprocessed data are decomposed by the SVD:
@@ -320,11 +312,18 @@ We can also plot the partial factor scores that show how each subject contribute
 
 ```{r partial_f_sess}
 # We can also compute the partial factor scores for each participant:
+# We can also compute the partial factor scores for each participant:
 subj.table <- gtlabel$subjects_label
+table2normalize <- subtab_i
+
 n_subj <- length(unique(gtlabel$subjects_label))
-# compute partial factor scores: K x sv[1] x X_k x Q_k
+n_table2normalize <- sapply(1:n_subj, function(x){
+  length(unique(table2normalize[which(subj.table == unique(subj.table)[x])]))})
+
+# compute partial factor scores: K / sv[1] x X_k x Q_k
 pFi <- sapply(1:n_subj, function(x){
-  n_subj/(sv_sub[x])*cgt[,which(subj.table == unique(subj.table)[x])] %*% (svd.res$ExPosition.Data$pdq$q[which(subj.table == unique(subj.table)[x]),])
+  # weighted by the inverse of "the # of tables contributed for each subject"
+  (sum(n_table2normalize)/n_table2normalize[x])/(sv[x])*cgt[,which(subj.table == unique(subj.table)[x])] %*% (svd.res$ExPosition.Data$pdq$q[which(subj.table == unique(subj.table)[x]),])
 }, simplify = "array")
 # name the dimension of the array that stores partial F
 dimnames(pFi) <- list(rownames(cgt),colnames(svd.res$ExPosition.Data$fi),unique(subj.table))

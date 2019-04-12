@@ -176,10 +176,16 @@ contributes to different sessions:
 ``` r
 # We can also compute the partial factor scores for each participant:
 subj.table <- gtlabel$subjects_label
+table2normalize <- subtab_i
+
 n_subj <- length(unique(gtlabel$subjects_label))
-# compute partial factor scores: K x sv[1] x X_k x Q_k
+n_table2normalize <- sapply(1:n_subj, function(x){
+  length(unique(table2normalize[which(subj.table == unique(subj.table)[x])]))})
+
+# compute partial factor scores: K / sv[1] x X_k x Q_k
 pFi <- sapply(1:n_subj, function(x){
-  n_subj/(sv_sub[x])*cgt[,which(subj.table == unique(subj.table)[x])] %*% (svd.res$ExPosition.Data$pdq$q[which(subj.table == unique(subj.table)[x]),])
+  # weighted by the inverse of "the # of tables contributed for each subject"
+  (sum(n_table2normalize)/n_table2normalize[x])/(sv[x])*cgt[,which(subj.table == unique(subj.table)[x])] %*% (svd.res$ExPosition.Data$pdq$q[which(subj.table == unique(subj.table)[x]),])
 }, simplify = "array")
 # name the dimension of the array that stores partial F
 dimnames(pFi) <- list(rownames(cgt),colnames(svd.res$ExPosition.Data$fi),unique(subj.table))
@@ -230,40 +236,12 @@ compared to the total eigenvalues; this type of network edge might not
 be significant even when being far away from the origin. (This is shown
 in the chunk named `checkCtr` which is hidden/commented in the .rmd.)
 
-We can also add boostrap intervals for the factor scores
+We can also add boostrap intervals for the factor
+    scores
 
-    ## Warning: Computation failed in `stat_ellipse()`:
-    ## missing value where TRUE/FALSE needed
-    
-    ## Warning: Computation failed in `stat_ellipse()`:
-    ## missing value where TRUE/FALSE needed
-    
-    ## Warning: Computation failed in `stat_ellipse()`:
-    ## missing value where TRUE/FALSE needed
-    
-    ## Warning: Computation failed in `stat_ellipse()`:
-    ## missing value where TRUE/FALSE needed
-    
-    ## Warning: Computation failed in `stat_ellipse()`:
-    ## missing value where TRUE/FALSE needed
-    
-    ## Warning: Computation failed in `stat_ellipse()`:
-    ## missing value where TRUE/FALSE needed
-    
-    ## Warning: Computation failed in `stat_ellipse()`:
-    ## missing value where TRUE/FALSE needed
-    
-    ## Warning: Computation failed in `stat_ellipse()`:
-    ## missing value where TRUE/FALSE needed
-    
-    ## Warning: Computation failed in `stat_ellipse()`:
-    ## missing value where TRUE/FALSE needed
-    
-    ## Warning: Computation failed in `stat_ellipse()`:
-    ## missing value where TRUE/FALSE needed
-    
-    ## Warning: Computation failed in `stat_ellipse()`:
-    ## missing value where TRUE/FALSE needed
+    ## Warning: Removed 10 rows containing non-finite values (stat_ellipse).
+
+    ## Warning: Removed 16 rows containing non-finite values (stat_ellipse).
 
 ![](MuSu__NA,_c,_MFA_NetEdge__files/figure-gfm/grid_f_netedgeCI_plot-1.png)<!-- -->
 
