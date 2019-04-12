@@ -173,7 +173,7 @@ for(i in 1:n_subtable){
 edgetab_i <- gtlabel$edges_label        # Define edge-type mini-table
 n_edgetable <- length(unique(edgetab_i))  # Number of edge-type mini tables
 sv_edge <- matrix(NA, 1, n_edgetable) 
-for(i in 1:n_subtable){
+for(i in 1:n_edgetable){
   sv_edge[i] <- (svd(cgt[,edgetab_i==unique(edgetab_i)[i]])$d[1]) # singular value from svd 
 }
 
