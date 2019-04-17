@@ -1,10 +1,6 @@
 This directory contains all results using MuSu (different preprocessing)
 
-> Updated 04/01/2019 by JY
-
-*1_[NA,c,NA]*:
-
-+ Center each column
+> Updated 04/17/2019 by MC
 
 *2_[NA,c-ss1,NA]*:
 
@@ -33,6 +29,24 @@ This directory contains all results using MuSu (different preprocessing)
 + Center and scale (to SS = 1) each column
 
 + Then, MFA-normalize the tables of different network-edges
+
+* 7_[NA, c, HMFA]
+
++ Center each column
+
++ Hierarchical MFA
+
+* 8_[NA, n, HMFA]
+
++ Center and scale (to SS = 1) each column
+
++ Hierarchical MFA
+
+
+* archived
+
++ Contains preprocessing folder longer being tested
++ 1_[NA, c, NA] - Center-only gives too much weight to within vs. between. 
 
 ---
 Each folder contains two subfolders:
