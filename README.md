@@ -120,3 +120,12 @@ The analyses that do not normalize (or equalize the contribution of) each subjec
 
 	![Factor heatmaps 8 cp2](https://github.com/mychan24/restinginpca/blob/master/res_MuSu/8_%5BNA%2C%20n%2C%20HMFA%5D/MSC010208/MuSu__NA%2C_n%2C_HMFA__files/figure-markdown_github/grid_smheat_sigfj2-1.png)
 
+### Comments
+
++[JY]:
+
+	+ I think think the results that are more meaningful are those from Analysis 3 and 7. Analysis 3 showed the general pattern difference across subjects and sessions with the contributions of each network determined by their size. Analysis 7 showed how the _common_ connectivity patterns among networks.
+
+	+ As a result, Analysis 3 shows pattern across subjects and Analysis 7 shows pattern among network connectivities.
+
+	+ Analysis 8 is more like a combination of both Analyses 3 and 7.
