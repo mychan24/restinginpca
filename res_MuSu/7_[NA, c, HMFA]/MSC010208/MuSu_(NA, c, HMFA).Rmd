@@ -170,7 +170,7 @@ for (k in 1:n_lv){
     mfa_preproc <- cgt
   }
   sv[[k]] <- matrix(NA, 1, n_subtable[[k]])
-  colnames(sv[[k]]) <- subtab_i[[k]]
+  colnames(sv[[k]]) <- unique(subtab_i[[k]])
 
   for(i in 1:n_subtable[[k]]){
     sv[[k]][i] <- (svd(cgt[,subtab_i[[k]]==unique(subtab_i[[k]])[i]])$d[1]) # singular value from svd 

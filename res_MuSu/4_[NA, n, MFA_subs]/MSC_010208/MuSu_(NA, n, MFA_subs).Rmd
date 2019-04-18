@@ -34,7 +34,7 @@ parcelfile2read <- c("/sub-MSC01_node_parcel_comm.txt",
                      "/sub-MSC08_node_parcel_comm.txt")
 subj.name <- c("sub01","sub02", "sub08")
 
-load(paste0("../../../data/grandatble_and_labels_MSC01_MSC02_MSC08_20190411.Rdata")) # read the labels of grandtable
+load(paste0("../../../data/grandatble_and_labels_MSC01_MSC02_MSC08_20190410.Rdata")) # read the labels of grandtable
 # gt: grand tabls
 # labels: information for each edge in the rectangular grand table
 
@@ -160,7 +160,7 @@ cgt[is.nan(cgt)] <- 0   # replace NaN with zero
 subtab_i <-  gtlabel$subjects_label     # Use subjects as mini table
 n_subtable <- length(unique(subtab_i))  # Number of mini tables
 sv <- matrix(NA, 1, n_subtable)     # Initialize eigenvalues object
-colnames(sv) <- gtlabel$subjects_label
+colnames(sv) <- levels(gtlabel$subjects_label)
 
 for(i in 1:n_subtable){
   sv[i] <- (svd(cgt[,subtab_i==unique(subtab_i)[i]])$d[1]) # singular value from svd 

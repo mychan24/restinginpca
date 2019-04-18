@@ -1,11 +1,11 @@
 MuSu\_(NA, n, MFA\_subs) - MSC01, MSC02, MSC08 (bad sub)
 ================
 
-> This is an SVD with centered & normalized columns.
+> This is an SVD with centered & normalized columns as well as MFA-normalized subject tables.
 
 ##### Data:
 
-The data are from the morning scan club (MSC) resting-state data where the participants were each scanned 10 times. The data that are analyzed here are the z-transformed coefficients of correlation between regions. These regions can be categorized into 12 networks:
+The data are from the morning scan club (MSC) resting-state data where the participants were each scanned 10 times. The data that are analyzed here are the z-transformed coefficients of correlation between regions. These regions can be categorized into different networks:
 
 <table style="width:72%;">
 <colgroup>
@@ -162,23 +162,11 @@ for(i in 1:length(subj.name)){
 
 As a result, the correlation matrix of each session of each subject will look like this:
 
-    ## [1] "sub01"
-
-![](MuSu__NA,_n,_MFA_subs__files/figure-markdown_github/plot_all_sub_session_hmap-1.png)
-
-    ## [1] "sub02"
-
-![](MuSu__NA,_n,_MFA_subs__files/figure-markdown_github/plot_all_sub_session_hmap-2.png)
-
-    ## [1] "sub08"
-
-![](MuSu__NA,_n,_MFA_subs__files/figure-markdown_github/plot_all_sub_session_hmap-3.png)
-
 This correlation matrix were then turned into a rectangular matrix
 
 ##### Rectangular data:
 
--   Rows: 5 sessions
+-   Rows: 10 sessions
 
 -   Columns: Different edges (e.g, *within DMN*, *between DMN & CON*, *between DMN & FPN*, etc.) of different subjects
 
@@ -188,7 +176,9 @@ This correlation matrix were then turned into a rectangular matrix
 
 -   Centering: across sessions (rows) (i.e., the columns are centered)
 
--   Normalizing: across sessions (rows) (i.e., the columns are normalized); MFA normalized by subjects
+-   Normalizing: across sessions (rows) (i.e., the columns are normalized to SS = 1); MFA-normalized the table of each subject
+
+First we compute the weights that are used to MFA-normalized each subject table. These weights are computed as the inverse of the first singular value:
 
 Then, the preprocessed data are decomposed by the SVD:
 
@@ -261,6 +251,8 @@ First, we plot the factor scores for the 10 sessions
 
 ![](MuSu__NA,_n,_MFA_subs__files/figure-markdown_github/plot_f_sess-1.png)
 
+We can also plot the partial factor scores that show how each subject contributes to different sessions:
+
 ``` r
 # We can also compute the partial factor scores for each participant:
 subj.table <- gtlabel$subjects_label
@@ -314,27 +306,6 @@ We can also add boostrap intervals for the factor scores
 
 We can also show the factor scores for network edges as square matrix of each subject.
 
-    ## Warning in heat_fj1[i] <- superheat(as.matrix(fj1_sqmat[[i]]),
-    ## y.axis.reverse = T, : number of items to replace is not a multiple of
-    ## replacement length
-
-    ## Warning in heat_fj2[i] <- superheat(fj2_sqmat[[i]], y.axis.reverse = T, :
-    ## number of items to replace is not a multiple of replacement length
-
-    ## Warning in heat_fj1[i] <- superheat(as.matrix(fj1_sqmat[[i]]),
-    ## y.axis.reverse = T, : number of items to replace is not a multiple of
-    ## replacement length
-
-    ## Warning in heat_fj2[i] <- superheat(fj2_sqmat[[i]], y.axis.reverse = T, :
-    ## number of items to replace is not a multiple of replacement length
-
-    ## Warning in heat_fj1[i] <- superheat(as.matrix(fj1_sqmat[[i]]),
-    ## y.axis.reverse = T, : number of items to replace is not a multiple of
-    ## replacement length
-
-    ## Warning in heat_fj2[i] <- superheat(fj2_sqmat[[i]], y.axis.reverse = T, :
-    ## number of items to replace is not a multiple of replacement length
-
 Node x Node Matrix of Factor Score: Dim 1 & Dim 2
 
     ## [1] "Dimension 1"
@@ -347,58 +318,16 @@ Node x Node Matrix of Factor Score: Dim 1 & Dim 2
 
 Factor score (Dim 1) in square matrix that have significant contribution only
 
-    ## Warning in heat_sigfj1[i] <- superheat(fj1_sig_sqmat[[i]], y.axis.reverse =
-    ## T, : number of items to replace is not a multiple of replacement length
-
-    ## Warning in heat_sigfj1[i] <- superheat(fj1_sig_sqmat[[i]], y.axis.reverse =
-    ## T, : number of items to replace is not a multiple of replacement length
-
-    ## Warning in heat_sigfj1[i] <- superheat(fj1_sig_sqmat[[i]], y.axis.reverse =
-    ## T, : number of items to replace is not a multiple of replacement length
-
 Node x Node Matrix of Factor Score w/ Sig Contribution: Dim 1 ![](MuSu__NA,_n,_MFA_subs__files/figure-markdown_github/grid_heat_sigfj1-1.png)
 
 Smoothed Sig Factor Score (Dim 1)
-
-    ## Warning in sm_heat_sigfj1[i] <- superheat(fj1_sig_sqmat[[i]],
-    ## y.axis.reverse = T, : number of items to replace is not a multiple of
-    ## replacement length
-
-    ## Warning in sm_heat_sigfj1[i] <- superheat(fj1_sig_sqmat[[i]],
-    ## y.axis.reverse = T, : number of items to replace is not a multiple of
-    ## replacement length
-
-    ## Warning in sm_heat_sigfj1[i] <- superheat(fj1_sig_sqmat[[i]],
-    ## y.axis.reverse = T, : number of items to replace is not a multiple of
-    ## replacement length
 
 Smoothed Node x Node Matrix of Factor Score w/ Sig Contribution: Dim 1 ![](MuSu__NA,_n,_MFA_subs__files/figure-markdown_github/grid_smheat_sigfj1-1.png)
 
 Factor score (Dim 2) in square matrix that have significant contribution only
 
-    ## Warning in heat_sigfj2[i] <- superheat(fj2_sig_sqmat[[i]], y.axis.reverse =
-    ## T, : number of items to replace is not a multiple of replacement length
-
-    ## Warning in heat_sigfj2[i] <- superheat(fj2_sig_sqmat[[i]], y.axis.reverse =
-    ## T, : number of items to replace is not a multiple of replacement length
-
-    ## Warning in heat_sigfj2[i] <- superheat(fj2_sig_sqmat[[i]], y.axis.reverse =
-    ## T, : number of items to replace is not a multiple of replacement length
-
 Node x Node Matrix of Factor Score w/ Sig Contribution: Dim 2 ![](MuSu__NA,_n,_MFA_subs__files/figure-markdown_github/grid_heat_sigfj2-1.png)
 
 Smoothed Sig Factor Score (Dim 2)
-
-    ## Warning in sm_heat_sigfj2[i] <- superheat(fj2_sig_sqmat[[i]],
-    ## y.axis.reverse = T, : number of items to replace is not a multiple of
-    ## replacement length
-
-    ## Warning in sm_heat_sigfj2[i] <- superheat(fj2_sig_sqmat[[i]],
-    ## y.axis.reverse = T, : number of items to replace is not a multiple of
-    ## replacement length
-
-    ## Warning in sm_heat_sigfj2[i] <- superheat(fj2_sig_sqmat[[i]],
-    ## y.axis.reverse = T, : number of items to replace is not a multiple of
-    ## replacement length
 
 Smoothed Node x Node Matrix of Factor Score w/ Sig Contribution: Dim 2 ![](MuSu__NA,_n,_MFA_subs__files/figure-markdown_github/grid_smheat_sigfj2-1.png)
