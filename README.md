@@ -64,9 +64,23 @@ The analyses that do not normalize (or equalize the contribution of) each subjec
 
 	+ This analysis equalize the contribution of each network to each subject and the contribution of each subject to the analysis. Because the edges are _not_ normalized across sessions, the subject with the most varied pattern will dominate the component and the result.
 
-3. ANalysis 8: HMFA-normalized network edges then subjects after normalizing across sessions
+3. Analysis 8: HMFA-normalized network edges then subjects after normalizing across sessions
 
 	+ This analysis equalize the contribution of each network to each subject and the contribution of each subject to the analysis. When the edges are normalized across sessions, the variance of a flat pattern across sessions might be exaggerated. However, this result would identify the subjects that have a very different pattern compared to others.
+
+> Before showing the results, here are the raw connectivity matrices of all three subjects.
+
++ Subject 1:
+
+	![Heatmap sub1](https://github.com/mychan24/restinginpca/blob/master/res_MuSu/5_%5BNA%2C%20c%2C%20MFA_NetEdge%5D/MSC_010208/MuSu__NA%2C_c%2C_MFA_NetEdge__files/figure-markdown_github/plot_all_sub_session_hmap-1.png)
+
++ Subject 2:
+	
+	![Heatmap sub1](https://github.com/mychan24/restinginpca/blob/master/res_MuSu/5_%5BNA%2C%20c%2C%20MFA_NetEdge%5D/MSC_010208/MuSu__NA%2C_c%2C_MFA_NetEdge__files/figure-markdown_github/plot_all_sub_session_hmap-2.png)
+
++ Subject 8:
+	
+	![Heatmap sub1](https://github.com/mychan24/restinginpca/blob/master/res_MuSu/5_%5BNA%2C%20c%2C%20MFA_NetEdge%5D/MSC_010208/MuSu__NA%2C_c%2C_MFA_NetEdge__files/figure-markdown_github/plot_all_sub_session_hmap-3.png)
 
 > Here, we show the results from the three analyses and summarize what each of them highlights.
 
