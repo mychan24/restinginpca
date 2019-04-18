@@ -122,7 +122,7 @@ The analyses that do not normalize (or equalize the contribution of) each subjec
 
 ### Comments
 
-+[JY]:
++ [JY]
 
 	+ I think think the results that are more meaningful are those from Analysis 3 and 7. Analysis 3 showed the general pattern difference across subjects and sessions with the contributions of each network determined by their size. Analysis 7 showed how the _common_ connectivity patterns among networks.
 
