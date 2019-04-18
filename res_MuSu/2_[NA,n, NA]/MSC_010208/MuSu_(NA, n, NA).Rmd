@@ -485,7 +485,7 @@ for(i in 1:length(subj.name)){
 ```
 
 Node x Node Matrix of Factor Score: Dim 1 & Dim 2
-```{r grid_heat_fi, echo=F, fig.height=15, fig.width=(7*length(subj.name))}
+```{r grid_heat_fi, echo=F, fig.height=8, fig.width=(7*length(subj.name))}
 print("Dimension 1")
 do.call(grid.arrange, c(heat_fj1, ncol=length(subj.name)))
 
