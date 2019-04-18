@@ -49,3 +49,60 @@ condition x (region x participants)
   7. HMFA-normalized rectangular matrix by networks and subject without normalizing across rows
 
   8. HMFA-normalized rectangular matrix by networks and subject after normalizing across rows
+
+### Conclusion
+
+> Analysis no. 3, 7, and 8 are more meaningful.
+
+The analyses that do not normalize (or equalize the contribution of) each subject do not make that much sense, because the subject with more edges will end up dominating the components. Conceptually, the networks should be MFA-normalized as well so that all networds contribute the same amount of variance. However, when no subject contributes differently to the analysis, it would also make sense if the result of a subject is dominated by his or her larger networks. So, we keep the 3rd analysis, in which the edges are centered across sessions and the subjects are MFA-normalized. The 4th analysis, which also normalized across sessions, is not considered because the normalizing session could exaggerate the variance when the patterns across sessions are uniformly flat. In the end, we pick three analyses that we think are most informative:
+
+1. Analysis 3: MFA-normalized subjects _without_ normalizing across sessions
+
+	+ This analysis keep the effects of network sizes for each subject. As a result, the result of a subject will be dominated by the pattern within his or her largest network. In addition, because the subjects are MFA-normalized, the number of edges won't affect the contribution of each subject.
+
+2. Analysis 7: HMFA-normalized network edges then subjects _without_ normalizing across sessions
+
+	+ This analysis equalize the contribution of each network to each subject and the contribution of each subject to the analysis. Because the edges are _not_ normalized across sessions, the subject with the most varied pattern will dominate the component and the result.
+
+3. ANalysis 8: HMFA-normalized network edges then subjects after normalizing across sessions
+
+	+ This analysis equalize the contribution of each network to each subject and the contribution of each subject to the analysis. When the edges are normalized across sessions, the variance of a flat pattern across sessions might be exaggerated. However, this result would identify the subjects that have a very different pattern compared to others.
+
+> Here, we show the results from the three analyses and summarize what each of them highlights.
+
+1. MFA-normalized subjects _without_ normalizing across sessions
+
+	+ Subject 8 for session 5 and subject 2 for session 1 are driving the pattern, but not too strong. Subject 8 has strong effect compared to Analysis 7 might because of his or her larger amount of edges compared to the other two subjects.
+
+	![Factor map 3](https://github.com/mychan24/restinginpca/blob/master/res_MuSu/3_%5BNA%2C%20c%2C%20MFA_subs%5D/MSC_010208/MuSu__NA%2C_c%2C_MFA_subs__files/figure-markdown_github/grid_f_netedgeCI_plot-1.png)
+
+	![Session with pF 3](https://github.com/mychan24/restinginpca/blob/master/res_MuSu/3_%5BNA%2C%20c%2C%20MFA_subs%5D/MSC_010208/MuSu__NA%2C_c%2C_MFA_subs__files/figure-markdown_github/plot_pf_sess-1.png)
+
+	![Factor heatmaps 3 cp1](https://github.com/mychan24/restinginpca/blob/master/res_MuSu/3_%5BNA%2C%20c%2C%20MFA_subs%5D/MSC_010208/MuSu__NA%2C_c%2C_MFA_subs__files/figure-markdown_github/grid_smheat_sigfj1-1.png)
+
+	![Factor heatmaps 3 cp2](https://github.com/mychan24/restinginpca/blob/master/res_MuSu/3_%5BNA%2C%20c%2C%20MFA_subs%5D/MSC_010208/MuSu__NA%2C_c%2C_MFA_subs__files/figure-markdown_github/grid_smheat_sigfj2-1.png)
+
+2. HMFA-normalized network edges then subjects _without_ normalizing across sessions
+
+	+ Subject 8 has a flat pattern across sessions so does not drive the component (see the second figure).
+
+	![Factor map 7](https://github.com/mychan24/restinginpca/blob/master/res_MuSu/7_%5BNA%2C%20c%2C%20HMFA%5D/MSC010208/MuSu__NA%2C_c%2C_HMFA__files/figure-markdown_github/grid_f_netedgeCI_plot-1.png)
+
+	![Session with pF 7](https://github.com/mychan24/restinginpca/blob/master/res_MuSu/7_%5BNA%2C%20c%2C%20HMFA%5D/MSC010208/MuSu__NA%2C_c%2C_HMFA__files/figure-markdown_github/plot_pf_sess-1.png)
+
+	![Factor heatmaps 7 cp1](https://github.com/mychan24/restinginpca/blob/master/res_MuSu/7_%5BNA%2C%20c%2C%20HMFA%5D/MSC010208/MuSu__NA%2C_c%2C_HMFA__files/figure-markdown_github/grid_smheat_sigfj1-1.png)
+
+	![Factor heatmaps 7 cp2](https://github.com/mychan24/restinginpca/blob/master/res_MuSu/7_%5BNA%2C%20c%2C%20HMFA%5D/MSC010208/MuSu__NA%2C_c%2C_HMFA__files/figure-markdown_github/grid_smheat_sigfj2-1.png)
+
+3. HMFA-normalized network edges then subjects after normalizing across sessions
+
+	+ The pattern is driven by subject 8 in session 5 and subject 2 in session 1. However, for subject 5, subject 2 and 8 go in the same direction, which could be due to the exaggeration of subject 8's pattern.
+
+	![Factor map 8](https://github.com/mychan24/restinginpca/blob/master/res_MuSu/8_%5BNA%2C%20n%2C%20HMFA%5D/MSC010208/MuSu__NA%2C_n%2C_HMFA__files/figure-markdown_github/grid_f_netedgeCI_plot-1.png)
+
+	![Session with pF 8](https://github.com/mychan24/restinginpca/blob/master/res_MuSu/8_%5BNA%2C%20n%2C%20HMFA%5D/MSC010208/MuSu__NA%2C_n%2C_HMFA__files/figure-markdown_github/plot_pf_sess-1.png)
+
+	![Factor heatmaps 8 cp1](https://github.com/mychan24/restinginpca/blob/master/res_MuSu/8_%5BNA%2C%20n%2C%20HMFA%5D/MSC010208/MuSu__NA%2C_n%2C_HMFA__files/figure-markdown_github/grid_smheat_sigfj1-1.png)
+
+	![Factor heatmaps 8 cp2](https://github.com/mychan24/restinginpca/blob/master/res_MuSu/8_%5BNA%2C%20n%2C%20HMFA%5D/MSC010208/MuSu__NA%2C_n%2C_HMFA__files/figure-markdown_github/grid_smheat_sigfj2-1.png)
+
