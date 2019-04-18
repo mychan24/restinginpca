@@ -464,6 +464,11 @@ for(i in 1:length(subj.name)){
    fj2_sqmat[[i]] <- vec2sqmat(svd.res$ExPosition.Data$fj[gtlabel$subjects_label==subj.name[i],2])   
 }
 
+## Set heat limit
+quantlim <- quantile(unlist(fj1_sqmat), c(.25,.75))
+heatlim <- c(-round(min(min(abs(quantlim))), digits=3), # limit equal on pos/neg, round 3digits
+             round(min(min(abs(quantlim))), digits=3))
+
 heat_fj1 <- list()
 heat_fj2 <- list()
 for(i in 1:length(subj.name)){
@@ -475,7 +480,7 @@ for(i in 1:length(subj.name)){
                     left.label.size = 0.08,
                     bottom.label.size = 0.05,
                     extreme.values.na = FALSE,
-                    heat.lim = c(-.005, .005),
+                    heat.lim = heatlim,
                     heat.pal = kovesi.diverging_bwr_40_95_c42(200),
                     heat.pal.values = c(0,0.35,0.5,0.65,1),
                     left.label.text.size = 3,
@@ -492,7 +497,7 @@ for(i in 1:length(subj.name)){
                     left.label.size = 0.08,
                     bottom.label.size = 0.05,
                     extreme.values.na = FALSE,
-                    heat.lim = c(-.005, .005),
+                    heat.lim = heatlim,
                     heat.pal = kovesi.diverging_bwr_40_95_c42(200),
                     heat.pal.values = c(0,0.35,0.5,0.65,1),
                     left.label.text.size = 3,
@@ -532,7 +537,7 @@ for(i in 1:length(subj.name)){
                                 left.label.size = 0.08,
                                 bottom.label.size = 0.05,
                                 extreme.values.na = FALSE,
-                                heat.lim = c(-.005, .005),
+                                heat.lim = heatlim,
                                 heat.pal = kovesi.diverging_bwr_40_95_c42(200),
                                 heat.pal.values = c(0,0.35,0.5,0.65,1),
                                 left.label.text.size = 3,
@@ -562,7 +567,7 @@ sm_heat_sigfj1[[i]] <- superheat(fj1_sig_sqmat[[i]], y.axis.reverse = T,
                               left.label.size = 0.08,
                               bottom.label.size = 0.05,
                               extreme.values.na = FALSE,
-                              heat.lim = c(-.005, .005),
+                              heat.lim = heatlim,
                               heat.pal = kovesi.diverging_bwr_40_95_c42(200),
                               heat.pal.values = c(0,0.35,0.5,0.65,1),
                               left.label.text.size = 3,
@@ -596,7 +601,7 @@ for(i in 1:length(subj.name)){
                                 left.label.size = 0.08,
                                 bottom.label.size = 0.05,
                                 extreme.values.na = FALSE,
-                                heat.lim = c(-.005, .005),
+                                heat.lim = heatlim,
                                 heat.pal = kovesi.diverging_bwr_40_95_c42(200),
                                 heat.pal.values = c(0,0.35,0.5,0.65,1),
                                 left.label.text.size = 3,
@@ -627,7 +632,7 @@ sm_heat_sigfj2[[i]] <- superheat(fj2_sig_sqmat[[i]], y.axis.reverse = T,
                               left.label.size = 0.08,
                               bottom.label.size = 0.05,
                               extreme.values.na = FALSE,
-                              heat.lim = c(-.005, .005),
+                              heat.lim = heatlim,
                               heat.pal = kovesi.diverging_bwr_40_95_c42(200),
                               heat.pal.values = c(0,0.35,0.5,0.65,1),
                               left.label.text.size = 3,
