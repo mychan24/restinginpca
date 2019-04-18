@@ -308,24 +308,18 @@ Note that a network edge with its region edges significantly contribute to the c
 
 We can also add boostrap intervals for the factor scores
 
-    ## Warning: Removed 1 rows containing non-finite values (stat_ellipse).
-
-    ## Warning: Removed 1 rows containing non-finite values (stat_ellipse).
-
-    ## Warning: Removed 5 rows containing non-finite values (stat_ellipse).
+    ## Warning: Removed 6 rows containing non-finite values (stat_ellipse).
 
     ## Warning: Computation failed in `stat_ellipse()`:
     ## missing value where TRUE/FALSE needed
 
     ## Warning: Removed 4 rows containing non-finite values (stat_ellipse).
 
-    ## Warning: Removed 9 rows containing non-finite values (stat_ellipse).
+    ## Warning: Removed 6 rows containing non-finite values (stat_ellipse).
+
+    ## Warning: Removed 8 rows containing non-finite values (stat_ellipse).
 
     ## Warning: Removed 12 rows containing non-finite values (stat_ellipse).
-
-    ## Warning: Removed 4 rows containing non-finite values (stat_ellipse).
-
-    ## Warning: Removed 1 rows containing non-finite values (stat_ellipse).
 
 ![](MuSu__NA,_c,_HMFA__files/figure-markdown_github/grid_f_netedgeCI_plot-1.png)
 

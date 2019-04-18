@@ -311,7 +311,9 @@ We can also add boostrap intervals for the factor scores
     ## Warning: Computation failed in `stat_ellipse()`:
     ## missing value where TRUE/FALSE needed
 
-    ## Warning: Removed 4 rows containing non-finite values (stat_ellipse).
+    ## Warning: Removed 1 rows containing non-finite values (stat_ellipse).
+
+    ## Warning: Removed 1 rows containing non-finite values (stat_ellipse).
 
 ![](MuSu__NA,_n,_HMFA__files/figure-markdown_github/grid_f_netedgeCI_plot-1.png)
 
