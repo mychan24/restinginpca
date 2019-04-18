@@ -127,7 +127,7 @@ for(subj.count in 1:length(parcel.list)){
 
 ```
 
-```{r plot_all_sub_session_hmap, echo=F, fig.height=(8*length(subj.name)), fig.width= 40}
+```{r plot_all_sub_session_hmap, echo=F, fig.height=(7*length(subj.name)), fig.width= 40}
 for(i in 1:length(hmaplist)){
   print(sprintf("%s", subj.name[i]))
   do.call(grid.arrange, c(hmaplist[[i]], ncol=5))
