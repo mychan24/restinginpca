@@ -98,7 +98,7 @@ The analyses that do not normalize (or equalize the contribution of) each subjec
 
 2. HMFA-normalized network edges then subjects _without_ normalizing across sessions
 
-	+ Subject 8 has a flat pattern across sessions so does not drive the component (see the second figure).
+	+ Subject 8 has a flat pattern within sessions so does not drive the component (see the second figure).
 
 	![Factor map 7](https://github.com/mychan24/restinginpca/blob/master/res_MuSu/7_%5BNA%2C%20c%2C%20HMFA%5D/MSC010208/MuSu__NA%2C_c%2C_HMFA__files/figure-markdown_github/grid_f_netedgeCI_plot-1.png)
 
@@ -110,7 +110,7 @@ The analyses that do not normalize (or equalize the contribution of) each subjec
 
 3. HMFA-normalized network edges then subjects after normalizing across sessions
 
-	+ The pattern is driven by subject 8 in session 5 and subject 2 in session 1. However, for subject 5, subject 2 and 8 go in the same direction, which could be due to the exaggeration of subject 8's pattern.
+	+ The pattern is driven by subject 8 in session 5 and subject 2 in session 1. However, for session 5, subject 2 and 8 go in the same direction, which could be due to the exaggeration of subject 8's pattern.
 
 	![Factor map 8](https://github.com/mychan24/restinginpca/blob/master/res_MuSu/8_%5BNA%2C%20n%2C%20HMFA%5D/MSC010208/MuSu__NA%2C_n%2C_HMFA__files/figure-markdown_github/grid_f_netedgeCI_plot-1.png)
 

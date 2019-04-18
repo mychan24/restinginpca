@@ -473,7 +473,7 @@ for(i in 1:length(subj.name)){
 }
 
 ## Set heat limit
-quantlim <- quantile(unlist(fj1_sqmat), c(.25,.75))
+quantlim <- quantile(unlist(fj1_sqmat), c(.15,.85))
 heatlim <- c(-round(min(min(abs(quantlim))), digits=5), # limit equal on pos/neg, round 3digits
              round(min(min(abs(quantlim))), digits=5))
 
