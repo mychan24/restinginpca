@@ -31,7 +31,7 @@ comm_paths <- list("./data/parcel_community/sub-MSC01_node_parcel_comm.txt",
 
 subj_list <- c("sub01","sub02", "sub03",
                "sub04","sub05", "sub06",
-               "sub07","sub08", "sub09","sub010")
+               "sub07","sub08", "sub09","sub10")
 
 p <- cube2gt(cube_paths = cube_paths, comm_paths = comm_paths, 
              out_file = sprintf("./data/grandatble_and_labels_MSC_allsubs_N10_%s.Rdata",format(Sys.time(),"%Y%m%d")),
