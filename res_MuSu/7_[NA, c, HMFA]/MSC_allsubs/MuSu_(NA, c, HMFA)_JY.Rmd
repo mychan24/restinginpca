@@ -51,7 +51,7 @@ parcel.comm.path <- "../../../data/parcel_community"
 # Load Grand Table
 # gt: grand tabls
 # labels: information for each edge in the rectangular grand table
-load(paste0("../../../data/grandatble_and_labels_MSC_allsubs_N10_20190418.Rdata")) # read the labels of grandtable
+load(paste0("../../../data/grandatble_and_labels_MSC_allsubs_N10_20190419.Rdata")) # read the labels of grandtable
 
 ## Categorize columns by between or within edges
 #--- Create new column of sub-edgetype
@@ -229,8 +229,9 @@ We first compute the contribution and find the important edges and sessions:
 cI <- svd.res$ExPosition.Data$ci
 cJ <- svd.res$ExPosition.Data$cj
 #--- get the sum of contribution for each edge
-c_edge <- gtlabel$subjects_edge_label %>% as.matrix %>% makeNominalData %>% t %>% "%*%"(cJ)
-rownames(c_edge) <- sub(".","",rownames(c_edge))
+c_edge <- aggregate(cJ,list(edge = gtlabel$subjects_edge_label),sum)
+rownames(c_edge) <- c_edge$edge
+c_edge <- c_edge[,-1]
 rownames(cI) <- c(1:10)
 ## Find important sessions
 #--- get the contribution for component 1 AND 2 by sum(SS from 1, SS from 2)/sum(eigs 1, eigs 2)
