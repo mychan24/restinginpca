@@ -200,11 +200,6 @@ We first compute the contribution and find the important edges and sessions:
 cI <- svd.res$ExPosition.Data$ci
 cJ <- svd.res$ExPosition.Data$cj
 #--- get the sum of contribution for each edge
-# c_edge <- gtlabel$subjects_edge_label %>% as.matrix %>% makeNominalData %>% t %>% "%*%"(cJ)
-# rownames(c_edge) <- sub(".","",rownames(c_edge))
-# rownames(cI) <- c(1:10)
-
-# new way
 c_edge <- aggregate(cJ,list(edge = gtlabel$subjects_edge_label),sum)
 rownames(c_edge) <- c_edge$edge
 c_edge <- c_edge[,-1]
@@ -289,25 +284,31 @@ To have a clearer view of the factor scores for the subject x edges, we first co
 # Compute means of factor scores for different edges----
 mean.fj <- getMeans(svd.res$ExPosition.Data$fj, gtlabel$subjects_edge_label) # with t(gt)
 colnames(mean.fj) <- sapply(c(1:ncol(mean.fj)), function(x){sprintf("Factor %s",x)})
-# 
-# tictoc::tic()
-# BootCube.Comm <- Boot4Mean(svd.res$ExPosition.Data$fj,
-#                            design = gtlabel$subjects_edge_label,
-#                            niter = 100,
-#                            suppressProgressBar = TRUE)
-# tictoc::toc()
+ 
+tictoc::tic()
+BootCube.Comm <- Boot4Mean(svd.res$ExPosition.Data$fj,
+                           design = gtlabel$subjects_edge_label,
+                           niter = 100,
+                           suppressProgressBar = TRUE)
+tictoc::toc()
+```
 
+    ## 2140.86 sec elapsed
+
+``` r
 # Compute means of factor scores for different types of edges
 mean.fj.bw <- getMeans(svd.res$ExPosition.Data$fj, gtlabel$subjects_wb) # with t(gt)
 colnames(mean.fj.bw) <- sapply(c(1:ncol(mean.fj.bw)), function(x){sprintf("Factor %s",x)})
-# 
-# tictoc::tic()
-# BootCube.Comm.bw <- Boot4Mean(svd.res$ExPosition.Data$fj,
-#                            design = gtlabel$subjects_wb,
-#                            niter = 100,
-#                            suppressProgressBar = TRUE)
-# tictoc::toc()
+ 
+tictoc::tic()
+BootCube.Comm.bw <- Boot4Mean(svd.res$ExPosition.Data$fj,
+                           design = gtlabel$subjects_wb,
+                           niter = 100,
+                           suppressProgressBar = TRUE)
+tictoc::toc()
 ```
+
+    ## 500.87 sec elapsed
 
 Next, we plot the factor scores for the subject x edges (a mess): Dim 1 & 2
 
@@ -316,6 +317,12 @@ Next, we plot the factor scores for the subject x edges (a mess): Dim 1 & 2
 Note that a network edge with its region edges significantly contribute to the components both positively and negatively results in a significant mean factor score that is close to the origin. Also, a network edge with only few region edges will lead to a small total SS as compared to the total eigenvalues; this type of network edge might not be significant even when being far away from the origin. (This is shown in the chunk named `checkCtr` which is hidden/commented in the .rmd.)
 
 We can also add boostrap intervals for the factor scores
+
+    ## Warning: Removed 24 rows containing non-finite values (stat_ellipse).
+
+    ## Warning: Removed 4 rows containing non-finite values (stat_ellipse).
+
+![](MuSu__NA,_n,_HMFA__files/figure-markdown_github/grid_f_netedgeCI_plot-1.png)
 
 We can also show the factor scores for network edges as square matrix of each subject.
 
