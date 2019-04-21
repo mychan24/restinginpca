@@ -38,7 +38,7 @@ p <- cube2gt(cube_paths = cube_paths, comm_paths = comm_paths,
              subj_list=subj_list)
 
 # Sanity check
-superheat::superheat(X = p[[1]],
-                     membership.cols = p[[2]]$subjects_edge_label,
-                     y.axis.reverse = T,
-                     grid.vline = F)
+# superheat::superheat(X = p[[1]],
+#                      membership.cols = p[[2]]$subjects_edge_label,
+#                      y.axis.reverse = T,
+#                      grid.vline = F)
