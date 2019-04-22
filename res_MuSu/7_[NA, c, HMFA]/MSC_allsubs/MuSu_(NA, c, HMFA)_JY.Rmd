@@ -289,6 +289,18 @@ cjplot_all <- createFactorMap(c_edge,
                               text.cex = 2,
                               force = 0.5,
                               title = "Contibutions for all subject x edges")
+
+#===========try to show edge by edge==========================
+edgeOI <- c("sub01_Between","sub02_Between")
+cjplot_show <- createFactorMap(c_edge[which(net.edge %in% edgeOI),],
+                              axis1 = 1, axis2 = 2,
+                              col.points = col4ImportantEdg[which(net.edge %in% edgeOI)],
+                              text.cex = 2,
+                              force = 2,
+                              title = "Contibutions for all subject x edges")
+cjplot_all$zeMap_background + cjplot_show$zeMap_dots + cjplot_show$zeMap_text
+#=============================================================
+
 cjplot_imp <- createFactorMap(c_edge[importantEdg,],
                               axis1 = 1, axis2 = 2,
                               col.points = col4ImportantEdg[importantEdg],
@@ -371,6 +383,20 @@ plot.pf_sess <- createPartialFactorScoresMap(
 
 # add it to the factor map ** MYC this broke when there is 3 subjects, ask JC 20190410
 plot.f_sess4pF$zeMap + f.labels + plot.pf_sess$mapColByBlocks
+
+#============try to show subject by subject=================
+# select color for subjects (subtables)
+plot.pf_sess <- createPartialFactorScoresMap(
+  factorScores = svd.res$ExPosition.Data$fi[c(2,6),],
+  partialFactorScores = pFi[c(2,6),,],
+  axis1 = 1, axis2 = 2,
+  names4Partial = subj.name,
+  font.labels = "bold"
+)
+
+# add it to the factor map ** MYC this broke when there is 3 subjects, ask JC 20190410
+plot.f_sess4pF$zeMap + f.labels + plot.pf_sess$mapColByBlocks
+#============================================================
 ```
 
 To have a clearer view of the factor scores for the subject x edges, we first compute the mean factor scores for the each network edge.
@@ -407,13 +433,27 @@ plot.f_edge <- createFactorMap(mean.fj, axis1 = 1, axis2 = 2,
                                title = "All factor scores - colored by subject_x_edge types")
 f_netedge_plot01 <- plot.f_edge$zeMap_background + plot.f_edge$zeMap_dots + f.labels
 # plot the significantly contributed factor scores
-plot.f_edge_imp <- createFactorMap(mean.fj, axis1 = 1, axis2 = 2,
-                                   col.points = col4ImportantEdg,
-                                   col.labels = col4ImportantEdg,
+
+plot.f_edge_imp <- createFactorMap(mean.fj[which(net.edge %in% edgeOI),], axis1 = 1, axis2 = 2,
+                                   col.points = col4ImportantEdg[which(net.edge %in% edgeOI)],
+                                   col.labels = col4ImportantEdg[which(net.edge %in% edgeOI)],
                                    text.cex = 2,
                                    force = 0.5,
                                    title = "Significantly contributed factor scores - colored by subject_x_edge types")
 f_netedge_plot02 <- plot.f_edge_imp$zeMap_background + plot.f_edge_imp$zeMap_dots + f.labels
+
+#===============try to show edge by edge====================================
+edgeOI <- c("sub01_Within","sub02_Within","sub03_Within","sub04_Within","sub05_Within","sub06_Within","sub07_Within","subj08_Within")
+
+plot.f_edge_imp <- createFactorMap(mean.fj[which(importantEdg == TRUE & net.edge %in% edgeOI),], axis1 = 1, axis2 = 2,
+                                   col.points = col4ImportantEdg[which(importantEdg == TRUE & net.edge %in% edgeOI)],
+                                   col.labels = col4ImportantEdg[which(importantEdg == TRUE & net.edge %in% edgeOI)],
+                                   text.cex = 2,
+                                   force = 2,
+                                   title = "Significantly contributed factor scores - colored by subject_x_edge types")
+f_netedge_plot02 <- plot.f_edge_imp$zeMap_background + plot.f_edge_imp$zeMap_dots + plot.f_edge_imp$zeMap_text + f.labels
+f_netedge_plot02
+#==================================================
 
 # plot only the significant network edges
 plot.f_impedge <- createFactorMap(mean.fj[importantEdg,], axis1 = 1, axis2 = 2,
