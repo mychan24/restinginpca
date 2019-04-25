@@ -385,10 +385,19 @@ plot.pf_sess <- createPartialFactorScoresMap(
 plot.f_sess4pF$zeMap + f.labels + plot.pf_sess$mapColByBlocks
 
 #============try to show subject by subject=================
-# select color for subjects (subtables)
+# plot by subject
 plot.pf_sess <- createPartialFactorScoresMap(
-  factorScores = svd.res$ExPosition.Data$fi[c(2,6),],
-  partialFactorScores = pFi[c(2,6),,],
+  factorScores = svd.res$ExPosition.Data$fi,
+  partialFactorScores = pFi[,,c(1,7)],
+  axis1 = 1, axis2 = 2,
+  names4Partial = subj.name[c(1,7)],
+  font.labels = "bold"
+)
+
+# plot by session
+plot.pf_sess <- createPartialFactorScoresMap(
+  factorScores = svd.res$ExPosition.Data$fi[c(1,7),],
+  partialFactorScores = pFi[c(1,7),,],
   axis1 = 1, axis2 = 2,
   names4Partial = subj.name,
   font.labels = "bold"
@@ -421,22 +430,29 @@ BootCube.Comm.bw <- Boot4Mean(svd.res$ExPosition.Data$fj,
                            niter = 100,
                            suppressProgressBar = TRUE)
 
+# Compute bootstrap ratio (p = .00001)
+BootRatio.Comm <- boot.ratio.test(BootCube.Comm$BootCube, critical.value = qnorm(0.999995))$`sig.boot.ratios`
+BootRatio.Comm.bw <- boot.ratio.test(BootCube.Comm.bw$BootCube, critical.value = qnorm(0.999995))$`sig.boot.ratios`
+
+BootRatio.Comm12 <- (BootRatio.Comm[,1] + BootRatio.Comm[,2]) > 0
+BootRatio.Comm.bw12 <- (BootRatio.Comm.bw[,1] + BootRatio.Comm.bw[,2]) > 0
+
 ```
 
 Next, we plot the factor scores for the subject x edges (a mess): Dim 1 & 2
 ```{r plot_f_edge, echo=FALSE, fig.show = 'hide'}
 # plot all factor scores
-plot.f_edge <- createFactorMap(mean.fj, axis1 = 1, axis2 = 2,
-                               col.points = net.edge.col$oc,
+plot.f_edge <- createFactorMap(mean.fj[which(BootRatio.Comm12 == TRUE),], axis1 = 1, axis2 = 2,
+                               col.points = net.edge.col$oc[which(BootRatio.Comm12 == TRUE)],
                                text.cex = 2,
                                force = 0.5,
                                title = "All factor scores - colored by subject_x_edge types")
 f_netedge_plot01 <- plot.f_edge$zeMap_background + plot.f_edge$zeMap_dots + f.labels
 # plot the significantly contributed factor scores
 
-plot.f_edge_imp <- createFactorMap(mean.fj[which(net.edge %in% edgeOI),], axis1 = 1, axis2 = 2,
-                                   col.points = col4ImportantEdg[which(net.edge %in% edgeOI)],
-                                   col.labels = col4ImportantEdg[which(net.edge %in% edgeOI)],
+plot.f_edge_imp <- createFactorMap(mean.fj[which(BootRatio.Comm12 == TRUE),], axis1 = 1, axis2 = 2,
+                                   col.points = col4ImportantEdg[which(BootRatio.Comm12 == TRUE)],
+                                   col.labels = col4ImportantEdg[which(BootRatio.Comm12 == TRUE)],
                                    text.cex = 2,
                                    force = 0.5,
                                    title = "Significantly contributed factor scores - colored by subject_x_edge types")
