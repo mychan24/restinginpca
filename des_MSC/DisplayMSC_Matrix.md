@@ -48,6 +48,8 @@ for(i in 1:length(subj.name)){
 }
 ```
 
+## Here are the heatmaps of all 10 sessions arranged by each subject
+
     ## [1] "sub01"
 
 ![](DisplayMSC_Matrix_files/figure-gfm/plot_all_sub_session_hmap-1.png)<!-- -->
@@ -87,3 +89,87 @@ for(i in 1:length(subj.name)){
     ## [1] "sub010"
 
 ![](DisplayMSC_Matrix_files/figure-gfm/plot_all_sub_session_hmap-10.png)<!-- -->
+
+## Here are the smoothed heatmaps of all 10 sessions arranged by each subject
+
+    ## [1] "sub01"
+
+![](DisplayMSC_Matrix_files/figure-gfm/plot_all_session_hmap-1.png)<!-- -->
+
+    ## [1] "sub02"
+
+![](DisplayMSC_Matrix_files/figure-gfm/plot_all_session_hmap-2.png)<!-- -->
+
+    ## [1] "sub03"
+
+![](DisplayMSC_Matrix_files/figure-gfm/plot_all_session_hmap-3.png)<!-- -->
+
+    ## [1] "sub04"
+
+![](DisplayMSC_Matrix_files/figure-gfm/plot_all_session_hmap-4.png)<!-- -->
+
+    ## [1] "sub05"
+
+![](DisplayMSC_Matrix_files/figure-gfm/plot_all_session_hmap-5.png)<!-- -->
+
+    ## [1] "sub06"
+
+![](DisplayMSC_Matrix_files/figure-gfm/plot_all_session_hmap-6.png)<!-- -->
+
+    ## [1] "sub07"
+
+![](DisplayMSC_Matrix_files/figure-gfm/plot_all_session_hmap-7.png)<!-- -->
+
+    ## [1] "sub08"
+
+![](DisplayMSC_Matrix_files/figure-gfm/plot_all_session_hmap-8.png)<!-- -->
+
+    ## [1] "sub09"
+
+![](DisplayMSC_Matrix_files/figure-gfm/plot_all_session_hmap-9.png)<!-- -->
+
+    ## [1] "sub010"
+
+![](DisplayMSC_Matrix_files/figure-gfm/plot_all_session_hmap-10.png)<!-- -->
+
+## Here are the smoothed heatmaps of all subjects arranged by sessions
+
+    ## [1] "session#1"
+
+![](DisplayMSC_Matrix_files/figure-gfm/plot_all_sub__hmap-1.png)<!-- -->
+
+    ## [1] "session#2"
+
+![](DisplayMSC_Matrix_files/figure-gfm/plot_all_sub__hmap-2.png)<!-- -->
+
+    ## [1] "session#3"
+
+![](DisplayMSC_Matrix_files/figure-gfm/plot_all_sub__hmap-3.png)<!-- -->
+
+    ## [1] "session#4"
+
+![](DisplayMSC_Matrix_files/figure-gfm/plot_all_sub__hmap-4.png)<!-- -->
+
+    ## [1] "session#5"
+
+![](DisplayMSC_Matrix_files/figure-gfm/plot_all_sub__hmap-5.png)<!-- -->
+
+    ## [1] "session#6"
+
+![](DisplayMSC_Matrix_files/figure-gfm/plot_all_sub__hmap-6.png)<!-- -->
+
+    ## [1] "session#7"
+
+![](DisplayMSC_Matrix_files/figure-gfm/plot_all_sub__hmap-7.png)<!-- -->
+
+    ## [1] "session#8"
+
+![](DisplayMSC_Matrix_files/figure-gfm/plot_all_sub__hmap-8.png)<!-- -->
+
+    ## [1] "session#9"
+
+![](DisplayMSC_Matrix_files/figure-gfm/plot_all_sub__hmap-9.png)<!-- -->
+
+    ## [1] "session#10"
+
+![](DisplayMSC_Matrix_files/figure-gfm/plot_all_sub__hmap-10.png)<!-- -->

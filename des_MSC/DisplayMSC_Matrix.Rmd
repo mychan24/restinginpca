@@ -78,6 +78,8 @@ for(i in 1:length(subj.name)){
 
 ```
 
+## Here are the heatmaps of all 10 sessions arranged by each subject 
+
 ```{r setup_matrix, echo = FALSE, include = FALSE, fig.show='hide'}
 ### Make these not objects, but part of a list? ### MYC NEED TO CHANGE 20190404
 # read examplar data
@@ -117,5 +119,64 @@ for(subj.count in 1:length(parcel.list)){
 for(i in 1:length(hmaplist)){
   print(sprintf("%s", subj.name[i]))
   do.call(grid.arrange, c(hmaplist[[i]], ncol=5))
+}
+```
+
+## Here are the smoothed heatmaps of all 10 sessions arranged by each subject 
+
+```{r setup_matrix_smoothed, echo = FALSE, include = FALSE, fig.show='hide'}
+### Make these not objects, but part of a list? ### MYC NEED TO CHANGE 20190404
+# read examplar data
+zmat.path <- "../data/zmat"
+#--- plot heatmap
+hmaplist.mean <- list()
+hmaplist.mean_i <- 1
+for(subj.count in 1:length(parcel.list)){
+  load(sprintf("%s/sub-MSC%02d_zcube_rcube.RData",zmat.path,subj.count))
+  hmaplist.mean[[subj.count]] <- list()
+  for(session.count in 1:dim(cubes$rcube)[3]){
+    # heat map of correlation matrices
+    hmap.name <- sprintf("sub%02d_hmap%s", subj.count, session.count)
+    hmaplist.mean[[subj.count]][[session.count]] <- superheat(cubes$rcube[,,session.count],
+                                membership.cols = parcel.list[[subj.count]]$vox.des$Comm.rcd,
+                                membership.rows = parcel.list[[subj.count]]$vox.des$Comm.rcd,
+                                clustering.method = NULL,
+                                heat.col.scheme = "viridis",
+                                left.label.size = 0.08,
+                                bottom.label.size = 0.05,
+                                y.axis.reverse = TRUE,
+                                left.label.col = labelcol[[subj.count]], # order by community name
+                                bottom.label.col = labelcol[[subj.count]],
+                                left.label.text.size = 3,
+                                bottom.label.text.size = 2,
+                                left.label.text.col = textcol[[subj.count]],
+                                bottom.label.text.col = textcol[[subj.count]],
+                                left.label.text.alignment = "left",
+                                smooth.heat = TRUE,
+                                smooth.heat.type = "mean",
+                                title = sprintf("Correlation matrix of #%s session",session.count)
+                                )$plot
+  }
+}
+
+```
+
+
+```{r plot_all_session_hmap, echo=F, fig.height=20, fig.width= 40}
+for(i in 1:length(hmaplist.mean)){
+  print(sprintf("%s", subj.name[i]))
+  do.call(grid.arrange, c(hmaplist.mean[[i]], ncol=5))
+}
+```
+
+## Here are the smoothed heatmaps of all subjects arranged by sessions
+
+
+```{r plot_all_sub__hmap, echo=F, fig.height=20, fig.width= 40}
+n.session <- dim(cubes$rcube)[3]
+n.subject <- 1:length(parcel.list)
+for(i in 1:n.session){
+  print(sprintf("session#%d", i))
+  do.call(grid.arrange, c(lapply(hmaplist.mean, `[[`, i), ncol=5))
 }
 ```
