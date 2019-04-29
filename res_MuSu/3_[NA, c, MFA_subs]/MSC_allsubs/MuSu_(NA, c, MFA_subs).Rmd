@@ -38,7 +38,7 @@ parcelfile2read <- c("/sub-MSC01_node_parcel_comm.txt",
                      "/sub-MSC08_node_parcel_comm.txt",
                      "/sub-MSC09_node_parcel_comm.txt",
                      "/sub-MSC10_node_parcel_comm.txt"
-                     )
+)
 subj.name <- c("sub01","sub02","sub03",
                "sub04","sub05","sub06",
                "sub07","sub08","sub09","sub10")
@@ -82,9 +82,9 @@ pander::pander(CommName[,c("Comm", "Community","CommLabel.short")])
 ```{r data_info}
 # read parcel labels for each subject
 parcel.list <- lapply(1:length(parcelfile2read), function(x){
-                      parcel <- read.table(paste0(parcel.comm.path, parcelfile2read[x]),sep = ",")
-                      getVoxDes(parcel,CommName)
-                      })
+  parcel <- read.table(paste0(parcel.comm.path, parcelfile2read[x]),sep = ",")
+  getVoxDes(parcel,CommName)
+})
 names(parcel.list) <- subj.name
 
 #-- Create colors for heatmap 
@@ -138,8 +138,8 @@ As a result, the correlation matrix of each session of each subject will look li
 
 ```{r plot_all_sub_session_hmap, echo=F, fig.height=(8*length(subj.name)), fig.width= 40}
 # for(i in 1:length(hmaplist)){
-  # print(sprintf("%s", subj.name[i]))
-  # do.call(grid.arrange, c(hmaplist[[i]], ncol=5))
+# print(sprintf("%s", subj.name[i]))
+# do.call(grid.arrange, c(hmaplist[[i]], ncol=5))
 # }
 ```
 
@@ -178,7 +178,7 @@ for (k in 1:n_lv){
   }
   sv[[k]] <- matrix(NA, 1, n_subtable[[k]])
   colnames(sv[[k]]) <- unique(subtab_i[[k]])
-
+  
   for(i in 1:n_subtable[[k]]){
     sv[[k]][i] <- (svd(cgt[,subtab_i[[k]]==unique(subtab_i[[k]])[i]])$d[1]) # singular value from svd 
     
@@ -273,12 +273,12 @@ Then the contributions are shown in plots
 
 ```{r plot_ci, echo=F, fig.show = 'hide'}
 ciplot <- createFactorMap(cI,
-                              axis1 = 1, axis2 = 2,
-                              col.points = col4ImportantSes,
-                              text.cex = 5,
-                              cex = 3,
-                              force = 0.5,
-                              title = "Contibutions for sessions")
+                          axis1 = 1, axis2 = 2,
+                          col.points = col4ImportantSes,
+                          text.cex = 5,
+                          cex = 3,
+                          force = 0.5,
+                          title = "Contibutions for sessions")
 
 cjplot_all <- createFactorMap(c_edge,
                               axis1 = 1, axis2 = 2,
@@ -351,8 +351,8 @@ ch2 <- cgt %*% (svd.res$ExPosition.Data$pdq$q)
 #  And plot them on the same factor map:
 #find the constraints for the pF map
 pF.constraints <- minmaxHelper4Partial(
-                                    FactorScores = svd.res$ExPosition.Data$fi,
-                                    partialFactorScores = pFi)
+  FactorScores = svd.res$ExPosition.Data$fi,
+  partialFactorScores = pFi)
 # plot again the factor map
 plot.f_sess4pF <- createFactorMap(svd.res$ExPosition.Data$fi,
                                   constraints = pF.constraints) # with t(gt)
@@ -376,7 +376,7 @@ To have a clearer view of the factor scores for the subject x edges, we first co
 # Compute means of factor scores for different edges----
 mean.fj <- getMeans(svd.res$ExPosition.Data$fj, gtlabel$subjects_edge_label) # with t(gt)
 colnames(mean.fj) <- sapply(c(1:ncol(mean.fj)), function(x){sprintf("Factor %s",x)})
- 
+
 tictoc::tic()
 BootCube.Comm <- Boot4Mean(svd.res$ExPosition.Data$fj,
                            design = gtlabel$subjects_edge_label,
@@ -387,12 +387,12 @@ tictoc::toc()
 # Compute means of factor scores for different types of edges
 mean.fj.bw <- getMeans(svd.res$ExPosition.Data$fj, gtlabel$subjects_wb) # with t(gt)
 colnames(mean.fj.bw) <- sapply(c(1:ncol(mean.fj.bw)), function(x){sprintf("Factor %s",x)})
- 
+
 tictoc::tic()
 BootCube.Comm.bw <- Boot4Mean(svd.res$ExPosition.Data$fj,
-                           design = gtlabel$subjects_wb,
-                           niter = 100,
-                           suppressProgressBar = TRUE)
+                              design = gtlabel$subjects_wb,
+                              niter = 100,
+                              suppressProgressBar = TRUE)
 tictoc::toc()
 ```
 
@@ -416,21 +416,21 @@ f_netedge_plot02 <- plot.f_edge_imp$zeMap_background + plot.f_edge_imp$zeMap_dot
 
 # plot only the significant network edges
 plot.f_impedge <- createFactorMap(mean.fj[importantEdg,], axis1 = 1, axis2 = 2,
-                                   col.points = col4ImportantEdg[importantEdg,],
-                                   col.labels = col4ImportantEdg[importantEdg,],
-                                   constraints = plot.f_edge_imp$constraints,
-                                   text.cex = 2,
-                                   force = 0.5,
-                                   title = "Significantly contributed factor scores\n(colored by subject_x_edge types)")
+                                  col.points = col4ImportantEdg[importantEdg,],
+                                  col.labels = col4ImportantEdg[importantEdg,],
+                                  constraints = plot.f_edge_imp$constraints,
+                                  text.cex = 2,
+                                  force = 0.5,
+                                  title = "Significantly contributed factor scores\n(colored by subject_x_edge types)")
 f_netedge_plot03 <- plot.f_impedge$zeMap + f.labels
 
 # plot mean factor scores of subject x edge type
 plot.f_bw_imp <- createFactorMap(mean.fj.bw, axis1 = 1, axis2 = 2,
-                                   col.points = net.edge.col$gc[rownames(mean.fj.bw),],
-                                   col.labels = net.edge.col$gc[rownames(mean.fj.bw),],
-                                   text.cex = 3,
-                                   force = 0.5,
-                                   title = "Mean factor scores for subject_x_edge types")
+                                 col.points = net.edge.col$gc[rownames(mean.fj.bw),],
+                                 col.labels = net.edge.col$gc[rownames(mean.fj.bw),],
+                                 text.cex = 3,
+                                 force = 0.5,
+                                 title = "Mean factor scores for subject_x_edge types")
 f_netedge_plot04 <- plot.f_bw_imp$zeMap_background + plot.f_bw_imp$zeMap_dots + plot.f_bw_imp$zeMap_text + f.labels
 
 ```
@@ -449,9 +449,9 @@ We can also add boostrap intervals for the factor scores
 getBoot2plot_edge <- BootCube.Comm$BootCube[importantEdg,c(1,2),]
 # plot the CI ellipses
 f_impedge.CI <- MakeCIEllipses(getBoot2plot_edge,
-                                 names.of.factors = c(sprintf("Factor %s", 1),sprintf("Factor %s", 2)),
-                                 col = col4ImportantEdg[importantEdg,],
-                                 p.level = .95)
+                               names.of.factors = c(sprintf("Factor %s", 1),sprintf("Factor %s", 2)),
+                               col = col4ImportantEdg[importantEdg,],
+                               p.level = .95)
 # create plot
 f_CInetedge_plot01 <- plot.f_impedge$zeMap_background + plot.f_impedge$zeMap_dots + f.labels
 f_CInetedge_plot02 <- plot.f_impedge$zeMap_background + plot.f_impedge$zeMap_dots + f_impedge.CI + f.labels
@@ -460,9 +460,9 @@ f_CInetedge_plot02 <- plot.f_impedge$zeMap_background + plot.f_impedge$zeMap_dot
 getBoot2plot_edge_bw <- BootCube.Comm.bw$BootCube[,c(1,2),]
 # plot the CI ellipses
 plot.CI.f_bw <- MakeCIEllipses(getBoot2plot_edge_bw,
-                                 names.of.factors = c(sprintf("Factor %s", 1),sprintf("Factor %s", 2)),
-                                 col = net.edge.col$gc[rownames(getBoot2plot_edge_bw),],
-                                 p.level = .95)
+                               names.of.factors = c(sprintf("Factor %s", 1),sprintf("Factor %s", 2)),
+                               col = net.edge.col$gc[rownames(getBoot2plot_edge_bw),],
+                               p.level = .95)
 # create plot
 f_CInetedge_plot03 <- plot.f_bw_imp$zeMap + plot.CI.f_bw + f.labels
 ```
@@ -478,8 +478,8 @@ We can also show the factor scores for network edges as square matrix of each su
 fj1_sqmat <- list()
 fj2_sqmat <- list()
 for(i in 1:length(subj.name)){
-   fj1_sqmat[[i]] <- vec2sqmat(svd.res$ExPosition.Data$fj[gtlabel$subjects_label==subj.name[i],1]) 
-   fj2_sqmat[[i]] <- vec2sqmat(svd.res$ExPosition.Data$fj[gtlabel$subjects_label==subj.name[i],2])   
+  fj1_sqmat[[i]] <- vec2sqmat(svd.res$ExPosition.Data$fj[gtlabel$subjects_label==subj.name[i],1]) 
+  fj2_sqmat[[i]] <- vec2sqmat(svd.res$ExPosition.Data$fj[gtlabel$subjects_label==subj.name[i],2])   
 }
 
 ## Set heat limit
@@ -491,38 +491,38 @@ heat_fj1 <- list()
 heat_fj2 <- list()
 for(i in 1:length(subj.name)){
   heat_fj1[[i]] <- superheat(as.matrix(fj1_sqmat[[i]]), y.axis.reverse = T,
-                    membership.rows = parcel.list[[i]]$vox.des$Comm.rcd,
-                    membership.cols = parcel.list[[i]]$vox.des$Comm.rcd,                    
-                    left.label.col = labelcol[[i]],
-                    bottom.label.col = labelcol[[i]],
-                    left.label.size = 0.08,
-                    bottom.label.size = 0.05,
-                    extreme.values.na = FALSE,
-                    heat.lim = heatlim,
-                    heat.pal = kovesi.diverging_bwr_40_95_c42(200),
-                    heat.pal.values = c(0,0.35,0.5,0.65,1),
-                    left.label.text.size = 3,
-                    bottom.label.text.size = 2,
-                    left.label.text.col = textcol[[i]], 
-                    bottom.label.text.col = textcol[[i]], 
-                    title=sprintf("%s, dim1",subj.name[i]))$plot
+                             membership.rows = parcel.list[[i]]$vox.des$Comm.rcd,
+                             membership.cols = parcel.list[[i]]$vox.des$Comm.rcd,                    
+                             left.label.col = labelcol[[i]],
+                             bottom.label.col = labelcol[[i]],
+                             left.label.size = 0.08,
+                             bottom.label.size = 0.05,
+                             extreme.values.na = FALSE,
+                             heat.lim = heatlim,
+                             heat.pal = kovesi.diverging_bwr_40_95_c42(200),
+                             heat.pal.values = c(0,0.35,0.5,0.65,1),
+                             left.label.text.size = 3,
+                             bottom.label.text.size = 2,
+                             left.label.text.col = textcol[[i]], 
+                             bottom.label.text.col = textcol[[i]], 
+                             title=sprintf("%s, dim1",subj.name[i]))$plot
   
-   heat_fj2[[i]]  <- superheat(fj2_sqmat[[i]], y.axis.reverse = T,
-                    membership.rows = parcel.list[[i]]$vox.des$Comm.rcd,
-                    membership.cols = parcel.list[[i]]$vox.des$Comm.rcd,
-                    left.label.col = labelcol[[i]],
-                    bottom.label.col = labelcol[[i]],
-                    left.label.size = 0.08,
-                    bottom.label.size = 0.05,
-                    extreme.values.na = FALSE,
-                    heat.lim = heatlim,
-                    heat.pal = kovesi.diverging_bwr_40_95_c42(200),
-                    heat.pal.values = c(0,0.35,0.5,0.65,1),
-                    left.label.text.size = 3,
-                    bottom.label.text.size = 2,
-                    left.label.text.col = textcol[[i]],
-                    bottom.label.text.col = textcol[[i]],
-                    title=sprintf("%s, dim2",subj.name[i]))$plot
+  heat_fj2[[i]]  <- superheat(fj2_sqmat[[i]], y.axis.reverse = T,
+                              membership.rows = parcel.list[[i]]$vox.des$Comm.rcd,
+                              membership.cols = parcel.list[[i]]$vox.des$Comm.rcd,
+                              left.label.col = labelcol[[i]],
+                              bottom.label.col = labelcol[[i]],
+                              left.label.size = 0.08,
+                              bottom.label.size = 0.05,
+                              extreme.values.na = FALSE,
+                              heat.lim = heatlim,
+                              heat.pal = kovesi.diverging_bwr_40_95_c42(200),
+                              heat.pal.values = c(0,0.35,0.5,0.65,1),
+                              left.label.text.size = 3,
+                              bottom.label.text.size = 2,
+                              left.label.text.col = textcol[[i]],
+                              bottom.label.text.col = textcol[[i]],
+                              title=sprintf("%s, dim2",subj.name[i]))$plot
 }
 
 ```
@@ -542,7 +542,7 @@ fj_sig <- svd.res$ExPosition.Data$fj
 fj_sig[!importantEdg1] <- 0
 fj1_sig_sqmat <- list()
 for(i in 1:length(subj.name)){
-   fj1_sig_sqmat[[i]] <- vec2sqmat(fj_sig[gtlabel$subjects_label==subj.name[i],1])
+  fj1_sig_sqmat[[i]] <- vec2sqmat(fj_sig[gtlabel$subjects_label==subj.name[i],1])
 }
 
 heat_sigfj1 <- list()
@@ -576,23 +576,23 @@ Smoothed Sig Factor Score (Dim 1)
 #--- the important variables are the ones that contribute more than or equal to the average
 sm_heat_sigfj1 <- list()
 for(i in 1:length(subj.name)){
-sm_heat_sigfj1[[i]] <- superheat(fj1_sig_sqmat[[i]], y.axis.reverse = T,
-                              smooth.heat = T, smooth.heat.type = "mean",
-                              membership.rows = parcel.list[[i]]$vox.des$Comm.rcd,
-                              membership.cols = parcel.list[[i]]$vox.des$Comm.rcd,                    
-                              left.label.col = labelcol[[i]],
-                              bottom.label.col = labelcol[[i]],
-                              left.label.size = 0.08,
-                              bottom.label.size = 0.05,
-                              extreme.values.na = FALSE,
-                              heat.lim = heatlim,
-                              heat.pal = kovesi.diverging_bwr_40_95_c42(200),
-                              heat.pal.values = c(0,0.35,0.5,0.65,1),
-                              left.label.text.size = 3,
-                              bottom.label.text.size = 2,
-                              left.label.text.col = textcol[[i]], 
-                              bottom.label.text.col = textcol[[i]], 
-                              title=sprintf("%s: significant contribution (mean-smooth)",subj.name[i]))$plot
+  sm_heat_sigfj1[[i]] <- superheat(fj1_sig_sqmat[[i]], y.axis.reverse = T,
+                                   smooth.heat = T, smooth.heat.type = "mean",
+                                   membership.rows = parcel.list[[i]]$vox.des$Comm.rcd,
+                                   membership.cols = parcel.list[[i]]$vox.des$Comm.rcd,                    
+                                   left.label.col = labelcol[[i]],
+                                   bottom.label.col = labelcol[[i]],
+                                   left.label.size = 0.08,
+                                   bottom.label.size = 0.05,
+                                   extreme.values.na = FALSE,
+                                   heat.lim = heatlim,
+                                   heat.pal = kovesi.diverging_bwr_40_95_c42(200),
+                                   heat.pal.values = c(0,0.35,0.5,0.65,1),
+                                   left.label.text.size = 3,
+                                   bottom.label.text.size = 2,
+                                   left.label.text.col = textcol[[i]], 
+                                   bottom.label.text.col = textcol[[i]], 
+                                   title=sprintf("%s: significant contribution (mean-smooth)",subj.name[i]))$plot
 }
 
 ```
@@ -606,7 +606,7 @@ Factor score (Dim 2) in square matrix that have significant contribution only
 ```{r, squaremat_sigfj2, echo=F, fig.show = 'hide'}
 fj2_sig_sqmat <- list()
 for(i in 1:length(subj.name)){
-   fj2_sig_sqmat[[i]] <- vec2sqmat(fj_sig[gtlabel$subjects_label==subj.name[i],2])
+  fj2_sig_sqmat[[i]] <- vec2sqmat(fj_sig[gtlabel$subjects_label==subj.name[i],2])
 }
 
 heat_sigfj2 <- list()
@@ -641,23 +641,23 @@ Smoothed Sig Factor Score (Dim 2)
 #--- the important variables are the ones that contribute more than or equal to the average
 sm_heat_sigfj2 <- list()
 for(i in 1:length(subj.name)){
-sm_heat_sigfj2[[i]] <- superheat(fj2_sig_sqmat[[i]], y.axis.reverse = T,
-                              smooth.heat = T, smooth.heat.type = "mean",
-                              membership.rows = parcel.list[[i]]$vox.des$Comm.rcd,
-                              membership.cols = parcel.list[[i]]$vox.des$Comm.rcd,                    
-                              left.label.col = labelcol[[i]],
-                              bottom.label.col = labelcol[[i]],
-                              left.label.size = 0.08,
-                              bottom.label.size = 0.05,
-                              extreme.values.na = FALSE,
-                              heat.lim = heatlim,
-                              heat.pal = kovesi.diverging_bwr_40_95_c42(200),
-                              heat.pal.values = c(0,0.35,0.5,0.65,1),
-                              left.label.text.size = 3,
-                              bottom.label.text.size = 2,
-                              left.label.text.col = textcol[[i]], 
-                              bottom.label.text.col = textcol[[i]], 
-                              title=sprintf("%s: significant contribution (mean-smooth)",subj.name[i]))$plot
+  sm_heat_sigfj2[[i]] <- superheat(fj2_sig_sqmat[[i]], y.axis.reverse = T,
+                                   smooth.heat = T, smooth.heat.type = "mean",
+                                   membership.rows = parcel.list[[i]]$vox.des$Comm.rcd,
+                                   membership.cols = parcel.list[[i]]$vox.des$Comm.rcd,                    
+                                   left.label.col = labelcol[[i]],
+                                   bottom.label.col = labelcol[[i]],
+                                   left.label.size = 0.08,
+                                   bottom.label.size = 0.05,
+                                   extreme.values.na = FALSE,
+                                   heat.lim = heatlim,
+                                   heat.pal = kovesi.diverging_bwr_40_95_c42(200),
+                                   heat.pal.values = c(0,0.35,0.5,0.65,1),
+                                   left.label.text.size = 3,
+                                   bottom.label.text.size = 2,
+                                   left.label.text.col = textcol[[i]], 
+                                   bottom.label.text.col = textcol[[i]], 
+                                   title=sprintf("%s: significant contribution (mean-smooth)",subj.name[i]))$plot
 }
 ```
 
