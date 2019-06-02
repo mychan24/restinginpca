@@ -161,7 +161,7 @@ Here are the heatmaps of all 10 sessions arranged by each subject
 zmat.path <- "../data/zmat"
 springlist <- list()
 springlist_i <- 1
-for(subj.count in 1:1){ # length(parcel.list)){
+for(subj.count in 1:length(parcel.list)){
   load(sprintf("%s/sub-MSC%02d_zcube_rcube.RData",zmat.path,subj.count))
   springlist[[subj.count]] <- list()
   for(session.count in 1:dim(cubes$rcube)[3]){
@@ -177,8 +177,11 @@ for(subj.count in 1:1){ # length(parcel.list)){
     V(net)$community <- parcel.list[[subj.name[subj.count]]]$vox.des$Comm
     net <- simplify(net, remove.multiple = F, remove.loops = T) 
     
-    springlist[[subj.count]][[session.count]]  <- as.grob(function() plot(net, layout=layout_with_fr, vertex.label=NA, vertex.size=5, vertex.color=parcel.list[[subj.name[subj.count]]]$vox.des$Comm.Col, alpha=.6))
-     
+    springlist[[subj.count]][[session.count]]  <- as.grob(function() plot(net, layout=layout_with_fr, vertex.label=NA, vertex.size=7, vertex.color=parcel.list[[subj.name[subj.count]]]$vox.des$Comm.Col, alpha=.6))
+   
+    # Remove NA that turns into text labels for nodes
+    springlist[[subj.count]][[session.count]]$children$`graphics-plot-1-text-1`$label <- ""
+    springlist[[subj.count]][[session.count]]$children$`graphics-plot-1-text-2`$label <- ""
   }
 }
 ```
@@ -186,3 +189,39 @@ for(subj.count in 1:1){ # length(parcel.list)){
     ## [1] "sub01"
 
 ![](DisplayMSC_SpringEmbedded_files/figure-markdown_github/plot_all_sub_session_spring-1.png)
+
+    ## [1] "sub02"
+
+![](DisplayMSC_SpringEmbedded_files/figure-markdown_github/plot_all_sub_session_spring-2.png)
+
+    ## [1] "sub03"
+
+![](DisplayMSC_SpringEmbedded_files/figure-markdown_github/plot_all_sub_session_spring-3.png)
+
+    ## [1] "sub04"
+
+![](DisplayMSC_SpringEmbedded_files/figure-markdown_github/plot_all_sub_session_spring-4.png)
+
+    ## [1] "sub05"
+
+![](DisplayMSC_SpringEmbedded_files/figure-markdown_github/plot_all_sub_session_spring-5.png)
+
+    ## [1] "sub06"
+
+![](DisplayMSC_SpringEmbedded_files/figure-markdown_github/plot_all_sub_session_spring-6.png)
+
+    ## [1] "sub07"
+
+![](DisplayMSC_SpringEmbedded_files/figure-markdown_github/plot_all_sub_session_spring-7.png)
+
+    ## [1] "sub08"
+
+![](DisplayMSC_SpringEmbedded_files/figure-markdown_github/plot_all_sub_session_spring-8.png)
+
+    ## [1] "sub09"
+
+![](DisplayMSC_SpringEmbedded_files/figure-markdown_github/plot_all_sub_session_spring-9.png)
+
+    ## [1] "sub010"
+
+![](DisplayMSC_SpringEmbedded_files/figure-markdown_github/plot_all_sub_session_spring-10.png)
