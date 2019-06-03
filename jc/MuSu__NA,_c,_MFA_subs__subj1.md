@@ -187,7 +187,7 @@ BootCube.Comm <- Boot4Mean(svd.res$ExPosition.Data$fj,
 tictoc::toc()
 ```
 
-    ## 66.61 sec elapsed
+    ## 58.36 sec elapsed
 
 ``` r
 # Compute means of factor scores for different types of edges
@@ -202,7 +202,7 @@ BootCube.Comm.bw <- Boot4Mean(svd.res$ExPosition.Data$fj,
 tictoc::toc()
 ```
 
-    ## 45.74 sec elapsed
+    ## 44.44 sec elapsed
 
 Next, we plot the factor scores for the subject x edges (a mess): Dim 1
 &
@@ -252,17 +252,18 @@ BootCube1.Node <- Boot4Mean(MDSf1$ExPosition.Data$fi,
 
 ### Plot bootstrapped confidence intervals for means
 MDSf1.mean.graph <- createFactorMap(BootCube1.Node$GroupMeans,
-                                axis1 = 1, axis2 = 2,
+                                axis1 = 2, axis2 = 3,
                                 col.points = parcel.list$sub01$Comm.col$gc[rownames(BootCube1.Node$GroupMeans),],
-                                constraints = f1.MDSgraph$constraints,
+                                # constraints = f1.MDSgraph$constraints,
                                 col.labels = parcel.list$sub01$Comm.col$gc[rownames(BootCube1.Node$GroupMeans),],
                                 alpha.points = .8,
                                 pch = 15,
                                 cex = 4)
-MDSf1.CI.graph <- MakeCIEllipses(BootCube1.Node$BootCube[,c(1,2),],
+MDSf1.CI.graph <- MakeCIEllipses(BootCube1.Node$BootCube[,c(2,3),],
                                     names.of.factors = c(sprintf("Dimension %s",1),sprintf("Dimension %s",2)),
                                     col = parcel.list$sub01$Comm.col$gc[rownames(BootCube1.Node$GroupMeans),],
                                     p.level = .95)
+
 
 ### Show plot
 MDSf1.CiMean <- f1.MDSgraph$zeMap_background + MDSf1.CI.graph + MDSf1.mean.graph$zeMap_dots + MDSf1.mean.graph$zeMap_text + f1.MDSlabels
@@ -286,14 +287,14 @@ BootCube2.Node <- Boot4Mean(MDSf2$ExPosition.Data$fi,
 
 ### Plot bootstrapped confidence intervals for means
 MDSf2.mean.graph <- createFactorMap(BootCube2.Node$GroupMeans,
-                                axis1 = 1, axis2 = 2,
+                                axis1 = x_axis, axis2 = y_axis,
                                 col.points = parcel.list$sub01$Comm.col$gc[rownames(BootCube2.Node$GroupMeans),],
-                                constraints = f2.MDSgraph$constraints,
+                                # constraints = f2.MDSgraph$constraints,
                                 col.labels = parcel.list$sub01$Comm.col$gc[rownames(BootCube2.Node$GroupMeans),],
                                 alpha.points = .8,
                                 pch = 15,
                                 cex = 4)
-MDSf2.CI.graph <- MakeCIEllipses(BootCube2.Node$BootCube[,c(1,2),],
+MDSf2.CI.graph <- MakeCIEllipses(BootCube2.Node$BootCube[,c(x_axis,y_axis),],
                                     names.of.factors = c(sprintf("Dimension %s",1),sprintf("Dimension %s",2)),
                                     col = parcel.list$sub01$Comm.col$gc[rownames(BootCube2.Node$GroupMeans),],
                                     p.level = .95)

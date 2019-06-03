@@ -30,7 +30,7 @@ suppressMessages(library(shinyWidgets))
 # read data
 
 ```{r data}
-load("../Tryout4No7.RData")
+load("../Tryout4No3.RData")
 ```
 
 # Contribution plot
@@ -113,14 +113,14 @@ inputPanel(
 
 Checkplot_f_edge <- eventReactive(input$plot_edge,{
   # filter for contribution
-  mean.fj2plot <- mean.fj[which(importantEdg == TRUE & net.edge %in% input$f_edgeOI),] 
+  mean.fj2plot <- mean.fj[which(net.edge %in% input$f_edgeOI),] 
 
   # get the furthest (top.perc)%
   fj2plot.sq <- apply(mean.fj2plot[1:9],2,function(x){x^2}) # square the factor scores
   dist2c <- sqrt(fj2plot.sq[,1]+fj2plot.sq[,2]) # take the sqrt of the ss of component 1+2
   fj.ind <- sort(abs(dist2c),decreasing = TRUE, index.return = TRUE)$ix # sort the distance to the origen and get the index (big to small)
   fj2plot.ind <- fj.ind[1:round(length(fj.ind)*input$top.perc)]
-  col.max10 <- col4ImportantEdg[which(importantEdg == TRUE & net.edge %in% input$f_edgeOI)] %>% .[fj2plot.ind]
+  col.max10 <- col4ImportantEdg[which(net.edge %in% input$f_edgeOI)] %>% .[fj2plot.ind]
   
   # plot the image
   plot.f_edge_imp <- createFactorMap(mean.fj2plot[fj2plot.ind,], axis1 = 1, axis2 = 2,
