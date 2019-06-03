@@ -1,4 +1,4 @@
-MSC All Subjects RSFC Spring-embedded Graphs - 4% Edge Density
+MSC All Subjects RSFC Spring-embedded Graphs - 2% Edge Density
 ================
 
 <table style="width:72%;">
@@ -170,7 +170,7 @@ for(subj.count in 1:length(parcel.list)){
     z_pos[z_pos<0] <- 0
     ## Threshold matrix to 4%
     z4 <- z_pos
-    z4[z < quantile(z, 0.96)] <- 0
+    z4[z < quantile(z, 0.98)] <- 0
     net <- graph.adjacency(adjmatrix = z4, mode = "undirected", diag = F, weighted = T)
     
     V(net)$id <- parcel.list[[subj.name[subj.count]]]$vox.des$NodeID
@@ -188,40 +188,40 @@ for(subj.count in 1:length(parcel.list)){
 
     ## [1] "sub01"
 
-![](DisplayMSC_SpringEmbedded_files/figure-markdown_github/plot_all_sub_session_spring-1.png)
+![](DisplayMSC_SpringEmbedded_2td_files/figure-markdown_github/plot_all_sub_session_spring-1.png)
 
     ## [1] "sub02"
 
-![](DisplayMSC_SpringEmbedded_files/figure-markdown_github/plot_all_sub_session_spring-2.png)
+![](DisplayMSC_SpringEmbedded_2td_files/figure-markdown_github/plot_all_sub_session_spring-2.png)
 
     ## [1] "sub03"
 
-![](DisplayMSC_SpringEmbedded_files/figure-markdown_github/plot_all_sub_session_spring-3.png)
+![](DisplayMSC_SpringEmbedded_2td_files/figure-markdown_github/plot_all_sub_session_spring-3.png)
 
     ## [1] "sub04"
 
-![](DisplayMSC_SpringEmbedded_files/figure-markdown_github/plot_all_sub_session_spring-4.png)
+![](DisplayMSC_SpringEmbedded_2td_files/figure-markdown_github/plot_all_sub_session_spring-4.png)
 
     ## [1] "sub05"
 
-![](DisplayMSC_SpringEmbedded_files/figure-markdown_github/plot_all_sub_session_spring-5.png)
+![](DisplayMSC_SpringEmbedded_2td_files/figure-markdown_github/plot_all_sub_session_spring-5.png)
 
     ## [1] "sub06"
 
-![](DisplayMSC_SpringEmbedded_files/figure-markdown_github/plot_all_sub_session_spring-6.png)
+![](DisplayMSC_SpringEmbedded_2td_files/figure-markdown_github/plot_all_sub_session_spring-6.png)
 
     ## [1] "sub07"
 
-![](DisplayMSC_SpringEmbedded_files/figure-markdown_github/plot_all_sub_session_spring-7.png)
+![](DisplayMSC_SpringEmbedded_2td_files/figure-markdown_github/plot_all_sub_session_spring-7.png)
 
     ## [1] "sub08"
 
-![](DisplayMSC_SpringEmbedded_files/figure-markdown_github/plot_all_sub_session_spring-8.png)
+![](DisplayMSC_SpringEmbedded_2td_files/figure-markdown_github/plot_all_sub_session_spring-8.png)
 
     ## [1] "sub09"
 
-![](DisplayMSC_SpringEmbedded_files/figure-markdown_github/plot_all_sub_session_spring-9.png)
+![](DisplayMSC_SpringEmbedded_2td_files/figure-markdown_github/plot_all_sub_session_spring-9.png)
 
     ## [1] "sub010"
 
-![](DisplayMSC_SpringEmbedded_files/figure-markdown_github/plot_all_sub_session_spring-10.png)
+![](DisplayMSC_SpringEmbedded_2td_files/figure-markdown_github/plot_all_sub_session_spring-10.png)
