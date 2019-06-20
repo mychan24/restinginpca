@@ -14,13 +14,13 @@ MSC All Subjects RSFC Matrices
 |  8   |         Salience          |      08SLC      |
 |  9   |    Cingular opercular     |      09CON      |
 |  10  |    Sensorimotor - hand    |     10hSMN      |
-|  11  |    Sensorimotor - face    |     11fSMN      |
+|  11  |    Sensorimotor - face    |     11faSMN     |
 |  12  |         Auditory          |      12Aud      |
 |  13  | anterior Medial temporal  |     13aMTL      |
 |  14  | posterior Medial temporal |     14pMTL      |
 |  15  |      Parietal memory      |      15PMN      |
 |  16  |          Context          |      16CAN      |
-|  17  |    Sensorimotor - foot    |     17fSMN      |
+|  17  |    Sensorimotor - foot    |     17foSMN     |
 |  21  |          Unknown          |      21UN       |
 |  25  |          Unknown          |      25UN       |
 |  29  |          Unknown          |      29UN       |
@@ -89,6 +89,48 @@ for(i in 1:length(subj.name)){
     ## [1] "sub010"
 
 ![](DisplayMSC_Matrix_files/figure-gfm/plot_all_sub_session_hmap-10.png)<!-- -->
+
+## Here are the double-centered heamaps of all subjects
+
+    ## [1] "sub01"
+
+![](DisplayMSC_Matrix_files/figure-gfm/plot_all_sub_session_hmap_dc-1.png)<!-- -->
+
+    ## [1] "sub02"
+
+![](DisplayMSC_Matrix_files/figure-gfm/plot_all_sub_session_hmap_dc-2.png)<!-- -->
+
+    ## [1] "sub03"
+
+![](DisplayMSC_Matrix_files/figure-gfm/plot_all_sub_session_hmap_dc-3.png)<!-- -->
+
+    ## [1] "sub04"
+
+![](DisplayMSC_Matrix_files/figure-gfm/plot_all_sub_session_hmap_dc-4.png)<!-- -->
+
+    ## [1] "sub05"
+
+![](DisplayMSC_Matrix_files/figure-gfm/plot_all_sub_session_hmap_dc-5.png)<!-- -->
+
+    ## [1] "sub06"
+
+![](DisplayMSC_Matrix_files/figure-gfm/plot_all_sub_session_hmap_dc-6.png)<!-- -->
+
+    ## [1] "sub07"
+
+![](DisplayMSC_Matrix_files/figure-gfm/plot_all_sub_session_hmap_dc-7.png)<!-- -->
+
+    ## [1] "sub08"
+
+![](DisplayMSC_Matrix_files/figure-gfm/plot_all_sub_session_hmap_dc-8.png)<!-- -->
+
+    ## [1] "sub09"
+
+![](DisplayMSC_Matrix_files/figure-gfm/plot_all_sub_session_hmap_dc-9.png)<!-- -->
+
+    ## [1] "sub010"
+
+![](DisplayMSC_Matrix_files/figure-gfm/plot_all_sub_session_hmap_dc-10.png)<!-- -->
 
 ## Here are the smoothed heatmaps of all 10 sessions arranged by each subject
 

@@ -1,0 +1,144 @@
+---
+title: "DoubleCent_(NA, NA, MFA_subs)_shiny"
+author: "Ju-Chi.Yu"
+date: "6/20/2019"
+output: html_document
+runtime: shiny
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+suppressMessages(library(pander))
+suppressMessages(library(psych))
+suppressMessages(library(DistatisR))
+suppressMessages(library(tidyr))
+suppressMessages(library(magrittr))
+suppressMessages(library(PTCA4CATA))
+suppressMessages(library(ExPosition))
+suppressMessages(library(InPosition))
+suppressMessages(library(MExPosition))
+suppressMessages(library(superheat))
+suppressMessages(library(gridExtra))
+suppressMessages(library(ggplotify))
+suppressMessages(library(grid))
+suppressMessages(library(pals))
+suppressMessages(library(shiny))
+suppressMessages(library(shinyWidgets))
+
+```
+
+# read data
+
+```{r data}
+load("../../DCdata9.RData")
+```
+
+# Contribution plot
+
+```{r contribution, echo=FALSE, fig.height= 10, fig.width = 10}
+inputPanel(
+  actionButton("plot_ctr", "Plot!"),
+  awesomeCheckboxGroup(inputId = "edgeOI",
+                       label = "Edges to show:", choices = unique(net.edge),
+                       selected = c(),inline = TRUE, status = "danger")
+)
+
+Checkplot_ctr <- eventReactive(input$plot_ctr,{
+  cjplot_show <- createFactorMap(c_edge[which(importantEdg == TRUE & net.edge %in% input$edgeOI),],
+                                 axis1 = 1, axis2 = 2,
+                                 col.points = col4ImportantEdg[which(importantEdg == TRUE & net.edge %in% input$edgeOI)],
+                                 col.labels = col4ImportantEdg[which(importantEdg == TRUE & net.edge %in% input$edgeOI)],
+                                 text.cex = 2,
+                                 force = 2,
+                                 title = "Contibutions for all subject x edges")
+
+  cjplot_all$zeMap_background + cjplot_show$zeMap_dots + cjplot_show$zeMap_text
+})
+
+renderPlot({
+  Checkplot_ctr()
+})
+
+```
+
+# Factor map -- sessions with partial factor scores
+
+```{r pF, echo=FALSE, fig.height= 10, fig.width = 10}
+
+inputPanel(
+  actionButton("plot_ses", "Plot!"),
+  awesomeCheckboxGroup(inputId = "session2plot",
+                       label = "Sessions to show:", choices = c(1:10),
+                       selected = c(),inline = TRUE, status = "danger"),
+  awesomeCheckboxGroup(inputId = "sub2plot",
+                       label = "Subjects to show:", choices = c(1:10),
+                       selected = c(),inline = TRUE, status = "success")
+
+)
+
+Checkplot_pF <- eventReactive(input$plot_ses,{
+  plot.pf <- createPartialFactorScoresMap(
+    factorScores = svd.res$ExPosition.Data$fi[as.numeric(input$session2plot),],
+    partialFactorScores = pFi[as.numeric(input$session2plot),,as.numeric(input$sub2plot)],
+    axis1 = 1, axis2 = 2,
+    size.points = 3,
+    size.labels = 3,
+    names4Partial = subj.name[as.numeric(input$sub2plot)],
+    font.labels = "bold"
+  )
+
+  plot.f_sess4pF$zeMap + f.labels + plot.pf$mapColByBlocks
+})
+
+renderPlot({
+  Checkplot_pF()
+}, height = 600, width = 600)
+
+```
+
+# Factor map -- edges
+
+These are edges that contribute significantly to both components.
+
+```{r f_edge, echo=FALSE, fig.height= 10, fig.width = 10}
+inputPanel(  
+  actionButton("plot_edge", "Plot!"),
+  awesomeCheckboxGroup(inputId = "f_edgeOI", 
+                       label = "Edges to show:", choices = unique(net.edge),
+                       selected = c(),inline = TRUE, status = "warning"),
+  sliderInput(inputId = "top.perc",
+              label = "What top percentage of the largest factor scores to show:",                            
+              min = 0, max = 1, step = 0.01, value = 0.25)
+)
+
+Checkplot_f_edge <- eventReactive(input$plot_edge,{
+  # filter for contribution
+  mean.fj2plot <- mean.fj[which(importantEdg == TRUE & net.edge %in% input$f_edgeOI),] 
+
+  # get the furthest (top.perc)%
+  fj2plot.sq <- apply(mean.fj2plot[1:9],2,function(x){x^2}) # square the factor scores
+  dist2c <- sqrt(fj2plot.sq[,1]+fj2plot.sq[,2]) # take the sqrt of the ss of component 1+2
+  fj.ind <- sort(abs(dist2c),decreasing = TRUE, index.return = TRUE)$ix # sort the distance to the origen and get the index (big to small)
+  fj2plot.ind <- fj.ind[1:round(length(fj.ind)*input$top.perc)]
+  col.max10 <- col4ImportantEdg[which(importantEdg == TRUE & net.edge %in% input$f_edgeOI)] %>% .[fj2plot.ind]
+  
+  # plot the image
+  plot.f_edge_imp <- createFactorMap(mean.fj2plot[fj2plot.ind,], axis1 = 1, axis2 = 2,
+                                     col.points = col.max10,
+                                     col.labels = col.max10,
+                                     text.cex = 2.5,
+                                     force = 1.5,
+                                     box.padding = 0.05,
+                                     title = "Significantly contributed factor scores - colored by subject_x_edge types")
+  f_netedge_plot02 <- plot.f_edge_imp$zeMap_background + plot.f_edge_imp$zeMap_dots + plot.f_edge_imp$zeMap_text + f.labels
+  f_netedge_plot02
+
+})
+
+renderPlot({
+  Checkplot_f_edge()
+}, height = 600, width = 600)
+
+
+```
+

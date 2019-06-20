@@ -122,6 +122,51 @@ for(i in 1:length(hmaplist)){
 }
 ```
 
+## Here are the double-centered heamaps of all subjects
+
+```{r setup_matrix_dc, echo = FALSE, include = FALSE, fig.show='hide'}
+### Make these not objects, but part of a list? ### MYC NEED TO CHANGE 20190404
+# read examplar data
+zmat.path <- "../data/zmat"
+
+#--- plot heatmap
+hmaplist_DC <- list()
+hmaplist_DC_i <- 1
+for(subj.count in 1:length(parcel.list)){
+  load(sprintf("%s/sub-MSC%02d_zcube_rcube_DC.RData",zmat.path,subj.count))
+  hmaplist_DC[[subj.count]] <- list()
+  for(session.count in 1:dim(s)[3]){
+    # heat map of correlation matrices
+    hmap.name <- sprintf("sub%02d_hmap%s", subj.count, session.count)
+    hmaplist_DC[[subj.count]][[session.count]] <- superheat(s[,,session.count],
+                                membership.cols = parcel.list[[subj.count]]$vox.des$Comm.rcd,
+                                membership.rows = parcel.list[[subj.count]]$vox.des$Comm.rcd,
+                                clustering.method = NULL,
+                                heat.col.scheme = "viridis",
+                                left.label.size = 0.08,
+                                bottom.label.size = 0.05,
+                                y.axis.reverse = TRUE,
+                                left.label.col = labelcol[[subj.count]], # order by community name
+                                bottom.label.col = labelcol[[subj.count]],
+                                left.label.text.size = 3,
+                                bottom.label.text.size = 2,
+                                left.label.text.col = textcol[[subj.count]],
+                                bottom.label.text.col = textcol[[subj.count]],
+                                left.label.text.alignment = "left",
+                                title = sprintf("Double-centered correlation matrix of #%s session",session.count)
+                                )$plot
+  }
+}
+
+```
+
+```{r plot_all_sub_session_hmap_dc, echo=F, fig.height=20, fig.width= 40}
+for(i in 1:length(hmaplist_DC)){
+  print(sprintf("%s", subj.name[i]))
+  do.call(grid.arrange, c(hmaplist_DC[[i]], ncol=5))
+}
+```
+
 ## Here are the smoothed heatmaps of all 10 sessions arranged by each subject 
 
 ```{r setup_matrix_smoothed, echo = FALSE, include = FALSE, fig.show='hide'}
@@ -180,3 +225,4 @@ for(i in 1:n.session){
   do.call(grid.arrange, c(lapply(hmaplist.mean, `[[`, i), ncol=5))
 }
 ```
+
