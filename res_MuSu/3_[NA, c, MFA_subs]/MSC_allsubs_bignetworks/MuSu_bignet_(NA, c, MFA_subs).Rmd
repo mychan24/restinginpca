@@ -28,16 +28,16 @@ source(paste0(tool.path,"getVoxDes.R"))
 #### == DEFINE Parameters (e.g., subj name, paths) == ####
 # This section will hopefully become parameterized for RMD in the future 
 
-parcelfile2read <- c("/sub-MSC01_node_parcel_comm.txt",
-                     "/sub-MSC02_node_parcel_comm.txt",
-                     "/sub-MSC03_node_parcel_comm.txt",
-                     "/sub-MSC04_node_parcel_comm.txt",
-                     "/sub-MSC05_node_parcel_comm.txt",
-                     "/sub-MSC06_node_parcel_comm.txt",
-                     "/sub-MSC07_node_parcel_comm.txt",
-                     "/sub-MSC08_node_parcel_comm.txt",
-                     "/sub-MSC09_node_parcel_comm.txt",
-                     "/sub-MSC10_node_parcel_comm.txt"
+parcelfile2read <- c("/sub-MSC01_node_parcel_bigcomm.txt",
+                     "/sub-MSC02_node_parcel_bigcomm.txt",
+                     "/sub-MSC03_node_parcel_bigcomm.txt",
+                     "/sub-MSC04_node_parcel_bigcomm.txt",
+                     "/sub-MSC05_node_parcel_bigcomm.txt",
+                     "/sub-MSC06_node_parcel_bigcomm.txt",
+                     "/sub-MSC07_node_parcel_bigcomm.txt",
+                     "/sub-MSC08_node_parcel_bigcomm.txt",
+                     "/sub-MSC09_node_parcel_bigcomm.txt",
+                     "/sub-MSC10_node_parcel_bigcomm.txt"
 )
 subj.name <- c("sub01","sub02","sub03",
                "sub04","sub05","sub06",
@@ -50,13 +50,24 @@ parcel.comm.path <- "../../../data/parcel_community/bignetwork"
 # Load Grand Table
 # gt: grand tabls
 # labels: information for each edge in the rectangular grand table
-load(paste0("../../../data/grandatble_and_labels_MSC_allsubs_N10_20190418.Rdata")) # read the labels of grandtable
+load(paste0("../../../data/grandatble_and_labels_bignetcol_MSC_allsubs_N10_20190620.Rdata")) # read the labels of grandtable
 
 ## Categorize columns by between or within edges
 #--- Create new column of sub-edgetype
 gtlabel[,'subjects_wb'] <- sprintf('%s_%s',gtlabel$subjects_label,gtlabel$wb)
 
 ```
+
+> Reduce grandtable to have consistent networks only
+
+```{r reduce_gt}
+gt <- gt[,gtlabel$bignet=="Y"]
+gtlabel <- gtlabel[gtlabel$bignet=="Y",]
+
+# check dim
+dim(gt); dim(gtlabel)
+```
+
 
 > This is an SVD with centered columns and hierarchical (network edges -> subjects) MFA-normalized tables.
 
@@ -68,15 +79,8 @@ The data are from the morning scan club (MSC) resting-state data where the parti
 # rename communities
 #--- read the file with community information: label number & community name & color & abbreviation for community name
 colnames(CommName) <- c("Comm", "CommLabel","CommColor","CommLabel.short")
-CommName[,'Community'] <- c("UnAssign", "Default","lateral Visual","Frontoparietal",
-                            "medial Visual","dorsal Attention","Premotor",
-                            "ventral Attention","Salience","Cingular opercular",
-                            "Sensorimotor - hand","Sensorimotor - face","Auditory",
-                            "anterior Medial temporal","posterior Medial temporal",
-                            "Parietal memory","Context","Sensorimotor - foot", 
-                            "Unknown","Unknown","Unknown","UnKnown","UnKnown")
+CommName[,'Community'] <- sapply(CommName$CommLabel, FUN = function(x){strsplit(as.character(x), split = "_")[[1]][2]})
 pander::pander(CommName[,c("Comm", "Community","CommLabel.short")])
-
 ```
 
 ```{r data_info}
