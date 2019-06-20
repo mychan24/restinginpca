@@ -8,11 +8,16 @@ load(paste0("./data/grandatble_and_labels_MSC_allsubs_N10_20190418.Rdata")) # re
 # Syslabel with consistent networks only
 CommName <- read.csv("./data/parcel_community/bignetwork/systemlabel_bigcomm.txt",header = FALSE)
 
+bignet_count <- sapply(X = gtlabel$edges_label, 
+                         FUN=function(x){strsplit(as.character(x), "_") %>% 
+                           unlist %>%
+                           is.element(CommName$V1) %>%
+                           sum})
 # Between Networks
-bignet_between_count <- sapply(X = gtlabel$edges_label, 
-                         FUN=function(x){strsplit(as.character(x), "_") %>% unlist %>% as.numeric %>% is.element(CommName$V1) %>% sum})
 gtlabel$bignet <- "N"
 gtlabel$bignet[bignet_between_count==2] <- "Y"
-gtlabel$bignet[gtlabel$wb=="Within"] <- "Y"
+
+# Within netowrk
+gtlabel$bignet[gtlabel$wb=="Within" & bignet_count==1] <- "Y"
 
 save(file = "./data/grandatble_and_labels_bignetcol_MSC_allsubs_N10_20190620.Rdata", list = c("gt", "gtlabel"))
