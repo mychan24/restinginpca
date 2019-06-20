@@ -32,7 +32,7 @@ condition x (region x participants)
 
 + Try different normalization with multi-subjects data:
 
-  Rectangular data structure: 5 sessions x (region-region edges x 2 subjects)
+  Rectangular data structure: 10 sessions x (region-region edges x 10 subjects)
 
   1. SVD after the columns are centered (center across rows)
 
@@ -49,6 +49,10 @@ condition x (region x participants)
   7. HMFA-normalized rectangular matrix by networks and subject without normalizing across rows
 
   8. HMFA-normalized rectangular matrix by networks and subject after normalizing across rows
+  
+  9. Double-centering the correlation matrix + MFA-normalized rectangular matrix by subjects
+  
+  10. Double-centering the correlation matrix + MFA-normalized rectangular matrix by subjects after centering each column
 
 ### Conclusion
 
