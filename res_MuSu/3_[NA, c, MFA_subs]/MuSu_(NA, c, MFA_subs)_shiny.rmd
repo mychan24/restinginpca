@@ -30,7 +30,7 @@ suppressMessages(library(shinyWidgets))
 # read data
 
 ```{r data}
-load("../../../Tryout4No3.RData")
+load("../../Tryout4No3.RData")
 ```
 
 # Contribution plot

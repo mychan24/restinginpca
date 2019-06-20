@@ -5,8 +5,7 @@ output: github_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-
-
+rm(list=ls())
 ```
 
 ### Find consistent networks across subjects
@@ -57,9 +56,9 @@ kableExtra::kable(tally, caption = "How many nodes are in each consistent networ
 # consistent_parcel <- lapply(parcel, FUN = function(x){x[is.element(x$V3, consistent_comm),]})
 # 
 # for(i in 1:nsub){
-#   write.table(x = consistent_parcel[[i]], file = sprintf("../data/parcel_community/bignetwork/sub-MSC%02d_node_parcel_bigcomm.txt",i), sep = ",", quote = F, col.names = F)
+#   write.table(x = consistent_parcel[[i]], file = sprintf("../data/parcel_community/bignetwork/sub-MSC%02d_node_parcel_bigcomm.txt",i), sep = ",", quote = F, col.names = F, row.names = F)
 # }
 # 
-# write.table(consistent_syslabel, file="../data/parcel_community/bignetwork/systemlabel_bigcomm.txt",sep=",", quote = F, col.names = F)
+# write.table(consistent_syslabel, file="../data/parcel_community/bignetwork/systemlabel_bigcomm.txt",sep=",", quote = F, col.names = F, row.names = F)
 ```
 

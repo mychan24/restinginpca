@@ -1,5 +1,5 @@
 ---
-title: "MuSu_(NA, c, MFA_subs) - MSC #1 Subjects (N=1)"
+title: "MuSu_(NA, c, MFA_subs) - MSC All Subjects (N=10) Big Networks"
 output: github_document
 ---
 
@@ -20,7 +20,7 @@ suppressMessages(library(ggplotify))
 suppressMessages(library(grid))
 suppressMessages(library(pals))
 # Read functions -----------------------------------
-tool.path <- "../tools/"
+tool.path <- "../../../tools/"
 source(paste0(tool.path,"SScomm.R")) # SScomm.R: computes sums of squares of a square matrix according to a design matrix
 source(paste0(tool.path,"vec2sqmat.R"))
 source(paste0(tool.path,"getVoxDes.R"))
@@ -28,16 +28,29 @@ source(paste0(tool.path,"getVoxDes.R"))
 #### == DEFINE Parameters (e.g., subj name, paths) == ####
 # This section will hopefully become parameterized for RMD in the future 
 
-parcelfile2read <- c("/sub-MSC01_node_parcel_comm.txt")
-subj.name <- c("sub01")
+parcelfile2read <- c("/sub-MSC01_node_parcel_comm.txt",
+                     "/sub-MSC02_node_parcel_comm.txt",
+                     "/sub-MSC03_node_parcel_comm.txt",
+                     "/sub-MSC04_node_parcel_comm.txt",
+                     "/sub-MSC05_node_parcel_comm.txt",
+                     "/sub-MSC06_node_parcel_comm.txt",
+                     "/sub-MSC07_node_parcel_comm.txt",
+                     "/sub-MSC08_node_parcel_comm.txt",
+                     "/sub-MSC09_node_parcel_comm.txt",
+                     "/sub-MSC10_node_parcel_comm.txt"
+)
+subj.name <- c("sub01","sub02","sub03",
+               "sub04","sub05","sub06",
+               "sub07","sub08","sub09","sub10")
 
-parcel.comm.path <- "../data/parcel_community"
-CommName <- read.csv("../data/parcel_community/systemlabel.txt",header = FALSE)
+parcel.comm.path <- "../../../data/parcel_community/bignetwork"
+CommName <- read.csv("../../../data/parcel_community/bignetwork/systemlabel_bigcomm.txt",header = FALSE)
+parcel.comm.path <- "../../../data/parcel_community/bignetwork"
 
 # Load Grand Table
 # gt: grand tabls
-# gtlabel: information for each edge in the rectangular grand table
-load(paste0("../data/grandatble_and_labels_MSC_subs1_20190602.Rdata")) # read the gtlabel of grandtable
+# labels: information for each edge in the rectangular grand table
+load(paste0("../../../data/grandatble_and_labels_MSC_allsubs_N10_20190418.Rdata")) # read the labels of grandtable
 
 ## Categorize columns by between or within edges
 #--- Create new column of sub-edgetype
@@ -67,7 +80,7 @@ pander::pander(CommName[,c("Comm", "Community","CommLabel.short")])
 ```
 
 ```{r data_info}
-# read parcel gtlabel for each subject
+# read parcel labels for each subject
 parcel.list <- lapply(1:length(parcelfile2read), function(x){
   parcel <- read.table(paste0(parcel.comm.path, parcelfile2read[x]),sep = ",")
   getVoxDes(parcel,CommName)
@@ -276,19 +289,19 @@ cjplot_all <- createFactorMap(c_edge,
 cjplot_imp <- createFactorMap(c_edge[importantEdg,],
                               axis1 = 1, axis2 = 2,
                               col.points = col4ImportantEdg[importantEdg],
-                              col.gtlabel = col4ImportantEdg[importantEdg],
+                              col.labels = col4ImportantEdg[importantEdg],
                               text.cex = 2,
                               force = 0.5,
                               title = "Significant contribution")
 
-f.gtlabel <- createxyLabels.gen(x_axis = 1, y_axis = 2,
+f.labels <- createxyLabels.gen(x_axis = 1, y_axis = 2,
                                lambda = svd.res$ExPosition.Data$eigs,
                                tau = svd.res$ExPosition.Data$t,
                                axisName = "Dimension ")
 
-ciplot01 <- ciplot$zeMap + f.gtlabel
-cjplot01 <- cjplot_all$zeMap_background + cjplot_all$zeMap_dots + f.gtlabel
-cjplot02 <- cjplot_imp$zeMap_background + cjplot_imp$zeMap_dots + cjplot_imp$zeMap_text + f.gtlabel
+ciplot01 <- ciplot$zeMap + f.labels
+cjplot01 <- cjplot_all$zeMap_background + cjplot_all$zeMap_dots + f.labels
+cjplot02 <- cjplot_imp$zeMap_background + cjplot_imp$zeMap_dots + cjplot_imp$zeMap_text + f.labels
 ```
 
 ```{r grid_ciplot, echo=F, fig.height=12, fig.width=12}
@@ -307,9 +320,55 @@ colnames(svd.res$ExPosition.Data$fi) <- sapply(c(1:ncol(svd.res$ExPosition.Data$
 
 # Plot factor scores
 plot.f_sess <- createFactorMap(svd.res$ExPosition.Data$fi)
-plot.f_sess$zeMap + f.gtlabel
+plot.f_sess$zeMap + f.labels
 ```
 
+We can also plot the partial factor scores that show how each subject contribute to different sesssions.
+
+```{r partial_f_sess}
+# We can also compute the partial factor scores for each participant:
+subj.table <- gtlabel$subjects_label
+table2normalize <- subtab_i
+
+n_subj <- length(unique(gtlabel$subjects_label))
+n_table2normalize <- sapply(1:n_subj, function(x){
+  length(unique(table2normalize[which(subj.table == unique(subj.table)[x])]))})
+# compute partial factor scores: K x sv[1] x X_k x Q_k
+pFi <- sapply(1:n_subj, function(x){
+  # weighted by the inverse of "the # of tables contributed for each subject"
+  (sum(n_table2normalize)/n_table2normalize[x])/(sv[[1]][x])*cgt[,which(subj.table == unique(subj.table)[x])] %*% (svd.res$ExPosition.Data$pdq$q[which(subj.table == unique(subj.table)[x]),])
+}, simplify = "array")
+
+# name the dimension of the array that stores partial F
+dimnames(pFi) <- list(rownames(cgt),colnames(svd.res$ExPosition.Data$fi),unique(subj.table))
+
+## Check barycentric
+ch1 <- apply(pFi,c(1:2),mean)
+ch2 <- cgt %*% (svd.res$ExPosition.Data$pdq$q)
+```
+
+```{r plot_pf_sess, echo = FALSE}
+#  And plot them on the same factor map:
+#find the constraints for the pF map
+pF.constraints <- minmaxHelper4Partial(
+  FactorScores = svd.res$ExPosition.Data$fi,
+  partialFactorScores = pFi)
+# plot again the factor map
+plot.f_sess4pF <- createFactorMap(svd.res$ExPosition.Data$fi,
+                                  constraints = pF.constraints) # with t(gt)
+
+# select color for subjects (subtables)
+plot.pf_sess <- createPartialFactorScoresMap(
+  factorScores = svd.res$ExPosition.Data$fi,
+  partialFactorScores = pFi,
+  axis1 = 1, axis2 = 2,
+  names4Partial = subj.name,
+  font.labels = "bold"
+)
+
+# add it to the factor map ** MYC this broke when there is 3 subjects, ask JC 20190410
+plot.f_sess4pF$zeMap + f.labels + plot.pf_sess$mapColByBlocks
+```
 
 To have a clearer view of the factor scores for the subject x edges, we first compute the mean factor scores for the each network edge.
 
@@ -345,34 +404,34 @@ plot.f_edge <- createFactorMap(mean.fj, axis1 = 1, axis2 = 2,
                                text.cex = 2,
                                force = 0.5,
                                title = "All factor scores - colored by subject_x_edge types")
-f_netedge_plot01 <- plot.f_edge$zeMap_background + plot.f_edge$zeMap_dots + f.gtlabel
+f_netedge_plot01 <- plot.f_edge$zeMap_background + plot.f_edge$zeMap_dots + f.labels
 # plot the significantly contributed factor scores
 plot.f_edge_imp <- createFactorMap(mean.fj, axis1 = 1, axis2 = 2,
                                    col.points = col4ImportantEdg,
-                                   col.gtlabel = col4ImportantEdg,
+                                   col.labels = col4ImportantEdg,
                                    text.cex = 2,
                                    force = 0.5,
                                    title = "Significantly contributed factor scores - colored by subject_x_edge types")
-f_netedge_plot02 <- plot.f_edge_imp$zeMap_background + plot.f_edge_imp$zeMap_dots + f.gtlabel
+f_netedge_plot02 <- plot.f_edge_imp$zeMap_background + plot.f_edge_imp$zeMap_dots + f.labels
 
 # plot only the significant network edges
 plot.f_impedge <- createFactorMap(mean.fj[importantEdg,], axis1 = 1, axis2 = 2,
                                   col.points = col4ImportantEdg[importantEdg,],
-                                  col.gtlabel = col4ImportantEdg[importantEdg,],
+                                  col.labels = col4ImportantEdg[importantEdg,],
                                   constraints = plot.f_edge_imp$constraints,
                                   text.cex = 2,
                                   force = 0.5,
                                   title = "Significantly contributed factor scores\n(colored by subject_x_edge types)")
-f_netedge_plot03 <- plot.f_impedge$zeMap + f.gtlabel
+f_netedge_plot03 <- plot.f_impedge$zeMap + f.labels
 
 # plot mean factor scores of subject x edge type
 plot.f_bw_imp <- createFactorMap(mean.fj.bw, axis1 = 1, axis2 = 2,
                                  col.points = net.edge.col$gc[rownames(mean.fj.bw),],
-                                 col.gtlabel = net.edge.col$gc[rownames(mean.fj.bw),],
+                                 col.labels = net.edge.col$gc[rownames(mean.fj.bw),],
                                  text.cex = 3,
                                  force = 0.5,
                                  title = "Mean factor scores for subject_x_edge types")
-f_netedge_plot04 <- plot.f_bw_imp$zeMap_background + plot.f_bw_imp$zeMap_dots + plot.f_bw_imp$zeMap_text + f.gtlabel
+f_netedge_plot04 <- plot.f_bw_imp$zeMap_background + plot.f_bw_imp$zeMap_dots + plot.f_bw_imp$zeMap_text + f.labels
 
 ```
 
@@ -394,8 +453,8 @@ f_impedge.CI <- MakeCIEllipses(getBoot2plot_edge,
                                col = col4ImportantEdg[importantEdg,],
                                p.level = .95)
 # create plot
-f_CInetedge_plot01 <- plot.f_impedge$zeMap_background + plot.f_impedge$zeMap_dots + f.gtlabel
-f_CInetedge_plot02 <- plot.f_impedge$zeMap_background + plot.f_impedge$zeMap_dots + f_impedge.CI + f.gtlabel
+f_CInetedge_plot01 <- plot.f_impedge$zeMap_background + plot.f_impedge$zeMap_dots + f.labels
+f_CInetedge_plot02 <- plot.f_impedge$zeMap_background + plot.f_impedge$zeMap_dots + f_impedge.CI + f.labels
 
 # get the bootstrap data for each type of network edges
 getBoot2plot_edge_bw <- BootCube.Comm.bw$BootCube[,c(1,2),]
@@ -405,7 +464,7 @@ plot.CI.f_bw <- MakeCIEllipses(getBoot2plot_edge_bw,
                                col = net.edge.col$gc[rownames(getBoot2plot_edge_bw),],
                                p.level = .95)
 # create plot
-f_CInetedge_plot03 <- plot.f_bw_imp$zeMap + plot.CI.f_bw + f.gtlabel
+f_CInetedge_plot03 <- plot.f_bw_imp$zeMap + plot.CI.f_bw + f.labels
 ```
 
 ```{r grid_f_netedgeCI_plot, echo=F, fig.height=12, fig.width=12, message=FALSE}
@@ -416,20 +475,12 @@ gridExtra::grid.arrange(as.grob(f_CInetedge_plot01), as.grob(f_CInetedge_plot02)
 We can also show the factor scores for network edges as square matrix of each subject.
 
 ```{r squaremat_fi, echo=F, fig.show = 'hide'}
-# fj.rot12 <- varimax(svd.res$ExPosition.Data$fj[,c(1,2)], normalize = FALSE)$loadings
-# for(i in 1:length(subj.name)){
-#   fj1_sqmat[[i]] <- vec2sqmat(fj.rot12[,1]) 
-#   fj2_sqmat[[i]] <- vec2sqmat(fj.rot12[,2])   
-# }
-
 fj1_sqmat <- list()
 fj2_sqmat <- list()
 for(i in 1:length(subj.name)){
   fj1_sqmat[[i]] <- vec2sqmat(svd.res$ExPosition.Data$fj[gtlabel$subjects_label==subj.name[i],1]) 
   fj2_sqmat[[i]] <- vec2sqmat(svd.res$ExPosition.Data$fj[gtlabel$subjects_label==subj.name[i],2])   
 }
-
-
 
 ## Set heat limit
 quantlim <- quantile(unlist(fj1_sqmat), c(.15,.85)) # expanded limit for HMFA
@@ -476,114 +527,141 @@ for(i in 1:length(subj.name)){
 
 ```
 
-### MDS on factor scores
+Node x Node Matrix of Factor Score: Dim 1 & Dim 2
+```{r grid_heat_fi, echo=F, fig.height=20, fig.width=40}
+print("Dimension 1")
+do.call(grid.arrange, c(heat_fj1, ncol=(length(subj.name)/2)))
 
-To compare results from MuSu to DiSTATIS, we try to run MDS with factor scores. Take the first two component for example, we run MDS on each component:
-
-```{r MDS_on_fj1}
-MDSf1 <- epMDS(fj1_sqmat[[1]], DATA_is_dist = FALSE, DESIGN = parcel.list[[i]]$vox.des$Comm.rcd, graphs = FALSE)
-MDSf2 <- epMDS(fj2_sqmat[[1]], DATA_is_dist = FALSE, DESIGN = parcel.list[[i]]$vox.des$Comm.rcd, graphs = FALSE)
+print("Dimension 2")
+do.call(grid.arrange, c(heat_fj2, ncol=(length(subj.name)/2)))
 ```
 
-###### Results from the 1st factor scores
-```{r screeplot1, echo = FALSE}
-### eigen values
-PlotScree(ev = MDSf1$ExPosition.Data$t,
-          title = "Expained variance per dimension")
+Factor score (Dim 1) in square matrix that have significant contribution only
+```{r, squaremat_sigfj1, echo=F, fig.show = 'hide'}
+fj_sig <- svd.res$ExPosition.Data$fj
+fj_sig[!importantEdg1] <- 0
+fj1_sig_sqmat <- list()
+for(i in 1:length(subj.name)){
+  fj1_sig_sqmat[[i]] <- vec2sqmat(fj_sig[gtlabel$subjects_label==subj.name[i],1])
+}
 
-### MDS factor scores for nodes
-f1.MDSgraph <- createFactorMap(MDSf1$ExPosition.Data$fi,
-                           axis1 = 1, axis2 = 2,
-                           title = "Compromise - Factor scores (nodes)",
-                           col.points = parcel.list$sub01$Comm.col$oc,
-                           alpha.points = .4, cex = 4)
-f1.MDSlabels <- createxyLabels.gen(x_axis = 2, y_axis = 3,
-                               lambda = MDSf1$ExPosition.Data$eigs,
-                               tau = MDSf1$ExPosition.Data$t,
-                               axisName = "Dimension ")
-### Show plot
-MDSf1.noLabel <- f1.MDSgraph$zeMap_background + f1.MDSgraph$zeMap_dots + f1.MDSlabels
-print(MDSf1.noLabel)
+heat_sigfj1 <- list()
+for(i in 1:length(subj.name)){
+  heat_sigfj1[[i]] <- superheat(fj1_sig_sqmat[[i]], y.axis.reverse = T,
+                                membership.rows = parcel.list[[i]]$vox.des$Comm.rcd,
+                                membership.cols = parcel.list[[i]]$vox.des$Comm.rcd,                    
+                                left.label.col = labelcol[[i]],
+                                bottom.label.col = labelcol[[i]],
+                                left.label.size = 0.08,
+                                bottom.label.size = 0.05,
+                                extreme.values.na = FALSE,
+                                heat.lim = heatlim,
+                                heat.pal = kovesi.diverging_bwr_40_95_c42(200),
+                                heat.pal.values = c(0,0.35,0.5,0.65,1),
+                                left.label.text.size = 3,
+                                bottom.label.text.size = 2,
+                                left.label.text.col = textcol[[i]], 
+                                bottom.label.text.col = textcol[[i]], 
+                                title=sprintf("%s: significant contribution",subj.name[i]))$plot
+}
 ```
 
-Compute mean and bootstrap CI:
-```{r MDSf1_boot}
-### Compute means for communities
-BootCube1.Node <- Boot4Mean(MDSf1$ExPosition.Data$fi,
-                         design = parcel.list$sub01$vox.des$Comm.rcd,
-                         niter = 100,
-                         suppressProgressBar = TRUE)
-
-### Plot bootstrapped confidence intervals for means
-MDSf1.mean.graph <- createFactorMap(BootCube1.Node$GroupMeans,
-                                axis1 = 2, axis2 = 3,
-                                col.points = parcel.list$sub01$Comm.col$gc[rownames(BootCube1.Node$GroupMeans),],
-                                # constraints = f1.MDSgraph$constraints,
-                                col.labels = parcel.list$sub01$Comm.col$gc[rownames(BootCube1.Node$GroupMeans),],
-                                alpha.points = .8,
-                                pch = 15,
-                                cex = 4)
-MDSf1.CI.graph <- MakeCIEllipses(BootCube1.Node$BootCube[,c(2,3),],
-                                    names.of.factors = c(sprintf("Dimension %s",1),sprintf("Dimension %s",2)),
-                                    col = parcel.list$sub01$Comm.col$gc[rownames(BootCube1.Node$GroupMeans),],
-                                    p.level = .95)
-
-
-### Show plot
-MDSf1.CiMean <- f1.MDSgraph$zeMap_background + MDSf1.CI.graph + MDSf1.mean.graph$zeMap_dots + MDSf1.mean.graph$zeMap_text + f1.MDSlabels
-print(MDSf1.CiMean)
-
+Node x Node Matrix of Factor Score w/ Sig Contribution: Dim 1
+```{r, grid_heat_sigfj1, echo=F, fig.height=20, fig.width=40}
+do.call(grid.arrange, c(heat_sigfj1, ncol=(length(subj.name)/2)))
 ```
 
-
-###### Results from the 2nd factor scores
-```{r screeplot2, echo = FALSE}
-### eigen values
-PlotScree(ev = MDSf2$ExPosition.Data$t,
-          title = "Expained variance per dimension")
-
-x_axis = 2
-y_axis = 7
-
-### MDS factor scores of nodes
-f2.MDSgraph <- createFactorMap(MDSf2$ExPosition.Data$fi,
-                           axis1 = 1, axis2 = 2,
-                           title = "Compromise - Factor scores (nodes)",
-                           col.points = parcel.list$sub01$Comm.col$oc,
-                           alpha.points = .4, cex = 4)
-f2.MDSlabels <- createxyLabels.gen(x_axis = x_axis, y_axis = y_axis,
-                               lambda = MDSf2$ExPosition.Data$eigs,
-                               tau = MDSf2$ExPosition.Data$t,
-                               axisName = "Dimension ")
-### Show plot
-MDSf2.noLabel <- f2.MDSgraph$zeMap_background + f2.MDSgraph$zeMap_dots + f2.MDSlabels
-print(MDSf2.noLabel)
+Smoothed Sig Factor Score (Dim 1)
+```{r, sm_squaremat_sigfj1, echo=F, fig.show = 'hide'}
+#--- the important variables are the ones that contribute more than or equal to the average
+sm_heat_sigfj1 <- list()
+for(i in 1:length(subj.name)){
+  sm_heat_sigfj1[[i]] <- superheat(fj1_sig_sqmat[[i]], y.axis.reverse = T,
+                                   smooth.heat = T, smooth.heat.type = "mean",
+                                   membership.rows = parcel.list[[i]]$vox.des$Comm.rcd,
+                                   membership.cols = parcel.list[[i]]$vox.des$Comm.rcd,                    
+                                   left.label.col = labelcol[[i]],
+                                   bottom.label.col = labelcol[[i]],
+                                   left.label.size = 0.08,
+                                   bottom.label.size = 0.05,
+                                   extreme.values.na = FALSE,
+                                   heat.lim = heatlim,
+                                   heat.pal = kovesi.diverging_bwr_40_95_c42(200),
+                                   heat.pal.values = c(0,0.35,0.5,0.65,1),
+                                   left.label.text.size = 3,
+                                   bottom.label.text.size = 2,
+                                   left.label.text.col = textcol[[i]], 
+                                   bottom.label.text.col = textcol[[i]], 
+                                   title=sprintf("%s: significant contribution (mean-smooth)",subj.name[i]))$plot
+}
 
 ```
 
-Compute mean and bootstrap CI:
-```{r MDSf2_boot}
-### Compute means for communities
-BootCube2.Node <- Boot4Mean(MDSf2$ExPosition.Data$fi,
-                         design = parcel.list$sub01$vox.des$Comm.rcd,
-                         niter = 100,
-                         suppressProgressBar = TRUE)
+Smoothed Node x Node Matrix of Factor Score w/ Sig Contribution: Dim 1
+```{r, grid_smheat_sigfj1, echo=F, fig.height=20, fig.width=40}
+do.call(grid.arrange, c(sm_heat_sigfj1, ncol=(length(subj.name)/2)))
+```
 
-### Plot bootstrapped confidence intervals for means
-MDSf2.mean.graph <- createFactorMap(BootCube2.Node$GroupMeans,
-                                axis1 = x_axis, axis2 = y_axis,
-                                col.points = parcel.list$sub01$Comm.col$gc[rownames(BootCube2.Node$GroupMeans),],
-                                # constraints = f2.MDSgraph$constraints,
-                                col.labels = parcel.list$sub01$Comm.col$gc[rownames(BootCube2.Node$GroupMeans),],
-                                alpha.points = .8,
-                                pch = 15,
-                                cex = 4)
-MDSf2.CI.graph <- MakeCIEllipses(BootCube2.Node$BootCube[,c(x_axis,y_axis),],
-                                    names.of.factors = c(sprintf("Dimension %s",1),sprintf("Dimension %s",2)),
-                                    col = parcel.list$sub01$Comm.col$gc[rownames(BootCube2.Node$GroupMeans),],
-                                    p.level = .95)
+Factor score (Dim 2) in square matrix that have significant contribution only
+```{r, squaremat_sigfj2, echo=F, fig.show = 'hide'}
+fj2_sig_sqmat <- list()
+for(i in 1:length(subj.name)){
+  fj2_sig_sqmat[[i]] <- vec2sqmat(fj_sig[gtlabel$subjects_label==subj.name[i],2])
+}
 
-### Show plot
-MDSf2.CiMean <- f2.MDSgraph$zeMap_background + MDSf2.CI.graph + MDSf2.mean.graph$zeMap_dots + MDSf2.mean.graph$zeMap_text + f2.MDSlabels
-print(MDSf2.CiMean)
+heat_sigfj2 <- list()
+for(i in 1:length(subj.name)){
+  heat_sigfj2[[i]] <- superheat(fj2_sig_sqmat[[i]], y.axis.reverse = T,
+                                membership.rows = parcel.list[[i]]$vox.des$Comm.rcd,
+                                membership.cols = parcel.list[[i]]$vox.des$Comm.rcd,                    
+                                left.label.col = labelcol[[i]],
+                                bottom.label.col = labelcol[[i]],
+                                left.label.size = 0.08,
+                                bottom.label.size = 0.05,
+                                extreme.values.na = FALSE,
+                                heat.lim = heatlim,
+                                heat.pal = kovesi.diverging_bwr_40_95_c42(200),
+                                heat.pal.values = c(0,0.35,0.5,0.65,1),
+                                left.label.text.size = 3,
+                                bottom.label.text.size = 2,
+                                left.label.text.col = textcol[[i]], 
+                                bottom.label.text.col = textcol[[i]], 
+                                title=sprintf("%s: significant contribution",subj.name[i]))$plot
+}
+
+```
+
+Node x Node Matrix of Factor Score w/ Sig Contribution: Dim 2
+```{r, grid_heat_sigfj2, echo=F, fig.height=20, fig.width=40}
+do.call(grid.arrange, c(heat_sigfj2, ncol=(length(subj.name)/2)))
+```
+
+Smoothed Sig Factor Score (Dim 2)
+```{r, sm_squaremat_sigfj2, echo=F, fig.show = 'hide'}
+#--- the important variables are the ones that contribute more than or equal to the average
+sm_heat_sigfj2 <- list()
+for(i in 1:length(subj.name)){
+  sm_heat_sigfj2[[i]] <- superheat(fj2_sig_sqmat[[i]], y.axis.reverse = T,
+                                   smooth.heat = T, smooth.heat.type = "mean",
+                                   membership.rows = parcel.list[[i]]$vox.des$Comm.rcd,
+                                   membership.cols = parcel.list[[i]]$vox.des$Comm.rcd,                    
+                                   left.label.col = labelcol[[i]],
+                                   bottom.label.col = labelcol[[i]],
+                                   left.label.size = 0.08,
+                                   bottom.label.size = 0.05,
+                                   extreme.values.na = FALSE,
+                                   heat.lim = heatlim,
+                                   heat.pal = kovesi.diverging_bwr_40_95_c42(200),
+                                   heat.pal.values = c(0,0.35,0.5,0.65,1),
+                                   left.label.text.size = 3,
+                                   bottom.label.text.size = 2,
+                                   left.label.text.col = textcol[[i]], 
+                                   bottom.label.text.col = textcol[[i]], 
+                                   title=sprintf("%s: significant contribution (mean-smooth)",subj.name[i]))$plot
+}
+```
+
+Smoothed Node x Node Matrix of Factor Score w/ Sig Contribution: Dim 2
+```{r, grid_smheat_sigfj2, echo=F, fig.height=20, fig.width=40}
+do.call(grid.arrange, c(sm_heat_sigfj2, ncol=(length(subj.name)/2)))
 ```
