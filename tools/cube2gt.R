@@ -7,10 +7,13 @@
 #                         e.g., comm_paths <- list.files("./data/parcel_community/", pattern = "comm.txt", full.names = T)
 #           out_file,     Rdata to save gt and gtlabel to. Default = NULL (won't save a file)
 #           subj_list,    vector of subjID as string, corresponding to order in cube/comm_paths
+#           double_cent,  Option to double-center the matrix (STATIS-like prepro)
+#       
 #
 # Ouput:    gt,           grand table based on zcube
 #           gtlabel,     grand table labels (edges_label, subjects_label, subjects_edge_label, within_between)
 # #########################################################################
+# jc,  UTD 2019/06/19 - Add option to double-center matrix
 # myc, UTD 2019/04/11 - Add subj_list input
 # myc, UTD 2019/03/01 - Initial
 # #########################################################################
