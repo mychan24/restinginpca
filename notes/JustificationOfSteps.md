@@ -1,4 +1,4 @@
-Justification of each step
+### Justification of each step
 
 > This note explains how each step changes the data.
 
