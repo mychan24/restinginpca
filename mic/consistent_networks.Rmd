@@ -1,0 +1,65 @@
+---
+title: "Extract Consistent Networks"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+
+```
+
+### Find consistent networks across subjects
+```{r}
+nsub <- 10
+# Load all parcel-list
+parcel <- list()
+comm <- list()
+for(i in 1:nsub){
+  parcel[[i]] <- read.table(sprintf("../data/parcel_community/sub-MSC%02d_node_parcel_comm.txt", i), sep=",")
+  comm[[i]] <- unique(parcel[[i]]$V3)
+  
+  if(i==1){
+    consistent_comm <- comm[[i]]
+  }else{
+    consistent_comm <- consistent_comm[is.element(consistent_comm, comm[[i]])]
+  }
+}
+consistent_comm <- sort(consistent_comm) 
+consistent_comm <- consistent_comm[2:length(consistent_comm)] # Take out 0 (bad network)
+```
+
+### Which are the consistent networks?
+```{r}
+syslabel <- read.csv("../data/parcel_community/systemlabel.txt", header=F)
+consistent_syslabel <- syslabel[is.element(syslabel$V1, consistent_comm),]
+
+kableExtra::kable(consistent_syslabel)
+```
+
+
+### How many nodes per network in each sub
+```{r}
+tally <- data.frame(matrix(NA, nsub, length(consistent_comm)))
+colnames(tally) <- consistent_syslabel$V2
+tally$sub <- sapply(X = c(1:10), FUN = function(x){sprintf("sub%02d", x)})
+tally <- tally[,c(ncol(tally), 1:(ncol(tally)-1))]
+
+for(i in 1:nsub){
+  tally[i,2:ncol(tally)]<- unlist(lapply(X = consistent_comm, FUN = function(x){sum(parcel[[i]]$V3==x)}))
+}
+
+kableExtra::kable(tally, caption = "How many nodes are in each consistent network per subject")
+```
+
+### Extract parcels that belong to consistent community export
+```{r}
+# consistent_parcel <- lapply(parcel, FUN = function(x){x[is.element(x$V3, consistent_comm),]})
+# 
+# for(i in 1:nsub){
+#   write.table(x = consistent_parcel[[i]], file = sprintf("../data/parcel_community/bignetwork/sub-MSC%02d_node_parcel_bigcomm.txt",i), sep = ",", quote = F, col.names = F)
+# }
+# 
+# write.table(consistent_syslabel, file="../data/parcel_community/bignetwork/systemlabel_bigcomm.txt",sep=",", quote = F, col.names = F)
+```
+
