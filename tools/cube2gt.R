@@ -14,7 +14,8 @@
 # myc, UTD 2019/04/11 - Add subj_list input
 # myc, UTD 2019/03/01 - Initial
 # #########################################################################
-cube2gt <- function(cube_paths, comm_paths, out_file=NULL, subj_list=NULL){
+cube2gt <- function(cube_paths, comm_paths, out_file=NULL, subj_list=NULL, double_cent=NULL){
+  
   if(!exists("label_edges")){
     stop("Source label_edges.R (in ./tools)")
   }
@@ -46,9 +47,19 @@ cube2gt <- function(cube_paths, comm_paths, out_file=NULL, subj_list=NULL){
     s[s<0] <- 0
     s[s=="Inf"] <- 0
     
+    
     # Initialize sub-table
     subtab <- matrix(NA, dim(s)[3], sum(upper.tri(s[,,1]))) # session x upper-tri edges
     for(j in 1:dim(s)[3]){
+      
+      ########################
+      # Add double-centering #
+      ########################=======
+      if (double_cent){
+        s[,,j] <- s[,,j] %>% scale(scale = FALSE) %>% t %>% scale(scale = FALSE)
+      }
+      #==============================
+      
       ss <- s[,,j]
       subtab[j,] <- ss[upper.tri(s[,,1])]
     }
