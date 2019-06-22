@@ -2,17 +2,31 @@
 
 > This note explains how each step changes the data. From these explanations, we justify why we are analyzing the data with specific steps.
 
-### Z-transforming the correlations:
+### Fisher's Z-transforming the correlations:
 
-+ How--
++ How-- 
 
-+ Why--
+		The Pearson's correlation matrix (parcel x parcel) is transformed using the Fisher's z-transform formula: 0.5 * log((1+r)./(1-r))
+
++ Why-- 
+
+		The typical reasoning is that the Fisher's z transformation shifts the distribution to become "normal-like" (approximately normal), which plays better with common statistical analysis being apply to the matrices (i.e., "common methods assuming the range from -Inf to Inf instead of bounding between -1 to 1" - Abdi meeting 2019).
 
 ### Reshape correlation matrix as rectangular matrix:
-	
+
 + How--
 
+		i) The upper-triangle of each subject's correlation matrix is reshaped as a vector (not including the diagonal, which has a correlation of 1, or Inf after Fisher's z-transoform). 
+		ii) The vector of each session within a subject is stacked together, where each row is a session, and each column is a cell  extracted from the correlation matrix (i.e., an edge of a network). 
+		iii) Each subject forms a sub-table, which is organized adjacent to each other in the column's dimesion. 
+		iv) The resulting grandtable is a session by edge matrix, with sub-table (across columns) of subjects.
+		v) The column of the grand table is labeled to identify its subject, within-btween, and edge-typ. 
+			- Within-between represents whether the edge connects two nodes of the same brain systems (Within) or across different systems (Between).
+			- Edge-type represents which exact brain systems is it connecting between (e.g., "3" = edge connecting two nodes from system #3; "3_12" = edge connecting a node from system #3 and #12).
+
 + Why--
+
+		Since each subject uses a subject-specific parcellation as their node set, the resulting correlation matrix differs in dimension across subjects. In order to compare across subjects, there needs to be a way to organize the subjects and sessions within a single grand table. 
 
 ### For preprocessing:
 
@@ -40,7 +54,7 @@
 
 	+ How--
 
-	+ Why--
+	+ Why-- 
 
 4. normalizing the rows of the rectangular matrix:
 
@@ -57,8 +71,12 @@
 6. MFA-normalize subtables by subjects:
 
 	+ How--
+	
+		Since each subject is a sub-table (like a grouping of variables), MFA-style noramlization was used to normalize the effect of subject. Each subject's sub-table is divided by the first singular value (sqrt(first eigvenvalue)matrix _equivalent_ of standard deviation) of that sub-table (do a PCA on the sub-table to get it).
 
 	+ Why--
+	
+		Prevent outlier subject from dominating the space (??? MC is not sure...)
 
 7. MFA-normalize subtables by network edges:
 
