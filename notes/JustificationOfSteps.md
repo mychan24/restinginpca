@@ -53,7 +53,7 @@
 
 	+ How--
 
-		For the rectangular matrix of each subject (the rows correspond to the sessions whereas the columns correspond to the edges), each row is centered to have a mean of 0. This row-centered rectangular matrix of all subjects are then concatenated along the columns to generate the grand data table for the SVD.
+		In the rectangular matrix of each subject (the rows correspond to the sessions whereas the columns correspond to the edges), each row is centered to have a mean of 0. This row-centered rectangular matrix of all subjects are then concatenated along the columns to generate the grand data table for the SVD.
 
 	+ Why _not_--
 
@@ -63,21 +63,35 @@
 
 	+ How--
 
+		In the grand rectangular matrix where each sub-table corresponds to a subject (or an edge of a subject), each column is centered to have a mean of 0 before the SVD.
+
 	+ Why-- 
+
+		This procedure eliminates the difference in the offset of each edge (the offset of each edge across sessions) of each subject. In this case, for each edge of each subject, we analyze the difference between a connectivity and its average across sessions.
+
+		This procedure also prevents the data from being unidimensional where the first dimension is dominated by the magnitude of the mean of the grand data table.
 
 4. normalizing the rows of the rectangular matrix:
 
 	+ How--
 
-	+ Why--
+		In the rectangular matrix of each subject (the rows correspond to the sessions whereas the columns correspond to the edges), each row is normalized to have a sum of squares of 1. This row-normalized rectangular matrix of all subjects are then concatenated along the columns to generate the grand data table for the SVD.
+
+	+ Why _not_--
+
+		This procedure eliminates the difference in variance across sesssions and keep, within each session, the magnitude. We do _NOT_ implement this procedure because if the original data have a flat pattern (small variance), this step might enlarge noise.
+
+		Also, these rows are not centered or normalized because these steps will make it hard to compare between rows. When both their magnitudes (centered) and variances (normalized) are equalized, we are only comparing the changes in relative patterns across sessions and subjects. Again, note that this step was chosen to be skipped only because it did not suit the data that motivated us to develop this technique.
 
 5. normalizing the columns of the rectangular matrix:
 
 	+ How--
 
+		
+
 	+ Why--
 
-6. MFA-normalize subtables by subjects:
+6. MFA-normalize sub-tables by subjects:
 
 	+ How--
 	
@@ -87,7 +101,7 @@
 	
 		Prevent outlier subject from dominating the space (??? MC is not sure...)
 
-7. MFA-normalize subtables by network edges:
+7. MFA-normalize sub-tables by network edges:
 
 	+ How--
 
