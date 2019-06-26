@@ -25,11 +25,15 @@
 
 + How--
 
-	i) The upper-triangle of each subject's correlation matrix is reshaped as a vector (not including the diagonal, which has a correlation of 1, or Inf after Fisher's z-transoform). 
-	ii) The vector of each session within a subject is stacked together, where each row is a session, and each column is a cell  extracted from the correlation matrix (i.e., an edge of a network). 
-	iii) Each subject forms a sub-table, which is organized adjacent to each other in the column's dimesion. 
-	iv) The resulting grandtable is a session by edge matrix, with sub-table (across columns) of subjects.
-	v) The column of the grand table is labeled to identify its subject, within-btween, and edge-typ. 
+	1. The upper-triangle of each subject's correlation matrix is reshaped as a vector (not including the diagonal, which has a correlation of 1, or Inf after Fisher's z-transoform). 
+	
+	2. The vector of each session within a subject is stacked together, where each row is a session, and each column is a cell  extracted from the correlation matrix (i.e., an edge of a network). 
+	
+	3. Each subject forms a sub-table, which is organized adjacent to each other in the column's dimesion. 
+	
+	4. The resulting grandtable is a session by edge matrix, with sub-table (across columns) of subjects.
+	
+	5. The column of the grand table is labeled to identify its subject, within-btween, and edge-typ. 
 		- Within-between represents whether the edge connects two nodes of the same brain systems (Within) or across different systems (Between).
 		- Edge-type represents which exact brain systems is it connecting between (e.g., "3" = edge connecting two nodes from system #3; "3_12" = edge connecting a node from system #3 and #12).
 

@@ -33,34 +33,6 @@ suppressMessages(library(shinyWidgets))
 load("../../DCdata10.RData")
 ```
 
-# Contribution plot
-
-```{r contribution, echo=FALSE, fig.height= 10, fig.width = 10}
-inputPanel(
-  actionButton("plot_ctr", "Plot!"),
-  awesomeCheckboxGroup(inputId = "edgeOI",
-                       label = "Edges to show:", choices = unique(net.edge),
-                       selected = c(),inline = TRUE, status = "danger")
-)
-
-Checkplot_ctr <- eventReactive(input$plot_ctr,{
-  cjplot_show <- createFactorMap(c_edge[which(importantEdg == TRUE & net.edge %in% input$edgeOI),],
-                                 axis1 = 1, axis2 = 2,
-                                 col.points = col4ImportantEdg[which(importantEdg == TRUE & net.edge %in% input$edgeOI)],
-                                 col.labels = col4ImportantEdg[which(importantEdg == TRUE & net.edge %in% input$edgeOI)],
-                                 text.cex = 2,
-                                 force = 2,
-                                 title = "Contibutions for all subject x edges")
-
-  cjplot_all$zeMap_background + cjplot_show$zeMap_dots + cjplot_show$zeMap_text
-})
-
-renderPlot({
-  Checkplot_ctr()
-})
-
-```
-
 # Factor map -- sessions with partial factor scores
 
 ```{r pF, echo=FALSE, fig.height= 10, fig.width = 10}
@@ -69,10 +41,10 @@ inputPanel(
   actionButton("plot_ses", "Plot!"),
   awesomeCheckboxGroup(inputId = "session2plot",
                        label = "Sessions to show:", choices = c(1:10),
-                       selected = c(),inline = TRUE, status = "danger"),
+                       selected = c(1:10),inline = TRUE, status = "danger"),
   awesomeCheckboxGroup(inputId = "sub2plot",
                        label = "Subjects to show:", choices = c(1:10),
-                       selected = c(),inline = TRUE, status = "success")
+                       selected = c(1:10),inline = TRUE, status = "success")
 
 )
 
@@ -105,7 +77,7 @@ inputPanel(
   actionButton("plot_edge", "Plot!"),
   awesomeCheckboxGroup(inputId = "f_edgeOI", 
                        label = "Edges to show:", choices = unique(net.edge),
-                       selected = c(),inline = TRUE, status = "warning"),
+                       selected = unique(net.edge),inline = TRUE, status = "warning"),
   sliderInput(inputId = "top.perc",
               label = "What top percentage of the largest factor scores to show:",                            
               min = 0, max = 1, step = 0.01, value = 0.25)
@@ -142,3 +114,30 @@ renderPlot({
 
 ```
 
+# Contribution plot
+
+```{r contribution, echo=FALSE, fig.height= 10, fig.width = 10}
+inputPanel(
+  actionButton("plot_ctr", "Plot!"),
+  awesomeCheckboxGroup(inputId = "edgeOI",
+                       label = "Edges to show:", choices = unique(net.edge),
+                       selected = unique(net.edge),inline = TRUE, status = "danger")
+)
+
+Checkplot_ctr <- eventReactive(input$plot_ctr,{
+  cjplot_show <- createFactorMap(c_edge[which(importantEdg == TRUE & net.edge %in% input$edgeOI),],
+                                 axis1 = 1, axis2 = 2,
+                                 col.points = col4ImportantEdg[which(importantEdg == TRUE & net.edge %in% input$edgeOI)],
+                                 col.labels = col4ImportantEdg[which(importantEdg == TRUE & net.edge %in% input$edgeOI)],
+                                 text.cex = 2,
+                                 force = 2,
+                                 title = "Contibutions for all subject x edges")
+
+  cjplot_all$zeMap_background + cjplot_show$zeMap_dots + cjplot_show$zeMap_text
+})
+
+renderPlot({
+  Checkplot_ctr()
+})
+
+```
