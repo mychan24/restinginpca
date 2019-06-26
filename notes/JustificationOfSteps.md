@@ -71,6 +71,8 @@
 
 		This procedure also prevents the data from being unidimensional where the first dimension is dominated by the magnitude of the mean of the grand data table.
 
+		_Notes_: It might worth checking the results without centering because the data we have are non-negative, and according to the Perron-Frobenius theorem, the elements of the first singular vector will all be non-negative numbers too. We might thus be able to use the proportion of the first singular values to measure the similarity of patterns.
+
 4. normalizing the rows of the rectangular matrix:
 
 	+ How--
@@ -79,7 +81,7 @@
 
 	+ Why _not_--
 
-		This procedure eliminates the difference in variance across sesssions and keep, within each session, the magnitude. We do _NOT_ implement this procedure because if the original data have a flat pattern (small variance), this step might enlarge noise.
+		This procedure eliminates the difference in variance of each sesssion and keep, within each session, the magnitude. In this case, the session with the largest variance will not dominate the first component. We do _NOT_ implement this procedure because if the original data have a flat pattern (small variance), this step might enlarge noise.
 
 		Also, these rows are not centered or normalized because these steps will make it hard to compare between rows. When both their magnitudes (centered) and variances (normalized) are equalized, we are only comparing the changes in relative patterns across sessions and subjects. Again, note that this step was chosen to be skipped only because it did not suit the data that motivated us to develop this technique.
 
@@ -87,25 +89,54 @@
 
 	+ How--
 
-		
+		In the grand rectangular matrix where each sub-table corresponds to a subject (or an edge of a subject), each column is centered to have a sum of squares of 1 before the SVD.
 
 	+ Why--
+
+		This procedure eliminates the difference in variance across sessions within each edge, so that no edge will dominate the first component. 
+
+	+ Why _not_--
+
+		This step equalizes the contribution of each edge of each subject; however, when each column has a sum of squares of 1, the sub-table with more columns will have a larger sum of squares. This might result in the person with more edges dominating the first component. 
 
 6. MFA-normalize sub-tables by subjects:
 
 	+ How--
 	
-		Since each subject is a sub-table (like a grouping of variables), MFA-style noramlization was used to normalize the effect of subject. Each subject's sub-table is divided by the first singular value (sqrt(first eigvenvalue)matrix _equivalent_ of standard deviation) of that sub-table (do a PCA on the sub-table to get it).
+		Each subject's sub-table is divided by the first singular value (sqrt(first eigvenvalue)matrix _equivalent_ to standard deviation of the first component) of that sub-table (do a PCA on the sub-table to get it).
 
 	+ Why--
 	
-		Prevent outlier subject from dominating the space (??? MC is not sure...)
+		MFA-normalization equalizes the contribution of each subject (i.e., each sub-table) so that no subject will dominate the first component of the grand table. This step helps decrease the effect of an outlier subject.
 
 7. MFA-normalize sub-tables by network edges:
 
 	+ How--
 
+		The edges of regions belong to the same set of network (e.g, an edge between regions in network A and B) could form another level of sub-table within each subject's sub-table. In this step, these network edges sub-tables are divided by each of their first singular value before the SVD.
+
 	+ Why--
+
+		MFA-normalization equalizes how each network edge of each subject contributes to the first component of the grand data table. In this case, the network edges are all equally considered regardless of their different sizes and variances. The advantage is that the analysis won't be dominated by a larger network.
+
+	+ Why _not_--
+
+		However, if all networks are MFA-normalized, the signal in a small network might be exaggerated. On one hand, this could lead to a network edges having factor scores that dominate the first component, but their mean factor score contributing small variance (less than average) to the first component; on the other hand, the size of each network, which could also be considered characterizing an individual's brain connectivity, is ignored in this analysis. The last reason might be the main reason why we considered dropping this step, because the initial idea of this project is to have a technique that allows a group of participants to have different number and size of regions/networks and different parcellations.
+
+8. HMFA-normalize sub-tables by subjects then by network edges:
+
+	
+	+ How--
+
+		The network edges' sub-tables are first MFA-normalized, and these normalized sub-tables that belong to the same subject are MFA-normalized again as a second level sub-table. This is called _Hierarchical_ MFA
+
+	+ Why--
+
+		HMFA could prevent any network edge, as well as any subject, to dominate the first component. This is a way to normalize the sub-tables of network edges without ending up with the first component dominated by the subject with most networks.
+
+	+ Why _not_--
+
+		(The reason not to do so is the same as the reason not to MFA-normalize the sub-tables of different network edges.)
 
 ### Filtering factor scores based on their contributions:
 
