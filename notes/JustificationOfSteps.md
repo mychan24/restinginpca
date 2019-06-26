@@ -53,6 +53,8 @@
 
 		This step eliminates the offset of all (both between- and within-network) correlations of each region (i.e., each row and each column). This procedure could prevent the components from being dominated by a region with a strong average correlation.
 
+		eliminate effects of hubs
+
 2. centering the rows of the rectangular matrix:
 
 	+ How--
@@ -103,6 +105,8 @@
 
 		This step equalizes the contribution of each edge of each subject; however, when each column has a sum of squares of 1, the sub-table with more columns will have a larger sum of squares. This might result in the person with more edges dominating the first component. 
 
+		We are analyzing data with the same unit, so this step by boost the noise.
+
 6. MFA-normalize sub-tables by subjects:
 
 	+ How--
@@ -141,6 +145,16 @@
 	+ Why _not_--
 
 		(The reason not to do so is the same as the reason not to MFA-normalize the sub-tables of different network edges.)
+
+9. STATIS vs. MFA
+	
+	Both techniques weight different sub-tables before the SVD
+
+	+ MFA gives the same importance to all sub-tables so that they contribute equally to the first component of the grand table
+
+	+ STATIS gives more importance to the sub-tables with common patterns and less importance to those that have rare patterns
+
+	_Note_: We can check the alpha of MFA to see if we need to move on with STATIS. If the alphas are roughly the same, then STATIS is probably not worth doing.
 
 ### Filtering factor scores based on their contributions:
 

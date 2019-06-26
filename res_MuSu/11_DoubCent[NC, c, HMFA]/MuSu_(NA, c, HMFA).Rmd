@@ -436,6 +436,7 @@ f_netedge_plot03 <- plot.f_impedge$zeMap + f.labels
 plot.f_bw_imp <- createFactorMap(mean.fj.bw, axis1 = 1, axis2 = 2,
                                    col.points = net.edge.col$gc[rownames(mean.fj.bw),],
                                    col.labels = net.edge.col$gc[rownames(mean.fj.bw),],
+                                 constraints = plot.f_edge$constraints,
                                    text.cex = 3,
                                    force = 0.5,
                                    title = "Mean factor scores for subject_x_edge types")
@@ -476,8 +477,8 @@ f_CInetedge_plot03 <- plot.f_bw_imp$zeMap + plot.CI.f_bw + f.labels
 ```
 
 ```{r grid_f_netedgeCI_plot, echo=F, fig.height=12, fig.width=12, message=FALSE}
-# gridExtra::grid.arrange(as.grob(f_CInetedge_plot01), as.grob(f_CInetedge_plot02), as.grob(f_CInetedge_plot03),ncol=2,
-#                         top = textGrob("Mean factor scores with CIs for significantly contributed edges",gp=gpar(fontsize=18,font=3)))
+gridExtra::grid.arrange(as.grob(f_CInetedge_plot01), as.grob(f_CInetedge_plot02), as.grob(f_CInetedge_plot03),ncol=2,
+                        top = textGrob("Mean factor scores with CIs for significantly contributed edges",gp=gpar(fontsize=18,font=3)))
 ```
 
 We can also show the factor scores for network edges as square matrix of each subject.
