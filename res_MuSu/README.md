@@ -30,20 +30,39 @@ This directory contains all results using MuSu (different preprocessing)
 
 + Then, MFA-normalize the tables of different network-edges
 
-* 7_[NA, c, HMFA]
+*7_[NA, c, HMFA]
 
 + Center each column
 
 + Hierarchical MFA
 
-* 8_[NA, n, HMFA]
+*8_[NA, n, HMFA]
 
 + Center and scale (to SS = 1) each column
 
 + Hierarchical MFA
 
+*9_DoubleCent[NA, NA, NA]*:
 
-* archived
++ Double-centered r matrix
+
+*10_DoubleCent[NA, c, MFA_sub]
+
++ Double-centered r matrix
+
++ Center each column
+
++ MFA by subject
+
+*11_DoubleCent[NA, c, HMFA]
+
++ Double-centered r matrix
+
++ Center each column
+
++ Hierarchical MFA
+
+*archived
 
 + Contains preprocessing folder longer being tested
 + 1_[NA, c, NA] - Center-only gives too much weight to within vs. between. 
