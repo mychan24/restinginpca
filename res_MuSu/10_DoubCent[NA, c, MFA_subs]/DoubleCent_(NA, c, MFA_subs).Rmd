@@ -51,7 +51,7 @@ parcel.comm.path <- "../../data/parcel_community"
 # Load Grand Table
 # gt: grand tabls
 # labels: information for each edge in the rectangular grand table
-load("../../data/grandatble_and_labels_MSC_allsubs_DC_20190619.Rdata") # read the labels of grandtable
+load("../../data/grandatble_and_labels_MSC_allsubs_DC_20190801.Rdata") # read the labels of grandtable
 
 
 ## Categorize columns by between or within edges

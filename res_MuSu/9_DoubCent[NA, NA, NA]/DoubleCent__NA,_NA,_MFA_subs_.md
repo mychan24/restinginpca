@@ -196,44 +196,6 @@ ch1 <- apply(pFi,c(1:2),mean)
 ch2 <- cgt %*% (svd.res$ExPosition.Data$pdq$q)
 ```
 
-    ## Warning: Removed 1 rows containing missing values (geom_vline).
-
-    ## Warning: Removed 1 rows containing missing values (geom_segment).
-
-    ## Warning: Removed 3 rows containing missing values (geom_segment).
-
-    ## Warning: Removed 1 rows containing missing values (geom_segment).
-    
-    ## Warning: Removed 1 rows containing missing values (geom_segment).
-    
-    ## Warning: Removed 1 rows containing missing values (geom_segment).
-    
-    ## Warning: Removed 1 rows containing missing values (geom_segment).
-
-    ## Warning: Removed 1 rows containing missing values (geom_point).
-
-    ## Warning: Removed 3 rows containing missing values (geom_point).
-
-    ## Warning: Removed 1 rows containing missing values (geom_point).
-    
-    ## Warning: Removed 1 rows containing missing values (geom_point).
-    
-    ## Warning: Removed 1 rows containing missing values (geom_point).
-    
-    ## Warning: Removed 1 rows containing missing values (geom_point).
-
-    ## Warning: Removed 1 rows containing missing values (geom_text_repel).
-
-    ## Warning: Removed 3 rows containing missing values (geom_text_repel).
-
-    ## Warning: Removed 1 rows containing missing values (geom_text_repel).
-    
-    ## Warning: Removed 1 rows containing missing values (geom_text_repel).
-    
-    ## Warning: Removed 1 rows containing missing values (geom_text_repel).
-    
-    ## Warning: Removed 1 rows containing missing values (geom_text_repel).
-
 ![](DoubleCent__NA,_NA,_MFA_subs__files/figure-gfm/plot_pf_sess-1.png)<!-- -->
 
 To have a clearer view of the factor scores for the subject x edges, we
@@ -252,7 +214,7 @@ BootCube.Comm <- Boot4Mean(svd.res$ExPosition.Data$fj,
 tictoc::toc()
 ```
 
-    ## 7874.33 sec elapsed
+    ## 2950.72 sec elapsed
 
 ``` r
 # Compute means of factor scores for different types of edges
@@ -267,7 +229,7 @@ BootCube.Comm.bw <- Boot4Mean(svd.res$ExPosition.Data$fj,
 tictoc::toc()
 ```
 
-    ## 1934.91 sec elapsed
+    ## 673.4 sec elapsed
 
 Next, we plot the factor scores for the subject x edges (a mess): Dim 1
 &

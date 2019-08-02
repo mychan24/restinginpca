@@ -1,5 +1,5 @@
 # Make Grand Table with all 10 MSC subjects - with double centered correlation matrix
-# 6/19/2019
+# 8/1/2019
 
 rm(list=ls())
 
@@ -7,16 +7,16 @@ source("./tools/cube2gt.R")
 source("./tools/label_edges.R")
 library(tidyr)
 
-cube_paths <- list("./data/zmat/sub-MSC01_zcube_rcube.Rdata",
-                   "./data/zmat/sub-MSC02_zcube_rcube.Rdata",
-                   "./data/zmat/sub-MSC03_zcube_rcube.Rdata",
-                   "./data/zmat/sub-MSC04_zcube_rcube.Rdata",
-                   "./data/zmat/sub-MSC05_zcube_rcube.Rdata",
-                   "./data/zmat/sub-MSC06_zcube_rcube.Rdata",
-                   "./data/zmat/sub-MSC07_zcube_rcube.Rdata",
-                   "./data/zmat/sub-MSC08_zcube_rcube.Rdata",
-                   "./data/zmat/sub-MSC09_zcube_rcube.Rdata",
-                   "./data/zmat/sub-MSC10_zcube_rcube.Rdata")
+cube_paths <- list("./data/zmat/sub-MSC01_zcube_rcube_DC.Rdata",
+                   "./data/zmat/sub-MSC02_zcube_rcube_DC.Rdata",
+                   "./data/zmat/sub-MSC03_zcube_rcube_DC.Rdata",
+                   "./data/zmat/sub-MSC04_zcube_rcube_DC.Rdata",
+                   "./data/zmat/sub-MSC05_zcube_rcube_DC.Rdata",
+                   "./data/zmat/sub-MSC06_zcube_rcube_DC.Rdata",
+                   "./data/zmat/sub-MSC07_zcube_rcube_DC.Rdata",
+                   "./data/zmat/sub-MSC08_zcube_rcube_DC.Rdata",
+                   "./data/zmat/sub-MSC09_zcube_rcube_DC.Rdata",
+                   "./data/zmat/sub-MSC10_zcube_rcube_DC.Rdata")
 
 comm_paths <- list("./data/parcel_community/sub-MSC01_node_parcel_comm.txt",
                    "./data/parcel_community/sub-MSC02_node_parcel_comm.txt",

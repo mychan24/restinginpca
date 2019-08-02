@@ -214,7 +214,7 @@ BootCube.Comm <- Boot4Mean(svd.res$ExPosition.Data$fj,
 tictoc::toc()
 ```
 
-    ## 7824.44 sec elapsed
+    ## 2967.61 sec elapsed
 
 ``` r
 # Compute means of factor scores for different types of edges
@@ -229,7 +229,7 @@ BootCube.Comm.bw <- Boot4Mean(svd.res$ExPosition.Data$fj,
 tictoc::toc()
 ```
 
-    ## 1909.59 sec elapsed
+    ## 687.97 sec elapsed
 
 Next, we plot the factor scores for the subject x edges (a mess): Dim 1
 &

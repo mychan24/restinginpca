@@ -13,6 +13,7 @@
 # Ouput:    gt,           grand table based on zcube
 #           gtlabel,     grand table labels (edges_label, subjects_label, subjects_edge_label, within_between)
 # #########################################################################
+# jc,  UTD 2019/08/01 - Comment out double-center option (it should be operated on the correlation matrix)
 # jc,  UTD 2019/06/19 - Add option to double-center matrix
 # myc, UTD 2019/04/11 - Add subj_list input
 # myc, UTD 2019/03/01 - Initial
@@ -58,9 +59,9 @@ cube2gt <- function(cube_paths, comm_paths, out_file=NULL, subj_list=NULL, doubl
       ########################
       # Add double-centering #
       ########################=======
-      if (double_cent){
-        s[,,j] <- s[,,j] %>% scale(scale = FALSE) %>% t %>% scale(scale = FALSE)
-      }
+      # if (double_cent){
+      #   s[,,j] <- s[,,j] %>% scale(scale = FALSE) %>% t %>% scale(scale = FALSE)
+      # }
       #==============================
       
       ss <- s[,,j]
