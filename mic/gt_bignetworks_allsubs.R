@@ -15,7 +15,7 @@ bignet_count <- sapply(X = gtlabel$edges_label,
                            sum})
 # Between Networks
 gtlabel$bignet <- "N"
-gtlabel$bignet[bignet_between_count==2] <- "Y"
+gtlabel$bignet[bignet_count==2] <- "Y"
 
 # Within netowrk
 gtlabel$bignet[gtlabel$wb=="Within" & bignet_count==1] <- "Y"
