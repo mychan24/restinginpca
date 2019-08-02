@@ -1,6 +1,6 @@
 This directory contains all results using MuSu (different preprocessing)
 
-> Updated 08/01/2019 by JC
+> Updated 08/02/2019 by JC
 
 *2_[NA,c-ss1,NA]*:
 
@@ -30,13 +30,13 @@ This directory contains all results using MuSu (different preprocessing)
 
 + Then, MFA-normalize the tables of different network-edges
 
-*7_[NA, c, HMFA]
+*7_[NA, c, HMFA]*:
 
 + Center each column
 
 + Hierarchical MFA
 
-*8_[NA, n, HMFA]
+*8_[NA, n, HMFA]*:
 
 + Center and scale (to SS = 1) each column
 
@@ -46,7 +46,7 @@ This directory contains all results using MuSu (different preprocessing)
 
 + Double-centered r matrix
 
-*10_DoubleCent[NA, c, MFA_sub]
+*10_DoubleCent[NA, c, MFA_sub]*:
 
 + Double-centered r matrix
 
@@ -54,7 +54,7 @@ This directory contains all results using MuSu (different preprocessing)
 
 + MFA by subject
 
-*11_DoubleCent[NA, c, HMFA]
+*11_DoubleCent[NA, c, HMFA]*:
 
 + Double-centered r matrix
 
@@ -62,7 +62,12 @@ This directory contains all results using MuSu (different preprocessing)
 
 + Hierarchical MFA
 
-*archived
+---
+###### Sub-conclusions
+We always want to center the columns and equalize the contribution for all subjects (#3, #4, #7, #8, #10, #11), and we don't want to normalize the colomns. This leaves us with #3 (MFA-sub), #7 (HMFA), #9 (Double-centered, MFA-sub), and #10 (Double-centered, HMFA).
+---
+
+*archived*
 
 + Contains preprocessing folder longer being tested
 + 1_[NA, c, NA] - Center-only gives too much weight to within vs. between. 
