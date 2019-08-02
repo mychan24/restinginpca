@@ -63,8 +63,10 @@ This directory contains all results using MuSu (different preprocessing)
 + Hierarchical MFA
 
 ---
-###### Sub-conclusions
+##### Sub-conclusions
+
 We always want to center the columns and equalize the contribution for all subjects (#3, #4, #7, #8, #10, #11), and we don't want to normalize the colomns. This leaves us with #3 (MFA-sub), #7 (HMFA), #9 (Double-centered, MFA-sub), and #10 (Double-centered, HMFA).
+
 ---
 
 *archived*
