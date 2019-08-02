@@ -55,6 +55,9 @@
 
 		eliminate effects of hubs
 
+	+ _Notes_:
+		We performed double-centering procedure on the original correlation matrix instead of the z-transformed correlation matrix, because, even after excluding the negative correlations, double-centering the correlation matrix gives correlation larger than 1, which results NaN in the transformed correlation (from trying to take the log of negative values). These correlations larger than 1 occur because that the centered columns could end up with negative row means.
+
 2. centering the rows of the rectangular matrix:
 
 	+ How--

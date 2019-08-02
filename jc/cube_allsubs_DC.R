@@ -28,6 +28,7 @@ for(s in subs){
     tp <- as.matrix(read.table(sprintf("./data/tp/sub-MSC%02d_sess%02d_parcel_x_tp.txt",s,i), sep=","))
     
     r <- tp_to_rz(tp = tp, fisherz = F)
+    
     ## z <- tp_to_rz(tp = tp, fisherz = T)
     
     # Add double-centered correlation matrix ----
