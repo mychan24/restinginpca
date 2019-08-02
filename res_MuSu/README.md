@@ -1,6 +1,6 @@
 This directory contains all results using MuSu (different preprocessing)
 
-> Updated 04/17/2019 by MC
+> Updated 08/01/2019 by JC
 
 *2_[NA,c-ss1,NA]*:
 
