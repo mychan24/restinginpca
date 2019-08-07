@@ -70,16 +70,22 @@ dim(gt); dim(gtlabel)
 
 > Induce system-level changes (sim attack)
 
+**Attack 1**
 * In Odd-numbered *subjects* and *sessions*, Reduce within connectivity in Default Mode (Syslabel: 1), Default-FP (1_3) and Default_VAN (1_5).
 
 
 ```{r simattack}
+## REDUCE connectivity
 # identify within default connectivity, default-FP and default-VAN
 i_attack <- which(is.element(gtlabel$edges_label, c("1","1_3","1_5"))) 
 i_sub <- which(is.element(as.character(gtlabel$subjects_label), paste("sub0", seq(1,10,2), sep = "")))
 
 # Identify edges that are in odd # subs
-gt[seq(1,10, 2),i_attack[is.element(i_attack, i_sub)]] <- gt[seq(1,10, 2),i_attack[is.element(i_attack, i_sub)]]/2 # divide edges that were within default by 2
+gt[seq(1,10, 2),i_attack[is.element(i_attack, i_sub)]] <- gt[seq(1,10, 2),i_attack[is.element(i_attack, i_sub)]]/2 # divide edges that were within default by 
+
+## INCREASE Connectivity
+# Identify edges that are in odd # subs
+# gt[seq(1,10, 2),i_attack[is.element(i_attack, i_sub)]] <- gt[seq(1,10, 2),i_attack[is.element(i_attack, i_sub)]]/2 # divide edges that were within default by 2
 ```
 
 > This is an SVD with centered columns and hierarchical (network edges -> subjects) MFA-normalized tables.
@@ -336,7 +342,7 @@ First, we plot the factor scores for the 10 sessions
 colnames(svd.res$ExPosition.Data$fi) <- sapply(c(1:ncol(svd.res$ExPosition.Data$fi)), function(x) {sprintf("Dimension %s", x)})
 
 # Plot factor scores
-plot.f_sess <- createFactorMap(svd.res$ExPosition.Data$fi)
+plot.f_sess <- createFactorMap(svd.res$ExPosition.Data$fi, axis1 = 1, axis2 = 2)
 plot.f_sess$zeMap + f.labels
 ```
 
@@ -375,14 +381,14 @@ pF.constraints <- minmaxHelper4Partial(
   FactorScores = svd.res$ExPosition.Data$fi,
   partialFactorScores = pFi)
 # plot again the factor map
-plot.f_sess4pF <- createFactorMap(svd.res$ExPosition.Data$fi[seq(1,10,2),],
+plot.f_sess4pF <- createFactorMap(svd.res$ExPosition.Data$fi[seq(1,10,1),],
                                   constraints = pF.constraints) # with t(gt)
 
 # select color for subjects (subtables)
 plot.pf_sess <- createPartialFactorScoresMap(
   colors4Blocks = rep(c("red","blue"),5),
-  factorScores = svd.res$ExPosition.Data$fi[seq(1,10,2),],
-  partialFactorScores = pFi[seq(1,10,2),,],
+  factorScores = svd.res$ExPosition.Data$fi[seq(1,10,1),],
+  partialFactorScores = pFi[seq(1,10,1),,],
   axis1 = 1, axis2 = 2,
   names4Partial = subj.name,
   font.labels = "bold"
