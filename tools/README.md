@@ -27,3 +27,6 @@ This folder stores functions we wrote for this project.
 
 * *cube_allsubs_DC*:
 ---Double-center the z-transformed correlations matrix of each subject for each session. This script adds double-centered z cubes (`zcube.dc`) to `cubes`.
+
+* *gt_allsubs*:
+---Get grand tables (reshaped correlation cubes) for all subject
