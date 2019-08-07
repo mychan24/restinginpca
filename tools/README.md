@@ -24,3 +24,6 @@ This folder stores functions we wrote for this project.
 
 * *animation_script*:
 ---Create .gif for animation that shows 10 session of one subject
+
+* *cube_allsubs_DC*:
+---Double-center the z-transformed correlations matrix of each subject for each session. This script adds double-centered z cubes (`zcube.dc`) to `cubes`.
