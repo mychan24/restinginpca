@@ -19,9 +19,9 @@ for(s in subs){
   nn <- nrow(par_label)
   
   cubes <- list()
-  ##cubes$zcube <- array(data = NA, dim = c(nn,nn, 10))
-  ##cubes$rcube <- array(data = NA, dim = c(nn,nn, 10))
-  cubes$rcube.dc <- array(data = NA, dim = c(nn,nn, 10))
+  cubes$zcube <- array(data = NA, dim = c(nn,nn, 10))
+  cubes$rcube <- array(data = NA, dim = c(nn,nn, 10))
+  ## cubes$rcube.dc <- array(data = NA, dim = c(nn,nn, 10))
   cubes$zcube.dc <- array(data = NA, dim = c(nn,nn, 10))
   
   for(i in 1:10){
@@ -29,17 +29,13 @@ for(s in subs){
     
     r <- tp_to_rz(tp = tp, fisherz = F)
     
-    ## z <- tp_to_rz(tp = tp, fisherz = T)
+    z <- tp_to_rz(tp = tp, fisherz = T)
     
-    # Add double-centered correlation matrix ----
-    # -- double centered the correlation matrix
-    r.dc <- r %>% scale(scale = FALSE) %>% t %>% scale(scale = FALSE)
-    # -- and do fisher's z transform
-    z.dc <- 0.5 * log((1+r.dc)/(1-r.dc))
+    # Add double-centered the z-transformed correlation matrix ----
+    z.dc <- z %>% scale(scale = FALSE) %>% t %>% scale(scale = FALSE)
     
-    ##cubes$rcube[,,i] <- r  
-    ##cubes$zcube[,,i] <- z  
-    cubes$rcube.dc[,,i] <- r.dc  
+    cubes$rcube[,,i] <- r
+    cubes$zcube[,,i] <- z
     cubes$zcube.dc[,,i] <- z.dc  
   }
   save(file = sprintf("./data/zmat/sub-MSC%02d_zcube_rcube_DC.Rdata", s), cubes)
