@@ -15,83 +15,29 @@ dim(gt); dim(gtlabel)
 
     ## [1] 1181892       6
 
-> This is an SVD with centered columns and hierarchical (network edges -&gt; subjects) MFA-normalized tables.
+> This is an SVD with centered columns and hierarchical (network edges
+> -\> subjects) MFA-normalized tables.
 
 ##### Data:
 
-The data are from the morning scan club (MSC) resting-state data where the participants were each scanned 10 times. The data that are analyzed here are the z-transformed coefficients of correlation between regions. These regions can be categorized into different networks:
+The data are from the morning scan club (MSC) resting-state data where
+the participants were each scanned 10 times. The data that are analyzed
+here are the z-transformed coefficients of correlation between regions.
+These regions can be categorized into different networks:
 
-<table style="width:50%;">
-<colgroup>
-<col width="9%" />
-<col width="16%" />
-<col width="23%" />
-</colgroup>
-<thead>
-<tr class="header">
-<th align="center">Comm</th>
-<th align="center">Community</th>
-<th align="center">CommLabel.short</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="center">1</td>
-<td align="center">Default</td>
-<td align="center">01DMN</td>
-</tr>
-<tr class="even">
-<td align="center">2</td>
-<td align="center">LatVis</td>
-<td align="center">02lVis</td>
-</tr>
-<tr class="odd">
-<td align="center">3</td>
-<td align="center">FrontoPar</td>
-<td align="center">03FPN</td>
-</tr>
-<tr class="even">
-<td align="center">5</td>
-<td align="center">DorsAttn</td>
-<td align="center">05DAN</td>
-</tr>
-<tr class="odd">
-<td align="center">6</td>
-<td align="center">Premotor</td>
-<td align="center">06PMo</td>
-</tr>
-<tr class="even">
-<td align="center">9</td>
-<td align="center">CingOperc</td>
-<td align="center">09CON</td>
-</tr>
-<tr class="odd">
-<td align="center">10</td>
-<td align="center">HandSM</td>
-<td align="center">10hSMN</td>
-</tr>
-<tr class="even">
-<td align="center">11</td>
-<td align="center">FaceSM</td>
-<td align="center">11faSMN</td>
-</tr>
-<tr class="odd">
-<td align="center">12</td>
-<td align="center">Auditory</td>
-<td align="center">12Aud</td>
-</tr>
-<tr class="even">
-<td align="center">13</td>
-<td align="center">AntMTL</td>
-<td align="center">13aMTL</td>
-</tr>
-<tr class="odd">
-<td align="center">15</td>
-<td align="center">ParMemory</td>
-<td align="center">15PMN</td>
-</tr>
-</tbody>
-</table>
+| Comm | Community | CommLabel.short |
+| :--: | :-------: | :-------------: |
+|  1   |  Default  |      01DMN      |
+|  2   |  LatVis   |     02lVis      |
+|  3   | FrontoPar |      03FPN      |
+|  5   | DorsAttn  |      05DAN      |
+|  6   | Premotor  |      06PMo      |
+|  9   | CingOperc |      09CON      |
+|  10  |  HandSM   |     10hSMN      |
+|  11  |  FaceSM   |     11faSMN     |
+|  12  | Auditory  |      12Aud      |
+|  13  |  AntMTL   |     13aMTL      |
+|  15  | ParMemory |      15PMN      |
 
 ``` r
 # read parcel labels for each subject
@@ -113,25 +59,33 @@ for(i in 1:length(subj.name)){
 }
 ```
 
-As a result, the correlation matrix of each session of each subject will look like this:
+As a result, the correlation matrix of each session of each subject will
+look like this:
 
 This correlation matrix were then turned into a rectangular matrix
 
 ##### Rectangular data:
 
--   Rows: 10 sessions
+  - Rows: 10 sessions
 
--   Columns: Different edges (e.g, *within DMN*, *between DMN & CON*, *between DMN & FPN*, etc.) of different subjects
+  - Columns: Different edges (e.g, *within DMN*, *between DMN & CON*,
+    *between DMN & FPN*, etc.) of different subjects
 
-*Note: The data was transformed from the upper triangle of the correlation matrices. From the correlation matrix of each session, its upper triangle are reshape as a vector. These reshaped vectors of different sessions are then concatenated on the rows and those of different subjects are concatenated on the columns.*
+*Note: The data was transformed from the upper triangle of the
+correlation matrices. From the correlation matrix of each session, its
+upper triangle are reshape as a vector. These reshaped vectors of
+different sessions are then concatenated on the rows and those of
+different subjects are concatenated on the columns.*
 
 ##### Method:
 
--   Centering: across sessions (rows) (i.e., the columns are centered)
+  - Centering: across sessions (rows) (i.e., the columns are centered)
 
--   Normalizing: MFA normalized the table of each subject
+  - Normalizing: MFA normalized the table of each subject
 
-First we compute the weights that are used to MFA-normalized each subject table. These weights are computed as the inverse of the first singular value:
+First we compute the weights that are used to MFA-normalized each
+subject table. These weights are computed as the inverse of the first
+singular value:
 
 Then, the preprocessed data are decomposed by the SVD:
 
@@ -139,15 +93,22 @@ Then, the preprocessed data are decomposed by the SVD:
 
 ###### Scree plot
 
-First, the scree plot illustrates the eigen value with percentage of explained variance of each component. The results showed that there are three important components with the percentage of explained variance more than average (i.e., 1/10).
+First, the scree plot illustrates the eigen value with percentage of
+explained variance of each component. The results showed that there are
+three important components with the percentage of explained variance
+more than average (i.e., 1/10).
 
-![](MuSu_bignet__NA,_c,_MFA_subs__files/figure-markdown_github/scree-1.png)
+![](MuSu_bignet__NA,_c,_MFA_subs__files/figure-gfm/scree-1.png)<!-- -->
 
 ###### Contributions
 
-Before checking the factor scores, we first plot the contributions to check the importance of network edges. The important edges are defined as those that with significant mean contribution to both components 1 and 2.
+Before checking the factor scores, we first plot the contributions to
+check the importance of network edges. The important edges are defined
+as those that with significant mean contribution to both components 1
+and 2.
 
-We first compute the contribution and find the important edges and sessions:
+We first compute the contribution and find the important edges and
+sessions:
 
 ``` r
 #--- get the contribution of each component
@@ -196,17 +157,24 @@ col4NS <- 'gray90' # set color for not significant edges to gray
 col4ImportantEdg[!importantEdg] <- col4NS # replace them in the color vector
 ```
 
-Then the contributions are shown in plots
+Then the contributions are shown in
+plots
 
-![](MuSu_bignet__NA,_c,_MFA_subs__files/figure-markdown_github/grid_ciplot-1.png) The contribution for each network edge is computed by dividing its total SS across region edges and dimensions (i.e., the cross product of contribution and eigenvalues) by the total eigenvalues of the two components.
+![](MuSu_bignet__NA,_c,_MFA_subs__files/figure-gfm/grid_ciplot-1.png)<!-- -->
+The contribution for each network edge is computed by dividing its total
+SS across region edges and dimensions (i.e., the cross product of
+contribution and eigenvalues) by the total eigenvalues of the two
+components.
 
 ###### Factor scores
 
-First, we plot the factor scores for the 10 sessions
+First, we plot the factor scores for the 10
+sessions
 
-![](MuSu_bignet__NA,_c,_MFA_subs__files/figure-markdown_github/plot_f_sess-1.png)
+![](MuSu_bignet__NA,_c,_MFA_subs__files/figure-gfm/plot_f_sess-1.png)<!-- -->
 
-We can also plot the partial factor scores that show how each subject contribute to different sesssions.
+We can also plot the partial factor scores that show how each subject
+contribute to different sesssions.
 
 ``` r
 # We can also compute the partial factor scores for each participant:
@@ -230,9 +198,10 @@ ch1 <- apply(pFi,c(1:2),mean)
 ch2 <- cgt %*% (svd.res$ExPosition.Data$pdq$q)
 ```
 
-![](MuSu_bignet__NA,_c,_MFA_subs__files/figure-markdown_github/plot_pf_sess-1.png)
+![](MuSu_bignet__NA,_c,_MFA_subs__files/figure-gfm/plot_pf_sess-1.png)<!-- -->
 
-To have a clearer view of the factor scores for the subject x edges, we first compute the mean factor scores for the each network edge.
+To have a clearer view of the factor scores for the subject x edges, we
+first compute the mean factor scores for the each network edge.
 
 ``` r
 # Compute means of factor scores for different edges----
@@ -247,7 +216,7 @@ BootCube.Comm <- Boot4Mean(svd.res$ExPosition.Data$fj,
 tictoc::toc()
 ```
 
-    ## 1523.471 sec elapsed
+    ## 1240.8 sec elapsed
 
 ``` r
 # Compute means of factor scores for different types of edges
@@ -262,42 +231,59 @@ BootCube.Comm.bw <- Boot4Mean(svd.res$ExPosition.Data$fj,
 tictoc::toc()
 ```
 
-    ## 958.524 sec elapsed
+    ## 514.11 sec elapsed
 
-Next, we plot the factor scores for the subject x edges (a mess): Dim 1 & 2
+Next, we plot the factor scores for the subject x edges (a mess): Dim 1
+&
+2
 
-![](MuSu_bignet__NA,_c,_MFA_subs__files/figure-markdown_github/grid_f_netedge_plot-1.png)
+![](MuSu_bignet__NA,_c,_MFA_subs__files/figure-gfm/grid_f_netedge_plot-1.png)<!-- -->
 
-Note that a network edge with its region edges significantly contribute to the components both positively and negatively results in a significant mean factor score that is close to the origin. Also, a network edge with only few region edges will lead to a small total SS as compared to the total eigenvalues; this type of network edge might not be significant even when being far away from the origin. (This is shown in the chunk named `checkCtr` which is hidden/commented in the .rmd.)
+Note that a network edge with its region edges significantly contribute
+to the components both positively and negatively results in a
+significant mean factor score that is close to the origin. Also, a
+network edge with only few region edges will lead to a small total SS as
+compared to the total eigenvalues; this type of network edge might not
+be significant even when being far away from the origin. (This is shown
+in the chunk named `checkCtr` which is hidden/commented in the .rmd.)
 
-We can also add boostrap intervals for the factor scores
+We can also add boostrap intervals for the factor
+scores
 
-![](MuSu_bignet__NA,_c,_MFA_subs__files/figure-markdown_github/grid_f_netedgeCI_plot-1.png)
+![](MuSu_bignet__NA,_c,_MFA_subs__files/figure-gfm/grid_f_netedgeCI_plot-1.png)<!-- -->
 
-We can also show the factor scores for network edges as square matrix of each subject.
+We can also show the factor scores for network edges as square matrix of
+each subject.
 
-Node x Node Matrix of Factor Score: Dim 1 & Dim 2
+Node x Node Matrix of Factor Score: Dim 1 & Dim
+2
 
     ## [1] "Dimension 1"
 
-![](MuSu_bignet__NA,_c,_MFA_subs__files/figure-markdown_github/grid_heat_fi-1.png)
+![](MuSu_bignet__NA,_c,_MFA_subs__files/figure-gfm/grid_heat_fi-1.png)<!-- -->
 
     ## [1] "Dimension 2"
 
-![](MuSu_bignet__NA,_c,_MFA_subs__files/figure-markdown_github/grid_heat_fi-2.png)
+![](MuSu_bignet__NA,_c,_MFA_subs__files/figure-gfm/grid_heat_fi-2.png)<!-- -->
 
-Factor score (Dim 1) in square matrix that have significant contribution only
+Factor score (Dim 1) in square matrix that have significant contribution
+only
 
-Node x Node Matrix of Factor Score w/ Sig Contribution: Dim 1 ![](MuSu_bignet__NA,_c,_MFA_subs__files/figure-markdown_github/grid_heat_sigfj1-1.png)
+Node x Node Matrix of Factor Score w/ Sig Contribution: Dim 1
+![](MuSu_bignet__NA,_c,_MFA_subs__files/figure-gfm/grid_heat_sigfj1-1.png)<!-- -->
 
 Smoothed Sig Factor Score (Dim 1)
 
-Smoothed Node x Node Matrix of Factor Score w/ Sig Contribution: Dim 1 ![](MuSu_bignet__NA,_c,_MFA_subs__files/figure-markdown_github/grid_smheat_sigfj1-1.png)
+Smoothed Node x Node Matrix of Factor Score w/ Sig Contribution: Dim 1
+![](MuSu_bignet__NA,_c,_MFA_subs__files/figure-gfm/grid_smheat_sigfj1-1.png)<!-- -->
 
-Factor score (Dim 2) in square matrix that have significant contribution only
+Factor score (Dim 2) in square matrix that have significant contribution
+only
 
-Node x Node Matrix of Factor Score w/ Sig Contribution: Dim 2 ![](MuSu_bignet__NA,_c,_MFA_subs__files/figure-markdown_github/grid_heat_sigfj2-1.png)
+Node x Node Matrix of Factor Score w/ Sig Contribution: Dim 2
+![](MuSu_bignet__NA,_c,_MFA_subs__files/figure-gfm/grid_heat_sigfj2-1.png)<!-- -->
 
 Smoothed Sig Factor Score (Dim 2)
 
-Smoothed Node x Node Matrix of Factor Score w/ Sig Contribution: Dim 2 ![](MuSu_bignet__NA,_c,_MFA_subs__files/figure-markdown_github/grid_smheat_sigfj2-1.png)
+Smoothed Node x Node Matrix of Factor Score w/ Sig Contribution: Dim 2
+![](MuSu_bignet__NA,_c,_MFA_subs__files/figure-gfm/grid_smheat_sigfj2-1.png)<!-- -->
