@@ -1,6 +1,6 @@
 This directory contains all results using MuSu (different preprocessing)
 
-> Updated 08/02/2019 by JC
+> Updated 08/07/2019 by JC
 
 *2_[NA,c-ss1,NA]*:
 
@@ -42,10 +42,6 @@ This directory contains all results using MuSu (different preprocessing)
 
 + Hierarchical MFA
 
-*9_DoubleCent[NA, NA, NA]*:
-
-+ Double-centered r matrix
-
 *10_DoubleCent[NA, c, MFA_sub]*:
 
 + Double-centered r matrix
@@ -72,7 +68,10 @@ We always want to center the columns and equalize the contribution for all subje
 *archived*
 
 + Contains preprocessing folder longer being tested
-+ 1_[NA, c, NA] - Center-only gives too much weight to within vs. between. 
++ 1_[NA, c, NA] - Center-only gives too much weight to within vs. between.
++ 9_DoubleCent[NA, NA, NA] - Double-centered r matrix
+
+
 
 ---
 Each folder contains two subfolders:

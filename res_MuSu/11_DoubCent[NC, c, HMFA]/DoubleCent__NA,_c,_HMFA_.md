@@ -218,7 +218,7 @@ BootCube.Comm <- Boot4Mean(svd.res$ExPosition.Data$fj,
 tictoc::toc()
 ```
 
-    ## 2885.94 sec elapsed
+    ## 4127.06 sec elapsed
 
 ``` r
 # Compute means of factor scores for different types of edges
@@ -233,7 +233,7 @@ BootCube.Comm.bw <- Boot4Mean(svd.res$ExPosition.Data$fj,
 tictoc::toc()
 ```
 
-    ## 704.84 sec elapsed
+    ## 608.94 sec elapsed
 
 Next, we plot the factor scores for the subject x edges (a mess): Dim 1
 &
@@ -252,21 +252,13 @@ in the chunk named `checkCtr` which is hidden/commented in the .rmd.)
 We can also add boostrap intervals for the factor
     scores
 
-    ## Warning: Removed 31 rows containing non-finite values (stat_ellipse).
+    ## Warning: Removed 2 rows containing non-finite values (stat_ellipse).
 
-    ## Warning: Removed 1 rows containing non-finite values (stat_ellipse).
-
-    ## Warning: Removed 8 rows containing non-finite values (stat_ellipse).
-
-    ## Warning: Removed 1 rows containing non-finite values (stat_ellipse).
-
-    ## Warning: Removed 7 rows containing non-finite values (stat_ellipse).
+    ## Warning: Removed 16 rows containing non-finite values (stat_ellipse).
 
     ## Warning: Removed 3 rows containing non-finite values (stat_ellipse).
 
-    ## Warning: Removed 20 rows containing non-finite values (stat_ellipse).
-
-    ## Warning: Removed 2 rows containing non-finite values (stat_ellipse).
+    ## Warning: Removed 6 rows containing non-finite values (stat_ellipse).
 
 ![](DoubleCent__NA,_c,_HMFA__files/figure-gfm/grid_f_netedgeCI_plot-1.png)<!-- -->
 

@@ -1,6 +1,6 @@
 This folder stores functions we wrote for this project.
 
->Edited by JCY, 02/28/2019
+>Edited by JCY, 08/07/2019
 
 ---
 
