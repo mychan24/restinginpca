@@ -1,5 +1,5 @@
 # Make Grand Table with all 10 MSC subjects only including the big networks
-# 6/20/2019
+# 8/6/2019
 
 rm(list=ls())
 
@@ -9,7 +9,7 @@ load(paste0("./data/grandatble_and_labels_MSC_allsubs_N10_20190418.Rdata")) # re
 CommName <- read.csv("./data/parcel_community/bignetwork/systemlabel_bigcomm.txt",header = FALSE)
 
 bignet_count <- sapply(X = gtlabel$edges_label, 
-                         FUN=function(x){strsplit(as.character(x), "_") %>% 
+                            FUN=function(x){strsplit(as.character(x), "_") %>% 
                            unlist %>%
                            is.element(CommName$V1) %>%
                            sum})

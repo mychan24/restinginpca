@@ -22,17 +22,12 @@ connectivity in Default Mode (Syslabel: 1), Default-FP (1\_3) and
 Default\_VAN (1\_5).
 
 ``` r
-## REDUCE connectivity
 # identify within default connectivity, default-FP and default-VAN
+# Identify edges that are in odd # subs
+# Simulate reduced connectivity by dividing edges that were identified by 2
 i_attack <- which(is.element(gtlabel$edges_label, c("1","1_3","1_5"))) 
 i_sub <- which(is.element(as.character(gtlabel$subjects_label), paste("sub0", seq(1,10,2), sep = "")))
-
-# Identify edges that are in odd # subs
-gt[seq(1,10, 2),i_attack[is.element(i_attack, i_sub)]] <- gt[seq(1,10, 2),i_attack[is.element(i_attack, i_sub)]]/2 # divide edges that were within default by 
-
-## INCREASE Connectivity
-# Identify edges that are in odd # subs
-# gt[seq(1,10, 2),i_attack[is.element(i_attack, i_sub)]] <- gt[seq(1,10, 2),i_attack[is.element(i_attack, i_sub)]]/2 # divide edges that were within default by 2
+gt[seq(1,10, 2),i_attack[is.element(i_attack, i_sub)]] <- gt[seq(1,10, 2),i_attack[is.element(i_attack, i_sub)]]/2 
 ```
 
 > This is an SVD with centered columns and hierarchical (network edges
@@ -239,11 +234,12 @@ tictoc::tic()
 BootCube.Comm <- Boot4Mean(svd.res$ExPosition.Data$fj,
                            design = gtlabel$subjects_edge_label,
                            niter = 100,
-                           suppressProgressBar = TRUE)
+                           suppressProgressBar = TRUE, 
+                           parallelize = TRUE)
 tictoc::toc()
 ```
 
-    ## 1624.02 sec elapsed
+    ## 415.551 sec elapsed
 
 ``` r
 # Compute means of factor scores for different types of edges
@@ -254,11 +250,12 @@ tictoc::tic()
 BootCube.Comm.bw <- Boot4Mean(svd.res$ExPosition.Data$fj,
                            design = gtlabel$subjects_wb,
                            niter = 100,
-                           suppressProgressBar = TRUE)
+                           suppressProgressBar = TRUE,
+                           parallelize = TRUE)
 tictoc::toc()
 ```
 
-    ## 883.67 sec elapsed
+    ## 265.139 sec elapsed
 
 Next, we plot the factor scores for the subject x edges (a mess): Dim 1
 &
@@ -274,7 +271,16 @@ compared to the total eigenvalues; this type of network edge might not
 be significant even when being far away from the origin. (This is shown
 in the chunk named `checkCtr` which is hidden/commented in the .rmd.)
 
-We can also add boostrap intervals for the factor scores
+We can also add boostrap intervals for the factor
+    scores
+
+    ## Warning: Removed 10 rows containing non-finite values (stat_ellipse).
+
+    ## Warning: Removed 12 rows containing non-finite values (stat_ellipse).
+
+    ## Warning: Removed 11 rows containing non-finite values (stat_ellipse).
+
+![](MuSu_bignet_simattack__NA,_c,_HMFA__files/figure-gfm/grid_f_netedgeCI_plot-1.png)<!-- -->
 
 We can also show the factor scores for network edges as square matrix of
 each subject.

@@ -74,19 +74,13 @@ dim(gt); dim(gtlabel)
 **Attack 1**
 * In Odd-numbered *subjects* and *sessions*, Reduce within connectivity in Default Mode (Syslabel: 1), Default-FP (1_3) and Default_VAN (1_5).
 
-
 ```{r simattack}
-## REDUCE connectivity
 # identify within default connectivity, default-FP and default-VAN
+# Identify edges that are in odd # subs
+# Simulate reduced connectivity by dividing edges that were identified by 2
 i_attack <- which(is.element(gtlabel$edges_label, c("1","1_3","1_5"))) 
 i_sub <- which(is.element(as.character(gtlabel$subjects_label), paste("sub0", seq(1,10,2), sep = "")))
-
-# Identify edges that are in odd # subs
-gt[seq(1,10, 2),i_attack[is.element(i_attack, i_sub)]] <- gt[seq(1,10, 2),i_attack[is.element(i_attack, i_sub)]]/2 # divide edges that were within default by 
-
-## INCREASE Connectivity
-# Identify edges that are in odd # subs
-# gt[seq(1,10, 2),i_attack[is.element(i_attack, i_sub)]] <- gt[seq(1,10, 2),i_attack[is.element(i_attack, i_sub)]]/2 # divide edges that were within default by 2
+gt[seq(1,10, 2),i_attack[is.element(i_attack, i_sub)]] <- gt[seq(1,10, 2),i_attack[is.element(i_attack, i_sub)]]/2 
 ```
 
 > This is an SVD with centered columns and hierarchical (network edges -> subjects) MFA-normalized tables.
@@ -414,7 +408,8 @@ tictoc::tic()
 BootCube.Comm <- Boot4Mean(svd.res$ExPosition.Data$fj,
                            design = gtlabel$subjects_edge_label,
                            niter = 100,
-                           suppressProgressBar = TRUE)
+                           suppressProgressBar = TRUE, 
+                           parallelize = TRUE)
 tictoc::toc()
 
 # Compute means of factor scores for different types of edges
@@ -425,7 +420,8 @@ tictoc::tic()
 BootCube.Comm.bw <- Boot4Mean(svd.res$ExPosition.Data$fj,
                            design = gtlabel$subjects_wb,
                            niter = 100,
-                           suppressProgressBar = TRUE)
+                           suppressProgressBar = TRUE,
+                           parallelize = TRUE)
 tictoc::toc()
 ```
 
@@ -501,8 +497,8 @@ f_CInetedge_plot03 <- plot.f_bw_imp$zeMap + plot.CI.f_bw + f.labels
 ```
 
 ```{r grid_f_netedgeCI_plot, echo=F, fig.height=12, fig.width=12, message=FALSE}
-# gridExtra::grid.arrange(as.grob(f_CInetedge_plot01), as.grob(f_CInetedge_plot02), as.grob(f_CInetedge_plot03),ncol=2,
-#                         top = textGrob("Mean factor scores with CIs for significantly contributed edges",gp=gpar(fontsize=18,font=3)))
+gridExtra::grid.arrange(as.grob(f_CInetedge_plot01), as.grob(f_CInetedge_plot02), as.grob(f_CInetedge_plot03),ncol=2,
+                        top = textGrob("Mean factor scores with CIs for significantly contributed edges",gp=gpar(fontsize=18,font=3)))
 ```
 
 We can also show the factor scores for network edges as square matrix of each subject.

@@ -22,22 +22,13 @@ dim(gt); dim(gtlabel)
 connectivity in Default Mode (Syslabel: 1), Default-FP (1\_3) and
 Default\_VAN (1\_5).
 
-**Attack 2** \* In Even-numbered *subjects* and *sessions*, Reduce
-within connectivity in Default Mode (Syslabel: 1), Default-FP (1\_3) and
-Default\_VAN (1\_5).
-
 ``` r
-## REDUCE connectivity
 # identify within default connectivity, default-FP and default-VAN
+# Identify edges that are in odd # subs
+# Simulate reduced connectivity by dividing edges that were identified by 2
 i_attack <- which(is.element(gtlabel$edges_label, c("1","1_3","1_5"))) 
 i_sub <- which(is.element(as.character(gtlabel$subjects_label), paste("sub0", seq(1,10,2), sep = "")))
-
-# Identify edges that are in odd # subs
-gt[seq(1,10, 2),i_attack[is.element(i_attack, i_sub)]] <- gt[seq(1,10, 2),i_attack[is.element(i_attack, i_sub)]]/2 # divide edges that were within default by 
-
-## INCREASE Connectivity
-# Identify edges that are in odd # subs
-# gt[seq(1,10, 2),i_attack[is.element(i_attack, i_sub)]] <- gt[seq(1,10, 2),i_attack[is.element(i_attack, i_sub)]]/2 # divide edges that were within default by 2
+gt[seq(1,10, 2),i_attack[is.element(i_attack, i_sub)]] <- gt[seq(1,10, 2),i_attack[is.element(i_attack, i_sub)]]/2 
 ```
 
 > This is an SVD with centered columns and hierarchical (network edges
@@ -243,11 +234,12 @@ tictoc::tic()
 BootCube.Comm <- Boot4Mean(svd.res$ExPosition.Data$fj,
                            design = gtlabel$subjects_edge_label,
                            niter = 100,
-                           suppressProgressBar = TRUE)
+                           suppressProgressBar = TRUE,
+                           parallelize = TRUE)
 tictoc::toc()
 ```
 
-    ## 1623.784 sec elapsed
+    ## 475.621 sec elapsed
 
 ``` r
 # Compute means of factor scores for different types of edges
@@ -258,11 +250,12 @@ tictoc::tic()
 BootCube.Comm.bw <- Boot4Mean(svd.res$ExPosition.Data$fj,
                               design = gtlabel$subjects_wb,
                               niter = 100,
-                              suppressProgressBar = TRUE)
+                              suppressProgressBar = TRUE,
+                              parallelize = TRUE)
 tictoc::toc()
 ```
 
-    ## 982.062 sec elapsed
+    ## 346.983 sec elapsed
 
 Next, we plot the factor scores for the subject x edges (a mess): Dim 1
 &

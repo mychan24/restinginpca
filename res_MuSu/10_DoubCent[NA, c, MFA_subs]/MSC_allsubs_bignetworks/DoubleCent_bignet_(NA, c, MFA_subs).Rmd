@@ -1,5 +1,5 @@
 ---
-title: "MuSu_(NA, c, MFA_subs) - MSC All Subjects (N=10) Big Networks"
+title: "DoubleCent_(NA, c, MFA_subs) - MSC All Subjects (N=10) Big Networks "
 output: github_document
 ---
 
@@ -20,7 +20,7 @@ suppressMessages(library(ggplotify))
 suppressMessages(library(grid))
 suppressMessages(library(pals))
 # Read functions -----------------------------------
-tool.path <- "../../../tools/"
+tool.path <- "../../tools/"
 source(paste0(tool.path,"SScomm.R")) # SScomm.R: computes sums of squares of a square matrix according to a design matrix
 source(paste0(tool.path,"vec2sqmat.R"))
 source(paste0(tool.path,"getVoxDes.R"))
@@ -28,46 +28,37 @@ source(paste0(tool.path,"getVoxDes.R"))
 #### == DEFINE Parameters (e.g., subj name, paths) == ####
 # This section will hopefully become parameterized for RMD in the future 
 
-parcelfile2read <- c("/sub-MSC01_node_parcel_bigcomm.txt",
-                     "/sub-MSC02_node_parcel_bigcomm.txt",
-                     "/sub-MSC03_node_parcel_bigcomm.txt",
-                     "/sub-MSC04_node_parcel_bigcomm.txt",
-                     "/sub-MSC05_node_parcel_bigcomm.txt",
-                     "/sub-MSC06_node_parcel_bigcomm.txt",
-                     "/sub-MSC07_node_parcel_bigcomm.txt",
-                     "/sub-MSC08_node_parcel_bigcomm.txt",
-                     "/sub-MSC09_node_parcel_bigcomm.txt",
-                     "/sub-MSC10_node_parcel_bigcomm.txt"
+parcelfile2read <- c("/sub-MSC01_node_parcel_comm.txt",
+                     "/sub-MSC02_node_parcel_comm.txt",
+                     "/sub-MSC03_node_parcel_comm.txt",
+                     "/sub-MSC04_node_parcel_comm.txt",
+                     "/sub-MSC05_node_parcel_comm.txt",
+                     "/sub-MSC06_node_parcel_comm.txt",
+                     "/sub-MSC07_node_parcel_comm.txt",
+                     "/sub-MSC08_node_parcel_comm.txt",
+                     "/sub-MSC09_node_parcel_comm.txt",
+                     "/sub-MSC10_node_parcel_comm.txt"
 )
 subj.name <- c("sub01","sub02","sub03",
                "sub04","sub05","sub06",
                "sub07","sub08","sub09","sub10")
 
-parcel.comm.path <- "../../../data/parcel_community/bignetwork"
-CommName <- read.csv("../../../data/parcel_community/bignetwork/systemlabel_bigcomm.txt",header = FALSE)
-parcel.comm.path <- "../../../data/parcel_community/bignetwork"
+parcel.comm.path <- "../../data/parcel_community"
+CommName <- read.csv("../../data/parcel_community/systemlabel.txt",header = FALSE)
+parcel.comm.path <- "../../data/parcel_community"
+
 
 # Load Grand Table
 # gt: grand tabls
 # labels: information for each edge in the rectangular grand table
-load(paste0("../../../data/grandatble_and_labels_bignetcol_MSC_allsubs_N10_20190620.Rdata")) # read the labels of grandtable
+load("../../data/grandatble_and_labels_MSC_allsubs_DC_20190807.Rdata") # read the labels of grandtable
+
 
 ## Categorize columns by between or within edges
 #--- Create new column of sub-edgetype
 gtlabel[,'subjects_wb'] <- sprintf('%s_%s',gtlabel$subjects_label,gtlabel$wb)
 
 ```
-
-> Reduce grandtable to have consistent networks only
-
-```{r reduce_gt}
-gt <- gt[,gtlabel$bignet=="Y"]
-gtlabel <- gtlabel[gtlabel$bignet=="Y",]
-
-# check dim
-dim(gt); dim(gtlabel)
-```
-
 
 > This is an SVD with centered columns and hierarchical (network edges -> subjects) MFA-normalized tables.
 
@@ -79,8 +70,15 @@ The data are from the morning scan club (MSC) resting-state data where the parti
 # rename communities
 #--- read the file with community information: label number & community name & color & abbreviation for community name
 colnames(CommName) <- c("Comm", "CommLabel","CommColor","CommLabel.short")
-CommName[,'Community'] <- sapply(CommName$CommLabel, FUN = function(x){strsplit(as.character(x), split = "_")[[1]][2]})
+CommName[,'Community'] <- c("UnAssign", "Default","lateral Visual","Frontoparietal",
+                            "medial Visual","dorsal Attention","Premotor",
+                            "ventral Attention","Salience","Cingular opercular",
+                            "Sensorimotor - hand","Sensorimotor - face","Auditory",
+                            "anterior Medial temporal","posterior Medial temporal",
+                            "Parietal memory","Context","Sensorimotor - foot", 
+                            "Unknown","Unknown","Unknown","UnKnown","UnKnown")
 pander::pander(CommName[,c("Comm", "Community","CommLabel.short")])
+
 ```
 
 ```{r data_info}
@@ -168,7 +166,7 @@ First we compute the weights that are used to MFA-normalized each subject table.
 ```{r preproc_step, include = FALSE, message=FALSE}
 # Center Columns (across rows) + MFA normalize mini-block (Subjects)
 cgt <- expo.scale(gt, center = T, scale = F)
-cgt[is.nan(cgt)] <- 0   # replace NaN with zero 
+cgt[is.nan(cgt)] <- 0   # replace NaN with zero
 
 #--------------
 subtab_i <-  list(gtlabel$subjects_label)    # Use subjects_edge_label as mini table
@@ -182,10 +180,10 @@ for (k in 1:n_lv){
   }
   sv[[k]] <- matrix(NA, 1, n_subtable[[k]])
   colnames(sv[[k]]) <- unique(subtab_i[[k]])
-  
+
   for(i in 1:n_subtable[[k]]){
-    sv[[k]][i] <- (svd(cgt[,subtab_i[[k]]==unique(subtab_i[[k]])[i]])$d[1]) # singular value from svd 
-    
+    sv[[k]][i] <- (svd(cgt[,subtab_i[[k]]==unique(subtab_i[[k]])[i]])$d[1]) # singular value from svd
+
     # mfa-normalization
     mfa_preproc[,subtab_i[[k]]==unique(subtab_i[[k]])[i]] <- mfa_preproc[,subtab_i[[k]]==unique(subtab_i[[k]])[i]]/sv[[k]][i]
   }
@@ -193,7 +191,7 @@ for (k in 1:n_lv){
 
 # set the column names
 gt_preproc <- mfa_preproc
-gt_preproc[is.nan(gt_preproc)] <- 0   # replace NaN with zero 
+gt_preproc[is.nan(gt_preproc)] <- 0   # replace NaN with zero
 colnames(gt_preproc) <- gtlabel$subjects_edge_label
 dim(gt_preproc) # check dimension
 
@@ -332,7 +330,7 @@ We can also plot the partial factor scores that show how each subject contribute
 ```{r partial_f_sess}
 # We can also compute the partial factor scores for each participant:
 subj.table <- gtlabel$subjects_label
-table2normalize <- subtab_i
+table2normalize <- subtab_i[[1]]
 
 n_subj <- length(unique(gtlabel$subjects_label))
 n_table2normalize <- sapply(1:n_subj, function(x){

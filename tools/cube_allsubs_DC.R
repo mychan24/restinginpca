@@ -5,7 +5,7 @@
 #    - I added the double-centering for z cube: zcube.dc
 #=======================================================
 # Make cube for all subs
-source("tp_to_rz.R")
+source("./tools/tp_to_rz.R")
 library(dplyr)
 
 # subs <- 1

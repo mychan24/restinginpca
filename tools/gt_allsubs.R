@@ -3,8 +3,8 @@
 
 rm(list=ls())
 
-source("cube2gt.R")
-source("label_edges.R")
+source("./tools/cube2gt.R")
+source("./tools/label_edges.R")
 library(tidyr)
 
 cube_paths <- list("./data/zmat/sub-MSC01_zcube_rcube_DC.Rdata",
