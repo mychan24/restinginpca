@@ -163,8 +163,7 @@ col4NS <- 'gray90' # set color for not significant edges to gray
 col4ImportantEdg[!importantEdg] <- col4NS # replace them in the color vector
 ```
 
-Then the contributions are shown in
-plots
+Then the contributions are shown in plots
 
 ![](MuSu_bignet__NA,_c,_HMFA__files/figure-gfm/grid_ciplot-1.png)<!-- -->
 The contribution for each network edge is computed by dividing its total
@@ -174,8 +173,7 @@ components.
 
 ###### Factor scores
 
-First, we plot the factor scores for the 10
-sessions
+First, we plot the factor scores for the 10 sessions
 
 ![](MuSu_bignet__NA,_c,_HMFA__files/figure-gfm/plot_f_sess-1.png)<!-- -->
 
@@ -213,35 +211,53 @@ first compute the mean factor scores for the each network edge.
 # Compute means of factor scores for different edges----
 mean.fj <- getMeans(svd.res$ExPosition.Data$fj, gtlabel$subjects_edge_label) # with t(gt)
 colnames(mean.fj) <- sapply(c(1:ncol(mean.fj)), function(x){sprintf("Factor %s",x)})
- 
+
 tictoc::tic()
 BootCube.Comm <- Boot4Mean(svd.res$ExPosition.Data$fj,
+                           parallelize = T,
                            design = gtlabel$subjects_edge_label,
                            niter = 100,
                            suppressProgressBar = TRUE)
 tictoc::toc()
 ```
 
-    ## 1228.58 sec elapsed
+    ## 247.25 sec elapsed
 
 ``` r
+# compute mean factor scores for each edge and the partial factor scores of each subject for these factor scores
+### use split string to separate the subject and edge labels (this is done at this step because we want to take the average across them after averaging across regions that belong to the same edge and subject)
+mean.fj.label <- strsplit(sub('(^[^_]+)_(.*)$', '\\1 \\2', rownames(mean.fj)), ' ') %>% unlist %>% matrix(ncol = 2, byrow = T, dimnames = list(rownames(mean.fj),c("sub","edge"))) %>% data.frame
+### compute means
+mean.edge.fj <- getMeans(mean.fj, mean.fj.label$edge)
+### create array for partial factor scores
+edge.pF <- array(data = NA, dim = (c(nrow(mean.edge.fj),ncol(mean.fj),length(unique(mean.fj.label$sub)))), dimnames = list(rownames(mean.edge.fj),colnames(mean.fj),unique(mean.fj.label$sub)))
+### fill the array of partial factor scores
+n.edges <- dim(edge.pF)[1]
+for (i in 1:length(subj.name)){
+  for (j in 1:n.edges){
+    tbname <- subj.name[i]
+    rwname <- rownames(edge.pF)[j]
+    edge.pF[rwname,,tbname] <- as.matrix(mean.fj[which(mean.fj.label$sub == tbname & mean.fj.label$edge == rwname),])
+  }
+}
+
 # Compute means of factor scores for different types of edges
 mean.fj.bw <- getMeans(svd.res$ExPosition.Data$fj, gtlabel$subjects_wb) # with t(gt)
 colnames(mean.fj.bw) <- sapply(c(1:ncol(mean.fj.bw)), function(x){sprintf("Factor %s",x)})
 
 tictoc::tic()
 BootCube.Comm.bw <- Boot4Mean(svd.res$ExPosition.Data$fj,
-                           design = gtlabel$subjects_wb,
-                           niter = 100,
-                           suppressProgressBar = TRUE)
+                              parallelize = T,
+                              design = gtlabel$subjects_wb,
+                              niter = 100,
+                              suppressProgressBar = TRUE)
 tictoc::toc()
 ```
 
-    ## 589.04 sec elapsed
+    ## 117.23 sec elapsed
 
 Next, we plot the factor scores for the subject x edges (a mess): Dim 1
-&
-2
+& 2
 
 ![](MuSu_bignet__NA,_c,_HMFA__files/figure-gfm/grid_f_netedge_plot-1.png)<!-- -->
 
@@ -258,8 +274,7 @@ We can also add boostrap intervals for the factor scores
 We can also show the factor scores for network edges as square matrix of
 each subject.
 
-Node x Node Matrix of Factor Score: Dim 1 & Dim
-2
+Node x Node Matrix of Factor Score: Dim 1 & Dim 2
 
     ## [1] "Dimension 1"
 

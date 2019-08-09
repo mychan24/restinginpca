@@ -10,7 +10,7 @@ suppressMessages(library(psych))
 suppressMessages(library(DistatisR))
 suppressMessages(library(tidyr))
 suppressMessages(library(magrittr))
-suppressMessages(library(PTCA4CATA))
+suppressMessages(library(PTCA4CATA)) # this is an edited version of PTCA4CATA that allows parallelize in Boot4Means
 suppressMessages(library(ExPosition))
 suppressMessages(library(InPosition))
 suppressMessages(library(MExPosition))
@@ -383,10 +383,29 @@ colnames(mean.fj) <- sapply(c(1:ncol(mean.fj)), function(x){sprintf("Factor %s",
 
 tictoc::tic()
 BootCube.Comm <- Boot4Mean(svd.res$ExPosition.Data$fj,
+                           parallelize = T,
                            design = gtlabel$subjects_edge_label,
                            niter = 100,
                            suppressProgressBar = TRUE)
 tictoc::toc()
+
+# compute mean factor scores for each edge and the partial factor scores of each subject for these factor scores
+### use split string to separate the subject and edge labels (this is done at this step because we want to take the average across them after averaging across regions that belong to the same edge and subject)
+mean.fj.label <- strsplit(sub('(^[^_]+)_(.*)$', '\\1 \\2', rownames(mean.fj)), ' ') %>% unlist %>% matrix(ncol = 2, byrow = T, dimnames = list(rownames(mean.fj),c("sub","edge"))) %>% data.frame
+### compute means
+mean.edge.fj <- getMeans(mean.fj, mean.fj.label$edge)
+### create array for partial factor scores
+edge.pF <- array(data = NA, dim = (c(nrow(mean.edge.fj),ncol(mean.fj),length(unique(mean.fj.label$sub)))), dimnames = list(rownames(mean.edge.fj),colnames(mean.fj),unique(mean.fj.label$sub)))
+### fill the array of partial factor scores
+n.edges <- dim(edge.pF)[1]
+for (i in 1:length(subj.name)){
+  for (j in 1:n.edges){
+    tbname <- subj.name[i]
+    rwname <- rownames(edge.pF)[j]
+    edge.pF[rwname,,tbname] <- as.matrix(mean.fj[which(mean.fj.label$sub == tbname & mean.fj.label$edge == rwname),])
+  }
+}
+
 
 # Compute means of factor scores for different types of edges
 mean.fj.bw <- getMeans(svd.res$ExPosition.Data$fj, gtlabel$subjects_wb) # with t(gt)
@@ -394,6 +413,7 @@ colnames(mean.fj.bw) <- sapply(c(1:ncol(mean.fj.bw)), function(x){sprintf("Facto
 
 tictoc::tic()
 BootCube.Comm.bw <- Boot4Mean(svd.res$ExPosition.Data$fj,
+                              parallelize = T,
                               design = gtlabel$subjects_wb,
                               niter = 100,
                               suppressProgressBar = TRUE)
@@ -437,10 +457,27 @@ plot.f_bw_imp <- createFactorMap(mean.fj.bw, axis1 = 1, axis2 = 2,
                                  title = "Mean factor scores for subject_x_edge types")
 f_netedge_plot04 <- plot.f_bw_imp$zeMap_background + plot.f_bw_imp$zeMap_dots + plot.f_bw_imp$zeMap_text + f.labels
 
+# plot mean factor scores of network edges
+### plot the mean factor scores for network edges
+plot.f_edge4pF <- createFactorMap(mean.edge.fj,
+                                  constraints = minmaxHelper4Partial(mean.edge.fj,edge.pF),
+                                  text.cex = 3) # with t(gt)
+
+# partial factor scores for for subjects (subtables)
+plot.pf_edge <- createPartialFactorScoresMap(
+  factorScores = mean.edge.fj,
+  partialFactorScores = edge.pF,
+  axis1 = 1, axis2 = 2,
+  names4Partial = subj.name,
+  font.labels = "bold"
+)
+
+f_netedge_plot05 <- plot.f_edge4pF$zeMap + f.labels + plot.pf_edge$mapColByBlocks
 ```
 
+
 ```{r grid_f_netedge_plot, echo=F, fig.height=12, fig.width=12}
-gridExtra::grid.arrange(as.grob(f_netedge_plot01), as.grob(f_netedge_plot02),as.grob(f_netedge_plot03),as.grob(f_netedge_plot04),nrow=2,
+gridExtra::grid.arrange(as.grob(f_netedge_plot01), as.grob(f_netedge_plot02),as.grob(f_netedge_plot03),as.grob(f_netedge_plot04), as.grob(f_netedge_plot05),nrow=2,
                         top = textGrob("Mean factor scores for edges",gp=gpar(fontsize=18,font=3)))
 ```
 
