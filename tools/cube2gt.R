@@ -13,6 +13,7 @@
 # Ouput:    gt,           grand table based on zcube
 #           gtlabel,     grand table labels (edges_label, subjects_label, subjects_edge_label, within_between)
 # #########################################################################
+# jc,  UTD 2019/08/09 - Add double-center option back to read zcube.dc instead of z
 # jc,  UTD 2019/08/01 - Comment out double-center option (it should be operated on the correlation matrix)
 # jc,  UTD 2019/06/19 - Add option to double-center matrix
 # myc, UTD 2019/04/11 - Add subj_list input
@@ -44,7 +45,16 @@ cube2gt <- function(cube_paths, comm_paths, out_file=NULL, subj_list=NULL, doubl
   
   for(i in 1:nsub){
     cube <- loadRData(cube_paths[[i]])
-    s <- cube$zcube
+    
+    ########################
+    # Add double-centering #
+    ########################=======
+    if (double_cent){
+      s <- cube$zcube.dc
+    }else{
+      s <- cube$zcube
+    }
+    #==============================
     c <- read.table(comm_paths[[i]], sep=",")[,3]
     
     # Take out negatives and Inf (usually diagonals) by setting to 0
@@ -56,13 +66,6 @@ cube2gt <- function(cube_paths, comm_paths, out_file=NULL, subj_list=NULL, doubl
     subtab <- matrix(NA, dim(s)[3], sum(upper.tri(s[,,1]))) # session x upper-tri edges
     for(j in 1:dim(s)[3]){
       
-      ########################
-      # Add double-centering #
-      ########################=======
-      # if (double_cent){
-      #   s[,,j] <- s[,,j] %>% scale(scale = FALSE) %>% t %>% scale(scale = FALSE)
-      # }
-      #==============================
       
       ss <- s[,,j]
       subtab[j,] <- ss[upper.tri(s[,,1])]

@@ -30,3 +30,6 @@ This folder stores functions we wrote for this project.
 
 * *gt_allsubs*:
 ---Get grand tables (reshaped correlation cubes) for all subject
+
+* *gt_bignetworks_allsubs*:
+---Get the grand data table that only have the common networks across subjects
