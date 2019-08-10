@@ -3,6 +3,8 @@
 #------------------------------
 # Note: 
 #    - I added the double-centering for z cube: zcube.dc
+#    - We don't need this because we perform the same procedure in gt_allsub.R with options set in cube2gt.R
+#      This function did not take negative values and Inf into account, and will generate NaN for zcube.dc
 #=======================================================
 # Make cube for all subs
 source("./tools/tp_to_rz.R")
