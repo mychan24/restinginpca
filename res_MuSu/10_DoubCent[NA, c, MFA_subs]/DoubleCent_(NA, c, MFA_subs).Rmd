@@ -381,6 +381,7 @@ colnames(mean.fj) <- sapply(c(1:ncol(mean.fj)), function(x){sprintf("Factor %s",
 
 tictoc::tic()
 BootCube.Comm <- Boot4Mean(svd.res$ExPosition.Data$fj,
+                           parallelize = T,
                            design = gtlabel$subjects_edge_label,
                            niter = 100,
                            suppressProgressBar = TRUE)
@@ -392,6 +393,7 @@ colnames(mean.fj.bw) <- sapply(c(1:ncol(mean.fj.bw)), function(x){sprintf("Facto
 
 tictoc::tic()
 BootCube.Comm.bw <- Boot4Mean(svd.res$ExPosition.Data$fj,
+                              parallelize = T,
                               design = gtlabel$subjects_wb,
                               niter = 100,
                               suppressProgressBar = TRUE)

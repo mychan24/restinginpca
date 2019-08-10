@@ -414,6 +414,14 @@ for (i in 1:length(subj.name)){
   }
 }
 
+tictoc::tic()
+BootCube.Comm.edge <- Boot4Mean(mean.fj,
+                                parallelize = T,
+                                design = mean.fj.label$edge,
+                                niter = 100,
+                                suppressProgressBar = TRUE)
+tictoc::toc()
+
 # Compute means of factor scores for different types of edges
 mean.fj.bw <- getMeans(svd.res$ExPosition.Data$fj, gtlabel$subjects_wb) # with t(gt)
 colnames(mean.fj.bw) <- sapply(c(1:ncol(mean.fj.bw)), function(x){sprintf("Factor %s",x)})
