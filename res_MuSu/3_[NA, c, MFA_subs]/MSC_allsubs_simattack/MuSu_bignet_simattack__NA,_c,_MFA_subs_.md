@@ -62,7 +62,6 @@ parcel.list <- lapply(1:length(parcelfile2read), function(x){
   getVoxDes(parcel,CommName)
 })
 names(parcel.list) <- subj.name
-
 #-- Create colors for heatmap 
 labelcol <- list()
 textcol <- list()
@@ -136,7 +135,6 @@ c_edge <- aggregate(cJ,list(edge = gtlabel$subjects_edge_label),sum)
 rownames(c_edge) <- c_edge$edge
 c_edge <- c_edge[,-1]
 rownames(cI) <- c(1:10)
-
 ## Find important sessions
 #--- get the contribution for component 1 AND 2 by sum(SS from 1, SS from 2)/sum(eigs 1, eigs 2)
 sesCtr12 <- (cI[,1]+cI[,2])/(svd.res$ExPosition.Data$eigs[1] + svd.res$ExPosition.Data$eigs[2])
@@ -148,7 +146,6 @@ importantSes2 <- (cI[,2] >= 1/length(cI[,2]))
 col4ImportantSes <- as.matrix(rep("mediumorchid4",nrow(cI))) # get colors
 col4NS <- 'gray48' # set color for not significant edges to gray
 col4ImportantSes[!importantSes] <- col4NS # replace them in the color vector
-
 ## Find important edges
 #--- compute the sums of squares of each variable for each component
 absCtrEdg <- as.matrix(c_edge) %*% diag(svd.res$ExPosition.Data$eigs)
@@ -197,7 +194,6 @@ contribute to different sesssions.
 # We can also compute the partial factor scores for each participant:
 subj.table <- gtlabel$subjects_label
 table2normalize <- subtab_i
-
 n_subj <- length(unique(gtlabel$subjects_label))
 n_table2normalize <- sapply(1:n_subj, function(x){
   length(unique(table2normalize[which(subj.table == unique(subj.table)[x])]))})
@@ -206,19 +202,12 @@ pFi <- sapply(1:n_subj, function(x){
   # weighted by the inverse of "the # of tables contributed for each subject"
   (sum(n_table2normalize)/n_table2normalize[x])/(sv[[1]][x])*cgt[,which(subj.table == unique(subj.table)[x])] %*% (svd.res$ExPosition.Data$pdq$q[which(subj.table == unique(subj.table)[x]),])
 }, simplify = "array")
-
 # name the dimension of the array that stores partial F
 dimnames(pFi) <- list(rownames(cgt),colnames(svd.res$ExPosition.Data$fi),unique(subj.table))
-
 ## Check barycentric
 ch1 <- apply(pFi,c(1:2),mean)
 ch2 <- cgt %*% (svd.res$ExPosition.Data$pdq$q)
 ```
-
-MYC: only show the odd numbered sessions’ partial factor score. Note
-that the odd\# subjects’ odd\# sessions are induced with reduced
-connectivity in default, default-FP and
-default-VAN.
 
 ![](MuSu_bignet_simattack__NA,_c,_MFA_subs__files/figure-gfm/plot_pf_sess-1.png)<!-- -->
 
@@ -229,33 +218,59 @@ first compute the mean factor scores for the each network edge.
 # Compute means of factor scores for different edges----
 mean.fj <- getMeans(svd.res$ExPosition.Data$fj, gtlabel$subjects_edge_label) # with t(gt)
 colnames(mean.fj) <- sapply(c(1:ncol(mean.fj)), function(x){sprintf("Factor %s",x)})
-
 tictoc::tic()
 BootCube.Comm <- Boot4Mean(svd.res$ExPosition.Data$fj,
+                           parallelize = T,
                            design = gtlabel$subjects_edge_label,
                            niter = 100,
-                           suppressProgressBar = TRUE,
-                           parallelize = TRUE)
+                           suppressProgressBar = TRUE)
 tictoc::toc()
 ```
 
-    ## 475.621 sec elapsed
+    ## 392.764 sec elapsed
+
+``` r
+# compute mean factor scores for each edge and the partial factor scores of each subject for these factor scores
+### use split string to separate the subject and edge labels (this is done at this step because we want to take the average across them after averaging across regions that belong to the same edge and subject)
+mean.fj.label <- strsplit(sub('(^[^_]+)_(.*)$', '\\1 \\2', rownames(mean.fj)), ' ') %>% unlist %>% matrix(ncol = 2, byrow = T, dimnames = list(rownames(mean.fj),c("sub","edge"))) %>% data.frame
+### compute means
+mean.edge.fj <- getMeans(mean.fj, mean.fj.label$edge)
+### create array for partial factor scores
+edge.pF <- array(data = NA, dim = (c(nrow(mean.edge.fj),ncol(mean.fj),length(unique(mean.fj.label$sub)))), dimnames = list(rownames(mean.edge.fj),colnames(mean.fj),unique(mean.fj.label$sub)))
+### fill the array of partial factor scores
+n.edges <- dim(edge.pF)[1]
+for (i in 1:length(subj.name)){
+  for (j in 1:n.edges){
+    tbname <- subj.name[i]
+    rwname <- rownames(edge.pF)[j]
+    edge.pF[rwname,,tbname] <- as.matrix(mean.fj[which(mean.fj.label$sub == tbname & mean.fj.label$edge == rwname),])
+  }
+}
+tictoc::tic()
+BootCube.Comm.edge <- Boot4Mean(mean.fj,
+                                parallelize = T,
+                                design = mean.fj.label$edge,
+                                niter = 100,
+                                suppressProgressBar = TRUE)
+tictoc::toc()
+```
+
+    ## 4.885 sec elapsed
 
 ``` r
 # Compute means of factor scores for different types of edges
 mean.fj.bw <- getMeans(svd.res$ExPosition.Data$fj, gtlabel$subjects_wb) # with t(gt)
 colnames(mean.fj.bw) <- sapply(c(1:ncol(mean.fj.bw)), function(x){sprintf("Factor %s",x)})
-
 tictoc::tic()
 BootCube.Comm.bw <- Boot4Mean(svd.res$ExPosition.Data$fj,
+                              parallelize = T,
                               design = gtlabel$subjects_wb,
                               niter = 100,
-                              suppressProgressBar = TRUE,
-                              parallelize = TRUE)
+                              suppressProgressBar = TRUE)
 tictoc::toc()
 ```
 
-    ## 346.983 sec elapsed
+    ## 263.397 sec elapsed
 
 Next, we plot the factor scores for the subject x edges (a mess): Dim 1
 &
