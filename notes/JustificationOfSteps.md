@@ -51,12 +51,12 @@
 
 	+ Why--
 
-		This step eliminates the offset of all (both between- and within-network) correlations of each region (i.e., each row and each column). This procedure could prevent the components from being dominated by a region with a strong average correlation.
+		This step eliminates the magnitudes of all (both between- and within-network) correlations of each region (i.e., each row and each column). This procedure could prevent the components from being dominated by a region with a strong average correlation.
 
 		eliminate effects of hubs
 
 	+ _Notes_:
-		We performed double-centering procedure on the original correlation matrix instead of the z-transformed correlation matrix, because, even after excluding the negative correlations, double-centering the correlation matrix gives correlation larger than 1, which results NaN in the transformed correlation (from trying to take the log of negative values). These correlations larger than 1 occur because that the centered columns could end up with negative row means.
+		We performed double-centering procedure on the z-transformed correlation matrix, because, even after excluding the negative correlations, double-centering the correlation matrix gives correlation larger than 1, which results NaN in the transformed correlation (from trying to take the log of negative values). These correlations larger than 1 occur because that the centered columns could end up with negative row means.
 
 2. centering the rows of the rectangular matrix:
 
@@ -66,7 +66,7 @@
 
 	+ Why _not_--
 
-		This procedure eliminates the difference in offsets across sesssions and only keep, within each session, the relative pattern accross edges. We do _NOT_ implement this procedure because, for the data we planned to apply this analysis, the rows will have different conditions instead, and we are interested in the magnitude difference between these conditions. Note that this step was chosen to be skipped only because it did not suit the data that motivated us to develop this technique.
+		This procedure eliminates the difference in magnitudes across sesssions and only keep, within each session, the relative pattern accross edges. We do _NOT_ implement this procedure because, for the data we planned to apply this analysis, the rows will have different conditions instead, and we are interested in the magnitude difference between these conditions. Note that this step was chosen to be skipped only because it did not suit the data that motivated us to develop this technique.
 
 3. centering the columns of the rectangular matrix:
 
@@ -76,7 +76,7 @@
 
 	+ Why-- 
 
-		This procedure eliminates the difference in the offset of each edge (the offset of each edge across sessions) of each subject. In this case, for each edge of each subject, we analyze the difference between a connectivity and its average across sessions.
+		This procedure eliminates the difference in the magnitude of each edge (the offset of each edge across sessions) of each subject. In this case, for each edge of each subject, we analyze the difference between a connectivity and its average across sessions.
 
 		This procedure also prevents the data from being unidimensional where the first dimension is dominated by the magnitude of the mean of the grand data table.
 

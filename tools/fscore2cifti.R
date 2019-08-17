@@ -67,7 +67,7 @@ for(i in 1:length(subj.name)){
   }
 
   ##############################
-  ### Uee workbench command ###
+  ### Use workbench command ###
   ##############################
   # write fj mapped to cifti postioin to textfile 
   fj_file <- "./fj_temp.txt"
@@ -76,7 +76,7 @@ for(i in 1:length(subj.name)){
   if(is.null(wb_path)){
     switch(Sys.info()[['sysname']],
            Linux = {wbcommand <- "wb_command"}, # Need to update for Windows ***
-           Windows= {wbcommand <- "C:\\Program Files\\workbench\\bin_macosx64\\wb_command"},
+           Windows= {wbcommand <- "C:\\Users\\juchiyu\\Documents\\wokrbench\\bin_windows64"},
            Darwin = {wbcommand <- "/Applications/workbench/bin_macosx64/wb_command"})
   }else{
     wbcommand <- file.path(wb_path, "wb_command")
