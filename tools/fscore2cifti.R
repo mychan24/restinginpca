@@ -76,7 +76,7 @@ for(i in 1:length(subj.name)){
   if(is.null(wb_path)){
     switch(Sys.info()[['sysname']],
            Linux = {wbcommand <- "wb_command"}, # Need to update for Windows ***
-           Windows= {wbcommand <- "C:\\Users\\juchiyu\\Documents\\wokrbench\\bin_windows64"},
+           Windows= {wbcommand <- "C:\\Users\\juchi\\Documents\\wokrbench\\bin_windows64\\wb_command"},
            Darwin = {wbcommand <- "/Applications/workbench/bin_macosx64/wb_command"})
   }else{
     wbcommand <- file.path(wb_path, "wb_command")
