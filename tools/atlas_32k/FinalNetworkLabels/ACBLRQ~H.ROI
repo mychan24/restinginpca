@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE GIFTI SYSTEM "http://www.nitrc.org/frs/download.php/1594/gifti.dtd">
+<GIFTI
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="http://brainvis.wustl.edu/caret6/xml_schemas/GIFTI_Caret.xsd"
+      Version="1.0"
+      NumberOfDataArrays="1">
+   <MetaData>
+      <MD>
+         <Name><![CDATA[Caret-Version]]></Name>
+         <Value><![CDATA[5.65]]></Value>
+      </MD>
+      <MD>
+         <Name><![CDATA[Date]]></Name>
+         <Value><![CDATA[2012-10-28T20:43:34]]></Value>
+      </MD>
+      <MD>
+         <Name><![CDATA[encoding]]></Name>
+         <Value><![CDATA[XML_BASE64_GZIP]]></Value>
+      </MD>
+   </MetaData>
+   <LabelTable>
+      <Label Key="0" Red="1.000" Green="1.000" Blue="1.000" Alpha="1.000"><![CDATA[???]]></Label>
+      <Label Key="1" Red="1.000" Green="1.000" Blue="1.000" Alpha="1.000"><![CDATA[Selected]]></Label>
+      <Label Key="2" Red="1.000" Green="1.000" Blue="1.000" Alpha="1.000"><![CDATA[Deselected]]></Label>
+   </LabelTable>
+   <DataArray Intent="NIFTI_INTENT_LABEL"
+              DataType="NIFTI_TYPE_INT32"
+              ArrayIndexingOrder="RowMajorOrder"
+              Dimensionality="1"
+              Dim0="32492"
+              Encoding="GZipBase64Binary"
+              Endian="LittleEndian"
+              ExternalFileName=""
+              ExternalFileOffset="0">
+      <MetaData>
+         <MD>
+            <Name><![CDATA[Description]]></Name>
+            <Value><![CDATA[ Nodes assigned the name a4_"Hand"_somatosensory-motor in column named
+deformed_RSN consensus communities (PCN11 - Power_Neuron11) dilated
+AND-NOT Nodes assigned the name MEDIAL.WALL in column named MEDIAL WALL lh
+(fs_LR)]]></Value>
+         </MD>
+         <MD>
+            <Name><![CDATA[UniqueID]]></Name>
+            <Value><![CDATA[{ebb32949-7e52-4fba-857c-4b5d7c313498}]]></Value>
+         </MD>
+      </MetaData>
+      <Data>eJzt3dFuozAQBVDC/3/0ripVqiJCbLA9HnMezktV7HuNoWxJtfu2ba//dgAAAAAAAODHq0J0Vq6du+icPTpl61XaLTrjE7uUdIrOdrfPvuXtkT07AAAAAIxW83v27KLXOsP5W6lLZK8V9/MKfV7bGl1G7K/ePd7nydqh93nJfI3LPS73qH2eJW/LzFmyZti3T883W7YWe+99nMg16rV2LeafIceVDEfH9s5Relyr81Izbs+9Wjpmr+sEoNan+/fRc8a3e32P5xzoIfq6u3ONEn9Oep6/6LxP71XTLzpj617R2VqckwxdVuiRuUPme9dTskdnvZI7Ome2vNn2w+w5960s56xrF5Vvxmwz3uezZ5olx0xZVs2QZf4V5p21a4a59sLx78zT+97Uc/xeY98d9/1rtePtB8feGat2H8EqRv9cWckMa7Ty+Vu124q99Jm3W68uo/vo8L1D7z7WfnyPUblbdumd+bWdZ67t0TPv2T65so9GZ72630euZel6R2Ss3RMj8tWOHbkPS3JH52q51gCMEfGMfXessznuPnMcjdHiWev9ub1krhb//mg1Vstxro53d4yWawwAAAAAAAAAAAAAAAAAs7j6d59w1cr77am9ovM9vc9Zp+hcrbpEZ9IhPs8Ts0dnWTVzpryZsv7mjc6QPeOs+WbehzPmmi3TTHlmygIAAAAAAAAAEVr/Pz4lYx19b+3nTu/8zUHNsa8/x1w5tqQjsaKvQQAA+CvLM2qWZ+rZM86+jjNnAwAAAIDVZf3dXNbcALM7u79G3Hs/vUc6e7/U893Tt89qfvp6jzzf5hv1Ocbo+Y8ynJ2f3vN/ytN77qh5R76Ljpqv9zyj5+o9n/f/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABE+gezAPFF</Data>
+   </DataArray>
+</GIFTI>

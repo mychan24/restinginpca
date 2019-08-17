@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE GIFTI SYSTEM "http://www.nitrc.org/frs/download.php/1594/gifti.dtd">
+<GIFTI
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="http://brainvis.wustl.edu/caret6/xml_schemas/GIFTI_Caret.xsd"
+      Version="1.0"
+      NumberOfDataArrays="1">
+   <MetaData>
+      <MD>
+         <Name><![CDATA[Caret-Version]]></Name>
+         <Value><![CDATA[5.65]]></Value>
+      </MD>
+      <MD>
+         <Name><![CDATA[Date]]></Name>
+         <Value><![CDATA[2012-10-28T20:43:40]]></Value>
+      </MD>
+      <MD>
+         <Name><![CDATA[encoding]]></Name>
+         <Value><![CDATA[XML_BASE64_GZIP]]></Value>
+      </MD>
+   </MetaData>
+   <LabelTable>
+      <Label Key="0" Red="1.000" Green="1.000" Blue="1.000" Alpha="1.000"><![CDATA[???]]></Label>
+      <Label Key="1" Red="1.000" Green="1.000" Blue="1.000" Alpha="1.000"><![CDATA[Selected]]></Label>
+      <Label Key="2" Red="1.000" Green="1.000" Blue="1.000" Alpha="1.000"><![CDATA[Deselected]]></Label>
+   </LabelTable>
+   <DataArray Intent="NIFTI_INTENT_LABEL"
+              DataType="NIFTI_TYPE_INT32"
+              ArrayIndexingOrder="RowMajorOrder"
+              Dimensionality="1"
+              Dim0="32492"
+              Encoding="GZipBase64Binary"
+              Endian="LittleEndian"
+              ExternalFileName=""
+              ExternalFileOffset="0">
+      <MetaData>
+         <MD>
+            <Name><![CDATA[Description]]></Name>
+            <Value><![CDATA[ Nodes assigned the name a16_"Mouth"_somatosensory-motor in column
+named deformed_RSN consensus communities (PCN11 - Power_Neuron11)
+dilated
+AND-NOT Nodes assigned the name MEDIAL.WALL in column named MEDIAL WALL lh
+(fs_LR)]]></Value>
+         </MD>
+         <MD>
+            <Name><![CDATA[UniqueID]]></Name>
+            <Value><![CDATA[{6127f849-a157-4490-a9fa-ed72a643cac7}]]></Value>
+         </MD>
+      </MetaData>
+      <Data>eJzt3NGOgjAQBVDq/3/0+rAPGwPbls5QqOfhBA1wp4XE2JH42rbt9VZ+twAAAAAAAAAAAAAAAAAAAAAAAAAwWxkwe+z038vZYzSv+pxmjw0AAAAAgDWM/Aa0Wl8eAAAAAL5Rdi8vsmd4lNPbm+ztb7Zkt2aWSmZ0bzYqKzLnbN5oRuQ15n5mf5YCAAAAAAAAADxZ+bN98jMZqzxbssKzMkfjfsr4AQAAAAAAAAAAAAAAAAAAAAAAAAAAAIB11P4DvkVrzuy5AgAAMO5O67vaWLLHerTuvXJtPHudHtVXOHuvr6i/d0xE3Vr9WXWz6rXUzaiXfR1r9bJrfdZ8WjZAhszvfwAAAABAvFX6elnzyOp9ZuRGZ0bmReaMZo1mzDj3zHm95/Rcl8jjasf8t/9o395c9t6Xj9erfB4CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAXK3cYAwAAAAAAEC+H3ML+lk=</Data>
+   </DataArray>
+</GIFTI>

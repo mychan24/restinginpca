@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE GIFTI SYSTEM "http://www.nitrc.org/frs/download.php/1594/gifti.dtd">
+<GIFTI
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="http://brainvis.wustl.edu/caret6/xml_schemas/GIFTI_Caret.xsd"
+      Version="1.0"
+      NumberOfDataArrays="1">
+   <MetaData>
+      <MD>
+         <Name><![CDATA[Caret-Version]]></Name>
+         <Value><![CDATA[5.65]]></Value>
+      </MD>
+      <MD>
+         <Name><![CDATA[Date]]></Name>
+         <Value><![CDATA[2012-10-28T20:58:13]]></Value>
+      </MD>
+      <MD>
+         <Name><![CDATA[encoding]]></Name>
+         <Value><![CDATA[XML_BASE64_GZIP]]></Value>
+      </MD>
+   </MetaData>
+   <LabelTable>
+      <Label Key="0" Red="1.000" Green="1.000" Blue="1.000" Alpha="1.000"><![CDATA[???]]></Label>
+      <Label Key="1" Red="1.000" Green="1.000" Blue="1.000" Alpha="1.000"><![CDATA[Selected]]></Label>
+      <Label Key="2" Red="1.000" Green="1.000" Blue="1.000" Alpha="1.000"><![CDATA[Deselected]]></Label>
+   </LabelTable>
+   <DataArray Intent="NIFTI_INTENT_LABEL"
+              DataType="NIFTI_TYPE_INT32"
+              ArrayIndexingOrder="RowMajorOrder"
+              Dimensionality="1"
+              Dim0="32492"
+              Encoding="GZipBase64Binary"
+              Endian="LittleEndian"
+              ExternalFileName=""
+              ExternalFileOffset="0">
+      <MetaData>
+         <MD>
+            <Name><![CDATA[Description]]></Name>
+            <Value><![CDATA[ Nodes assigned the name 17Networks_5 in column named
+deformed_fs_L-to-fs_LR_deformed_Yeo2011_17Networks
+AND-NOT Nodes assigned the name MEDIAL.WALL in column named MEDIAL WALL lh
+(fs_LR)]]></Value>
+         </MD>
+         <MD>
+            <Name><![CDATA[UniqueID]]></Name>
+            <Value><![CDATA[{6975ad52-a671-4daf-bfc0-25600140c209}]]></Value>
+         </MD>
+      </MetaData>
+      <Data>eJzt3ctygzAMBdCE///objsZCBhsS3LO4kwfCdYVtkmTRdler9cGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAnb2DRPdd0erzs2pvq/W1Uj8r7Sl95Omjau5Z579q/lm5e/Uxeq1sH3XOMhw9NjPv1awtx87M+WR+smacOd/ROQAAAFpl+gwgssfojKN6i87Xs7foPObqWh8r9ROdbbX8752vVdZS1s/OV8x9J3N07kpZW/PKuk7O7Bkz73u56q6zTHmyzFdr/aMsn79vyXxnv78bjx1R/07WiNp752Bm3da56tXnKrV6z9vZPu01ds/9Fn1drTDmqGx3r+vbjbpHYzw5Hmbouf8yWrWvs/6ic5mv7z1FZ/qWter8tF7Lovv4rHfnb8yo/Hs1e+Wf0cPI/FFrOyp76/6KzjwrV/WsrXlXz/lknB7zvn0Za6/O3s8jz+GVY75lezL2levRHUc5n8zp00xnGWcdCwAAAAAAAAAAAAAAAAAAAAAAAAAAAIw18v91AwAA68jyfuDofjn/v4/IenQPoCv3BRqdJ8v7vIp5Vs+RYZ1E1o+ovXe9Gl139jxfqdGr3lmN0eew13o4O28Zs884N7PGzTbmqHyRYzzp50ntO8e2HnPl+S1r5Ow5V65xo18/uWf263HGvqr09us9RWf9lflp7WOlXqLzrpC9YubK2atlrpS30h6skrMlq2zt+bLPa9Zcs7NVyPP/segsEWsnQ47oDJFrIXreZ9cFAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgCz+APv6910=</Data>
+   </DataArray>
+</GIFTI>
