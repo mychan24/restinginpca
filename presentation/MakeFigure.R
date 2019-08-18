@@ -10,6 +10,7 @@ library(RColorBrewer)
 library(pals)
 library(PTCA4CATA)
 library(dplyr)
+library(plyr)
 
 # Scree plots ----
 PlotScree(svd.res$ExPosition.Data$eigs,title = "",plotKaiser = T,lwd4Kaiser = 1)
@@ -45,6 +46,15 @@ mean.fj2plot <- mean.fj[which(importantEdg == TRUE),]
 getBoot2plot_edge <- BootCube.Comm$BootCube[importantEdg,c(1,2),]
 # getBoot2plot_edge <- BootCube.Comm$BootCube[,c(1,2),]
 
+
+net.edge.col <- as.matrix(mapvalues(net.edge,from = unique(net.edge), to = rep(cols25(10),each = 2)))
+rownames(net.edge.col) <- rownames(c_edge)
+#--- color for networks
+col4ImportantEdg <- net.edge.col # get colors
+col4NS <- 'gray90' # set color for not significant edges to gray
+col4ImportantEdg[!importantEdg] <- col4NS # replace them in the color vector
+
+
 fj2plot.sq <- apply(mean.fj2plot[1:9],2,function(x){x^2}) # square the factor scores
 dist2c <- sqrt(fj2plot.sq[,1]+fj2plot.sq[,2]) # take the sqrt of the ss of component 1+2
 fj.ind <- sort(abs(dist2c),decreasing = TRUE, index.return = TRUE)$ix # sort the distance to the origen and get the index (big to small)
@@ -60,7 +70,7 @@ plot.f_edge_imp <- createFactorMap(mean.fj2plot[fj2plot.ind,], axis1 = 1, axis2 
                                    box.padding = 0.05,
                                    title = "",
                                    col.background = adjustcolor('white',alpha.f = .2),
-                                   constraints = lapply(minmaxHelper(mean.fj2plot[fj2plot.ind,]),"*",1.5)
+                                   constraints = lapply(minmaxHelper(mean.fj2plot[fj2plot.ind,]),"*",2)
                                    )
 f_impedge.CI <- MakeCIEllipses(getBoot2plot_edge[fj2plot.ind,,],
                                names.of.factors = c(sprintf("Factor %s", 1),sprintf("Factor %s", 2)),
@@ -71,8 +81,10 @@ f_CInetedge
 
 # Plot edges type
 plot.f_bw_imp <- createFactorMap(mean.fj.bw, axis1 = 1, axis2 = 2,
-                                 col.points = net.edge.col$gc[rownames(mean.fj.bw),],
-                                 col.labels = net.edge.col$gc[rownames(mean.fj.bw),],
+                                 col.points = rep(cols25(10),each = 2),
+                                 col.labels = rep(cols25(10),each = 2),
+                                 # col.points = net.edge.col$gc[rownames(mean.fj.bw),],
+                                 # col.labels = net.edge.col$gc[rownames(mean.fj.bw),],
                                  text.cex = 3,
                                  force = 0.5,
                                  title = "",
@@ -84,7 +96,8 @@ getBoot2plot_edge_bw <- BootCube.Comm.bw$BootCube
 # plot the CI ellipses
 plot.CI.f_bw <- MakeCIEllipses(getBoot2plot_edge_bw[,c(1,2),],
                                names.of.factors = c(sprintf("Factor %s", 1),sprintf("Factor %s", 2)),
-                               col = as.vector(net.edge.col$gc[rownames(getBoot2plot_edge_bw),]),
+                               col = rep(cols25(10),each = 2),
+                               # col = as.vector(net.edge.col$gc[rownames(getBoot2plot_edge_bw),]),
                                p.level = .95)
 # create plot
 # f_CInetedge_bw <- plot.f_bw_imp$zeMap_background + plot.f_bw_imp$zeMap_dots + plot.f_bw_imp$zeMap_text + plot.CI.f_bw + f.labels
