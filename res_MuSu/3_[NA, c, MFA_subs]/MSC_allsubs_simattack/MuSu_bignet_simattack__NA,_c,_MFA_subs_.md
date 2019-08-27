@@ -209,6 +209,10 @@ ch1 <- apply(pFi,c(1:2),mean)
 ch2 <- cgt %*% (svd.res$ExPosition.Data$pdq$q)
 ```
 
+Note that the odd subjects’ odd numbered sessions are induced with
+reduced connectivity in default, default-FP and
+default-VAN.
+
 ![](MuSu_bignet_simattack__NA,_c,_MFA_subs__files/figure-gfm/plot_pf_sess-1.png)<!-- -->
 
 To have a clearer view of the factor scores for the subject x edges, we
@@ -227,7 +231,7 @@ BootCube.Comm <- Boot4Mean(svd.res$ExPosition.Data$fj,
 tictoc::toc()
 ```
 
-    ## 392.764 sec elapsed
+    ## 374.075 sec elapsed
 
 ``` r
 # compute mean factor scores for each edge and the partial factor scores of each subject for these factor scores
@@ -255,7 +259,7 @@ BootCube.Comm.edge <- Boot4Mean(mean.fj,
 tictoc::toc()
 ```
 
-    ## 4.885 sec elapsed
+    ## 5.762 sec elapsed
 
 ``` r
 # Compute means of factor scores for different types of edges
@@ -270,7 +274,7 @@ BootCube.Comm.bw <- Boot4Mean(svd.res$ExPosition.Data$fj,
 tictoc::toc()
 ```
 
-    ## 263.397 sec elapsed
+    ## 243.009 sec elapsed
 
 Next, we plot the factor scores for the subject x edges (a mess): Dim 1
 &

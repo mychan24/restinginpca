@@ -347,6 +347,8 @@ ch1 <- apply(pFi,c(1:2),mean)
 ch2 <- cgt %*% (svd.res$ExPosition.Data$pdq$q)
 ```
 
+Note that the odd subjects' odd numbered sessions are induced with reduced connectivity in default, default-FP and default-VAN.
+
 ```{r plot_pf_sess, echo = FALSE}
 #  And plot them on the same factor map:
 #find the constraints for the pF map
@@ -358,6 +360,7 @@ plot.f_sess4pF <- createFactorMap(svd.res$ExPosition.Data$fi,
                                   constraints = pF.constraints) # with t(gt)
 # select color for subjects (subtables)
 plot.pf_sess <- createPartialFactorScoresMap(
+  colors4Blocks = rep(c("red","blue"),5),
   factorScores = svd.res$ExPosition.Data$fi,
   partialFactorScores = pFi,
   axis1 = 1, axis2 = 2,
