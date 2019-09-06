@@ -8,7 +8,9 @@ knitr::opts_chunk$set(echo = TRUE)
 library(pander)
 library(psych)
 library(DistatisR)
-library(tidyr)
+# library(tidyr)
+library(RColorBrewer)
+library(tidyverse)
 library(magrittr)
 library(PTCA4CATA)
 library(ExPosition)
@@ -52,7 +54,7 @@ gtlabel[,'subjects_wb'] <- sprintf('%s_%s', gtlabel$subjects_label, gtlabel$wb)
 gt <- gt[,gtlabel$bignet=="Y"]
 gtlabel <- gtlabel[gtlabel$bignet=="Y",]
 
-gt <- gt[1:4,]
+gt <- gt[2:5,]
 
 # check dim
 dim(gt); dim(gtlabel)
@@ -62,7 +64,7 @@ dim(gt); dim(gtlabel)
 
 **Attack 1**
 
-* In *Even*-numbered *subjects* and *sessions*, Reduce within connectivity in Default Mode (Syslabel: 1), Default-FP (1_3) and Default_VAN (1_5).
+* In all *subjects* and Even-numbered *sessions* (2 & 4), Reduce within connectivity in Default Mode (Syslabel: 1), Default-FP (1_3) and Default_VAN (1_5).
     + identify within default connectivity, default-FP and default-VAN
     + Identify edges that are in odd # subs
     + Simulate reduced connectivity by dividing edges that were identified by above and reduce 50% of connectivity (/2)
@@ -70,10 +72,11 @@ dim(gt); dim(gtlabel)
 ```{r simattack}
 
 i_edges <- which(is.element(gtlabel$edges_label, c("1","1_3","1_5"))) 
-i_sub <- which(is.element(gtlabel$subjects_label, paste("sub0", seq(2,length(subj.name),2), sep = "")))
-i_attack <- intersect(i_edges, i_sub)
+# i_sub <- which(is.element(gtlabel$subjects_label, sprintf("sub%02d", seq(2,length(subj.name),2))))
+# i_attack <- intersect(i_edges, i_sub)
 
-gt[seq(2, nrow(gt), 2), i_attack] <- gt[seq(2, nrow(gt), 2), i_attack]/2  # reduce 50%
+# gt[seq(2, nrow(gt), 2), i_attack] <- gt[seq(2, nrow(gt), 2), i_attack]/2  # reduce 50%
+gt[seq(2, nrow(gt), 2), i_edges] <- gt[seq(2, nrow(gt), 2), i_edges]/2  # reduce 50%
 ```
 
 > This is an SVD with centered columns and hierarchical (network edges -> subjects) MFA-normalized tables.
@@ -230,13 +233,13 @@ for (i in 1:nrow(c_edge)){
 }
 
 #--- create color based on the between/within description for network edges
-net.edge.col <- net.edge %>% makeNominalData %>% createColorVectorsByDesign
-rownames(net.edge.col$gc) <- sub(".","",rownames(net.edge.col$gc))
+net.edge.col <- list(oc = as.matrix(plyr::mapvalues(net.edge,from = unique(net.edge), to = rep(cols25(10),each = 2))),
+                     gc = as.matrix(rep(cols25(10),each = 2)))
 rownames(net.edge.col$oc) <- rownames(c_edge)
-
+rownames(net.edge.col$gc) <- unique(net.edge)
 #--- color for networks
-col4ImportantEdg <- net.edge.col$oc       # get colors
-col4NS <- 'gray90'                        # set color for not significant edges to gray
+col4ImportantEdg <- net.edge.col$oc # get colors
+col4NS <- 'gray90' # set color for not significant edges to gray
 col4ImportantEdg[!importantEdg] <- col4NS # replace them in the color vector
 ```
 
@@ -274,7 +277,10 @@ cjplot02 <- cjplot_imp$zeMap_background + cjplot_imp$zeMap_dots + cjplot_imp$zeM
 ```
 
 ```{r grid_ciplot, echo=F, fig.height=12, fig.width=12}
-gridExtra::grid.arrange(as.grob(cjplot01), as.grob(cjplot02), as.grob(ciplot01),ncol=2,
+gridExtra::grid.arrange(as.grob(cjplot01), 
+                        as.grob(cjplot02), 
+                        as.grob(ciplot01),
+                        ncol=2,
                         top = textGrob("Contribution plots",gp=gpar(fontsize=18,font=3)))
 ```
 
@@ -282,7 +288,7 @@ The contribution for each network edge is computed by dividing its total SS acro
 
 ###### Factor scores
 
-First, we plot the factor scores for the 10 sessions
+First, we plot the factor scores for the 4 sessions
 
 ```{r plot_f_sess, echo = FALSE}
 # Change column names for fi for later use
