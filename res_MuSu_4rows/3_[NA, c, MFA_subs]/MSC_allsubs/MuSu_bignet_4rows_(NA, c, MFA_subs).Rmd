@@ -8,9 +8,7 @@ knitr::opts_chunk$set(echo = TRUE)
 library(pander)
 library(psych)
 library(DistatisR)
-library(tidyr)
-library(dplyr)
-library(plyr)
+library(tidyverse)
 library(magrittr)
 library(PTCA4CATA)
 library(ExPosition)
@@ -20,7 +18,6 @@ library(superheat)
 library(gridExtra)
 library(ggplotify)
 library(grid)
-library(pals)
 library(RColorBrewer)
 library(pals)
 # Read functions -----------------------------------
@@ -56,7 +53,7 @@ gtlabel[,'subjects_wb'] <- sprintf('%s_%s', gtlabel$subjects_label, gtlabel$wb)
 gt <- gt[,gtlabel$bignet=="Y"]
 gtlabel <- gtlabel[gtlabel$bignet=="Y",]
 
-gt <- gt[1:4,]
+gt <- gt[2:5,]
 
 # check dim
 dim(gt); dim(gtlabel)
@@ -66,7 +63,7 @@ dim(gt); dim(gtlabel)
 
 ##### Data:
 
-The data are from the morning scan club (MSC) resting-state data where the participants were each scanned 10 times. The data that are analyzed here are the z-transformed coefficients of correlation between regions. These regions can be categorized into different networks: 
+The data are from the morning scan club (MSC) resting-state data where the participants were each scanned 10 times (and we pick four of them). The data that are analyzed here are the z-transformed coefficients of correlation between regions. These regions can be categorized into different networks: 
   
 ```{r community_list, echo = FALSE, fig.height= 10, fig.width = 2}
 # rename communities
@@ -216,7 +213,7 @@ for (i in 1:nrow(c_edge)){
 }
 
 #--- create color based on the between/within description for network edges
-net.edge.col <- list(oc = as.matrix(mapvalues(net.edge,from = unique(net.edge), to = rep(cols25(10),each = 2))),
+net.edge.col <- list(oc = as.matrix(plyr::mapvalues(net.edge,from = unique(net.edge), to = rep(cols25(10),each = 2))),
                      gc = as.matrix(rep(cols25(10),each = 2)))
 rownames(net.edge.col$oc) <- rownames(c_edge)
 rownames(net.edge.col$gc) <- unique(net.edge)
@@ -305,7 +302,6 @@ ch1 <- apply(pFi,c(1:2),mean)
 ch2 <- cgt %*% (svd.res$ExPosition.Data$pdq$q)
 ```
 
-Note that the EVEN subjects' EVEN numbered sessions are induced with reduced connectivity in default, default-FP and default-VAN.
 
 ```{r plot_pf_sess, echo = FALSE}
 #  And plot them on the same factor map:
