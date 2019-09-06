@@ -8,7 +8,7 @@ MuSu\_(NA, c, MFA\_subs) - MSC All Subjects (N=10) Big Networks 4 rows
 gt <- gt[,gtlabel$bignet=="Y"]
 gtlabel <- gtlabel[gtlabel$bignet=="Y",]
 
-gt <- gt[1:4,]
+gt <- gt[2:5,]
 
 # check dim
 dim(gt); dim(gtlabel)
@@ -24,9 +24,10 @@ dim(gt); dim(gtlabel)
 ##### Data:
 
 The data are from the morning scan club (MSC) resting-state data where
-the participants were each scanned 10 times. The data that are analyzed
-here are the z-transformed coefficients of correlation between regions.
-These regions can be categorized into different networks:
+the participants were each scanned 10 times (and we pick four of them).
+The data that are analyzed here are the z-transformed coefficients of
+correlation between regions. These regions can be categorized into
+different networks:
 
 | Comm | Community | CommLabel.short |
 | :--: | :-------: | :-------------: |
@@ -154,7 +155,7 @@ for (i in 1:nrow(c_edge)){
 }
 
 #--- create color based on the between/within description for network edges
-net.edge.col <- list(oc = as.matrix(mapvalues(net.edge,from = unique(net.edge), to = rep(cols25(10),each = 2))),
+net.edge.col <- list(oc = as.matrix(plyr::mapvalues(net.edge,from = unique(net.edge), to = rep(cols25(10),each = 2))),
                      gc = as.matrix(rep(cols25(10),each = 2)))
 rownames(net.edge.col$oc) <- rownames(c_edge)
 rownames(net.edge.col$gc) <- unique(net.edge)
@@ -205,9 +206,6 @@ ch1 <- apply(pFi,c(1:2),mean)
 ch2 <- cgt %*% (svd.res$ExPosition.Data$pdq$q)
 ```
 
-Note that the EVEN subjects’ EVEN numbered sessions are induced with
-reduced connectivity in default, default-FP and default-VAN.
-
 ![](MuSu_bignet_4rows__NA,_c,_MFA_subs__files/figure-gfm/plot_pf_sess-1.png)<!-- -->
 
 To have a clearer view of the factor scores for the subject x edges, we
@@ -227,7 +225,7 @@ BootCube.Comm <- Boot4Mean(svd.res$ExPosition.Data$fj,
 tictoc::toc()
 ```
 
-    ## 234.64 sec elapsed
+    ## 258.42 sec elapsed
 
 ``` r
 # compute mean factor scores for each edge and the partial factor scores of each subject for these factor scores
@@ -265,7 +263,7 @@ BootCube.Comm.edge <- Boot4Mean(mean.fj,
 tictoc::toc()
 ```
 
-    ## 4.75 sec elapsed
+    ## 7.33 sec elapsed
 
 ``` r
 # Compute means of factor scores for different types of edges
@@ -281,7 +279,7 @@ BootCube.Comm.bw <- Boot4Mean(svd.res$ExPosition.Data$fj,
 tictoc::toc()
 ```
 
-    ## 97 sec elapsed
+    ## 158.79 sec elapsed
 
 Next, we plot the factor scores for the subject x edges (a mess): Dim 1
 & 2
