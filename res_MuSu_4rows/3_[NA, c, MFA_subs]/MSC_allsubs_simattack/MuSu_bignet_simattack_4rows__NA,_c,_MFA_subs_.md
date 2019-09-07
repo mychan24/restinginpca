@@ -9,7 +9,7 @@ Sim Attack
 gt <- gt[,gtlabel$bignet=="Y"]
 gtlabel <- gtlabel[gtlabel$bignet=="Y",]
 
-gt <- gt[1:4,]
+gt <- gt[2:5,]
 
 # check dim
 dim(gt); dim(gtlabel)
@@ -23,9 +23,9 @@ dim(gt); dim(gtlabel)
 
 **Attack 1**
 
-  - In *Even*-numbered *subjects* and *sessions*, Reduce within
-    connectivity in Default Mode (Syslabel: 1), Default-FP (1\_3) and
-    Default\_VAN (1\_5).
+  - In all *subjects* and Even-numbered *sessions* (2 & 4), Reduce
+    within connectivity in Default Mode (Syslabel: 1), Default-FP (1\_3)
+    and Default\_VAN (1\_5).
       - identify within default connectivity, default-FP and default-VAN
       - Identify edges that are in odd \# subs
       - Simulate reduced connectivity by dividing edges that were
@@ -35,10 +35,11 @@ dim(gt); dim(gtlabel)
 
 ``` r
 i_edges <- which(is.element(gtlabel$edges_label, c("1","1_3","1_5"))) 
-i_sub <- which(is.element(gtlabel$subjects_label, paste("sub0", seq(2,length(subj.name),2), sep = "")))
-i_attack <- intersect(i_edges, i_sub)
+# i_sub <- which(is.element(gtlabel$subjects_label, sprintf("sub%02d", seq(2,length(subj.name),2))))
+# i_attack <- intersect(i_edges, i_sub)
 
-gt[seq(2, nrow(gt), 2), i_attack] <- gt[seq(2, nrow(gt), 2), i_attack]/2  # reduce 50%
+# gt[seq(2, nrow(gt), 2), i_attack] <- gt[seq(2, nrow(gt), 2), i_attack]/2  # reduce 50%
+gt[seq(2, nrow(gt), 2), i_edges] <- gt[seq(2, nrow(gt), 2), i_edges]/2  # reduce 50%
 ```
 
 > This is an SVD with centered columns and hierarchical (network edges
@@ -178,13 +179,13 @@ for (i in 1:nrow(c_edge)){
 }
 
 #--- create color based on the between/within description for network edges
-net.edge.col <- net.edge %>% makeNominalData %>% createColorVectorsByDesign
-rownames(net.edge.col$gc) <- sub(".","",rownames(net.edge.col$gc))
+net.edge.col <- list(oc = as.matrix(plyr::mapvalues(net.edge,from = unique(net.edge), to = rep(cols25(10),each = 2))),
+                     gc = as.matrix(rep(cols25(10),each = 2)))
 rownames(net.edge.col$oc) <- rownames(c_edge)
-
+rownames(net.edge.col$gc) <- unique(net.edge)
 #--- color for networks
-col4ImportantEdg <- net.edge.col$oc       # get colors
-col4NS <- 'gray90'                        # set color for not significant edges to gray
+col4ImportantEdg <- net.edge.col$oc # get colors
+col4NS <- 'gray90' # set color for not significant edges to gray
 col4ImportantEdg[!importantEdg] <- col4NS # replace them in the color vector
 ```
 
@@ -200,7 +201,7 @@ components.
 
 ###### Factor scores
 
-First, we plot the factor scores for the 10
+First, we plot the factor scores for the 4
 sessions
 
 ![](MuSu_bignet_simattack_4rows__NA,_c,_MFA_subs__files/figure-gfm/plot_f_sess-1.png)<!-- -->
@@ -253,7 +254,7 @@ BootCube.Comm <- Boot4Mean(svd.res$ExPosition.Data$fj,
 tictoc::toc()
 ```
 
-    ## 385.949 sec elapsed
+    ## 899.058 sec elapsed
 
 ``` r
 # compute mean factor scores for each edge and the partial factor scores of each subject for these factor scores
@@ -291,7 +292,7 @@ BootCube.Comm.edge <- Boot4Mean(mean.fj,
 tictoc::toc()
 ```
 
-    ## 4.89 sec elapsed
+    ## 5.128 sec elapsed
 
 ``` r
 # Compute means of factor scores for different types of edges
@@ -307,7 +308,7 @@ BootCube.Comm.bw <- Boot4Mean(svd.res$ExPosition.Data$fj,
 tictoc::toc()
 ```
 
-    ## 209.223 sec elapsed
+    ## 522.345 sec elapsed
 
 Next, we plot the factor scores for the subject x edges (a mess): Dim 1
 &
