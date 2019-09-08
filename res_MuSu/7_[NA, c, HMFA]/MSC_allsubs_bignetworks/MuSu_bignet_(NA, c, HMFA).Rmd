@@ -1,5 +1,5 @@
 ---
-title: "MuSu_(NA, c, HMFA) - MSC All Subjects (N=10) Big Networks"
+title: "MuSu_(NA, c, HMFA) - MSC All Subjects (N=10) Big Networks 4 rows"
 output: github_document
 ---
 
