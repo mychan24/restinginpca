@@ -1,4 +1,4 @@
-MuSu\_(NA, c, MFA\_subs) - MSC All Subjects (N=10) Big Networks 4 rows
+MuSu\_(NA, c, MFA\_subs) - MSC All Subjects (N=10) Big Networks 4 Sessions (rows)
 ================
 
 > Reduce grandtable to have consistent networks only & only 4 sessions
@@ -81,7 +81,7 @@ different subjects are concatenated on the columns.*
 
   - Centering: across sessions (rows) (i.e., the columns are centered)
 
-  - Normalizing: MFA normalized the table of each subject
+  - Normalizing: hierarchical MFA normalized by network edges then subjects 
 
 First we compute the weights that are used to MFA-normalized each
 subject table. These weights are computed as the inverse of the first

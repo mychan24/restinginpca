@@ -1,5 +1,5 @@
 ---
-title: "MuSu_(NA, c, MFA_subs) - MSC All Subjects (N=10) Big Networks 4 rows"
+title: "MuSu_(NA, c, MFA_subs) - MSC All Subjects (N=10) Big Networks 4 Sessions (rows)"
 output: github_document
 ---
 
@@ -109,7 +109,7 @@ _Note: The data was transformed from the upper triangle of the correlation matri
 
 + Centering: across sessions (rows) (i.e., the columns are centered)
 
-+ Normalizing: MFA normalized the table of each subject
++ Normalizing: hierarchical MFA normalized by network edges then subjects 
 
 First we compute the weights that are used to MFA-normalized each subject table. These weights are computed as the inverse of the first singular value:
   

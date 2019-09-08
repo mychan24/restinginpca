@@ -1,4 +1,4 @@
-MuSu\_(NA, c, HMFA) - MSC All Subjects (N=10) Big Networks 4 rows- Sim
+MuSu\_(NA, c, HMFA) - MSC All Subjects (N=10) Big Networks 4 Sessions (rows)- Sim
 Attack
 ================
 
@@ -104,7 +104,7 @@ different subjects are concatenated on the columns.*
 
   - Centering: across sessions (rows) (i.e., the columns are centered)
 
-  - Normalizing: MFA normalized the table of each subject
+  - Normalizing: hierarchical MFA normalized by network edges then subjects 
 
 First we compute the weights that are used to MFA-normalized each
 subject table. These weights are computed as the inverse of the first

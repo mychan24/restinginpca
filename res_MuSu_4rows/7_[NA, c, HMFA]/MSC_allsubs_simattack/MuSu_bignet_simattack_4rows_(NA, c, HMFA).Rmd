@@ -1,5 +1,5 @@
 ---
-title: "MuSu_(NA, c, HMFA) - MSC All Subjects (N=10) Big Networks 4 rows- Sim Attack"
+title: "MuSu_(NA, c, HMFA) - MSC All Subjects (N=10) Big Networks 4 Sessions (rows)- Sim Attack"
 output: github_document
 ---
 
@@ -128,10 +128,10 @@ _Note: The data was transformed from the upper triangle of the correlation matri
 
 + Centering: across sessions (rows) (i.e., the columns are centered)
 
-+ Normalizing: MFA normalized the table of each subject
++ Normalizing: hierarchical MFA normalized by network edges then subjects 
 
 First we compute the weights that are used to MFA-normalized each subject table. These weights are computed as the inverse of the first singular value:
-  
+
 ```{r preproc_step, include = FALSE, message=FALSE}
 # Center Columns (across rows) + MFA normalize mini-block (Subjects)
 cgt <- expo.scale(gt, center = T, scale = F)

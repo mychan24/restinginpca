@@ -1,4 +1,4 @@
-MuSu\_(NA, c, MFA\_subs) - MSC All Subjects (N=10) Big Networks 4 rows
+MuSu\_(NA, c, MFA\_subs) - MSC All Subjects (N=4) Big Networks 4 rows
 ================
 
 > Reduce grandtable to have consistent networks only & only 4 sessions
