@@ -137,10 +137,10 @@ for (k in 1:n_lv){
     sv[[k]][i] <- (svd(mfa_preproc[,subtab_i[[k]]==unique(subtab_i[[k]])[i]])$d[1]) # singular value from svd 
     
     # mfa-normalization
-    mfa_preproc[,subtab_i[[k]]==unique(subtab_i[[k]])[i]] <- mfa_preproc[,subtab_i[[k]]==unique(subtab_i[[k]])[i]]/sv[[k]]
+    mfa_preproc[,subtab_i[[k]]==unique(subtab_i[[k]])[i]] <- mfa_preproc[,subtab_i[[k]]==unique(subtab_i[[k]])[i]]/sv[[k]][i]
     
-    data2check[[k]] <- mfa_preproc
   }
+  data2check[[k]] <- mfa_preproc
 }
 
 # set the column names
