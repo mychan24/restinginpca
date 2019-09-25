@@ -124,7 +124,7 @@ subtab_i <-  list(gtlabel$subjects_edge_label, gtlabel$subjects_label)  # Use su
 n_subtable <- list(length(unique(subtab_i[[1]])), length(unique(subtab_i[[2]])))  # Number of mini tables
 n_lv <- length(subtab_i)
 sv <- list()
-data2check <- list()
+# data2check <- list()
 
 for (k in 1:n_lv){
   if (k == 1){
@@ -140,7 +140,7 @@ for (k in 1:n_lv){
     mfa_preproc[,subtab_i[[k]]==unique(subtab_i[[k]])[i]] <- mfa_preproc[,subtab_i[[k]]==unique(subtab_i[[k]])[i]]/sv[[k]][i]
     
   }
-  data2check[[k]] <- mfa_preproc
+  # data2check[[k]] <- mfa_preproc
 }
 
 # set the column names
@@ -297,10 +297,10 @@ n_subj <- length(unique(gtlabel$subjects_label))
 n_table2normalize <- sapply(1:n_subj, function(x){
   length(unique(table2normalize[[1]][which(subj.table == unique(subj.table)[x])]))})
 
-# compute partial factor scores: K x sv[1] x sv[2] x X_k x Q_k
+# compute partial factor scores: K.sub x sv[1] x sv[2] x X_k x Q_k
 pFi <- sapply(1:n_subj, function(x){
   # weighted by the inverse of "the # of tables contributed for each subject"
-  (sum(n_table2normalize)/n_table2normalize[x])*n_table2normalize[x]*gt_preproc[,which(subj.table == unique(subj.table)[x])] %*% (svd.res$ExPosition.Data$pdq$q[which(subj.table == unique(subj.table)[x]),])
+  (sum(n_table2normalize)/n_table2normalize[x])*gt_preproc[,which(subj.table == unique(subj.table)[x])] %*% (svd.res$ExPosition.Data$pdq$q[which(subj.table == unique(subj.table)[x]),])
 }, simplify = "array")
 
 # name the dimension of the array that stores partial F
@@ -441,6 +441,7 @@ plot.f_edge4pF <- createFactorMap(mean.edge.fj,
 plot.pf_edge <- createPartialFactorScoresMap(
   factorScores = mean.edge.fj,
   partialFactorScores = edge.pF,
+  colors4Blocks = unique(net.edge.col$gc),
   axis1 = 1, axis2 = 2,
   names4Partial = subj.name,
   font.labels = "bold"

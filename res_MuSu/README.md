@@ -65,6 +65,12 @@ We always want to center the columns and equalize the contribution for all subje
 
 ---
 
+##### Notes:
+
+The HMFA-normalization here was the old and incorrect version.
+
+---
+
 *archived*
 
 + Contains preprocessing folder longer being tested
