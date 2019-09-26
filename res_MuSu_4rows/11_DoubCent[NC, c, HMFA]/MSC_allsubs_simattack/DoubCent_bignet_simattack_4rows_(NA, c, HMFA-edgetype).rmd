@@ -142,7 +142,7 @@ cgt[is.nan(cgt)] <- 0   # replace NaN with zero
 
 # Different levels of tables
 ## First
-subtab_i <-  list(gtlabel$subjects_wb, gtlabel$subjects_label)    # Use subjects_wb as mini table
+subtab_i <- list(gtlabel$subjects_wb, gtlabel$subjects_label)    # Use subjects_wb as mini table
 n_subtable <- list(length(unique(subtab_i[[1]])), length(unique(subtab_i[[2]])))  # Number of mini tables
 n_lv <- length(subtab_i)
 sv <- list()
@@ -238,6 +238,26 @@ for (i in 1:nrow(c_edge)){
   edge2check <- rownames(c_edge)[i]
   net.edge[i,1] <- unique(gtlabel[which(gtlabel$subjects_edge_label == edge2check),"subjects_wb"])
 }
+
+### identify important common edge------------------------------------------------------
+#--- get the sum of contribution for each edge
+c_commedge <- aggregate(cJ,by = list(commedge = gtlabel$edges_label),sum)
+rownames(c_commedge) <- c_commedge$commedge
+c_commedge <- c_commedge[,-1]
+
+## Find important commedges
+#--- compute the sums of squares of each variable for each component
+absCtrCommEdg <- as.matrix(c_commedge) %*% diag(svd.res$ExPosition.Data$eigs)
+
+#--- get the contribution for component 1 AND 2 by sum(SS from 1, SS from 2)/sum(eigs 1, eigs 2)
+CommedgCtr12 <- (absCtrCommEdg[,1] + absCtrCommEdg[,2])/(svd.res$ExPosition.Data$eigs[1] + svd.res$ExPosition.Data$eigs[2])
+
+#--- the important variables are the ones that contribute more than or equal to the average
+importantCommEdg <- (CommedgCtr12 >= 1/length(CommedgCtr12))
+importantCommEdg1 <- (absCtrCommEdg[,1] >= 1/length(cJ[,1]))
+importantCommEdg2 <- (absCtrCommEdg[,2] >= 1/length(cJ[,2]))
+
+## ------------------------------------------------------------------------------------
 
 #--- create color based on the between/within description for network edges
 net.edge.col <- list(oc = as.matrix(plyr::mapvalues(net.edge,from = unique(net.edge), to = rep(cols25(10),each = 2))),
@@ -383,26 +403,6 @@ mean.fj.label <- strsplit(sub('(^[^_]+)_(.*)$', '\\1 \\2', rownames(mean.fj)), '
 ### compute means
 mean.edge.fj <- getMeans(mean.fj, mean.fj.label$edge)
 
-### identify important edge-------------------------------------------------------------------
-#--- get the sum of contribution for each edge
-c_commedge <- aggregate(cJ,by = list(commedge = gtlabel$edges_label),sum)
-rownames(c_commedge) <- c_commedge$commedge
-c_commedge <- c_commedge[,-1]
-
-## Find important commedges
-#--- compute the sums of squares of each variable for each component
-absCtrCommEdg <- as.matrix(c_commedge) %*% diag(svd.res$ExPosition.Data$eigs)
-
-#--- get the contribution for component 1 AND 2 by sum(SS from 1, SS from 2)/sum(eigs 1, eigs 2)
-CommedgCtr12 <- (absCtrCommEdg[,1] + absCtrCommEdg[,2])/(svd.res$ExPosition.Data$eigs[1] + svd.res$ExPosition.Data$eigs[2])
-
-#--- the important variables are the ones that contribute more than or equal to the average
-importantCommEdg <- (CommedgCtr12 >= 1/length(CommedgCtr12))
-importantCommEdg1 <- (absCtrCommEdg[,1] >= 1/length(cJ[,1]))
-importantCommEdg2 <- (absCtrCommEdg[,2] >= 1/length(cJ[,2]))
-
-## identify important edge-----------------------------------------------------------------
-
 ### create array for partial factor scores
 edge.pF <- array(data = NA, 
                  dim = (c(nrow(mean.edge.fj), ncol(mean.fj), length(unique(mean.fj.label$sub)))), 
@@ -522,8 +522,7 @@ f_CInetedge_plot01 <- plot.f_impedge$zeMap_background +
                         f.labels
 
 f_CInetedge_plot02 <- plot.f_impedge$zeMap_background + 
-                        plot.f_impedge$zeMap_dots + f_impedge.CI + 
-                        f.labels
+                        f_impedge.CI + plot.f_impedge$zeMap_dots + f.labels
 
 # get the bootstrap data for each type of network edges
 getBoot2plot_edge_bw <- BootCube.Comm.bw$BootCube[,c(1,2),]
@@ -539,7 +538,7 @@ f_CInetedge_plot03 <- plot.f_bw_imp$zeMap +
                         f.labels
 
 # get the bootstrap data for each edge
-getBoot2plot_commedge <- BootCube.Comm.edge$BootCube[,c(1,2),]
+getBoot2plot_commedge <- BootCube.Comm.edge$BootCube[importantCommEdg,c(1,2),]
 
 # plot the CI ellipses
 plot.CI.f_commedge <- MakeCIEllipses(getBoot2plot_commedge,
@@ -748,5 +747,7 @@ Smoothed Node x Node Matrix of Factor Score w/ Sig Contribution: Dim 2
 do.call(grid.arrange, c(sm_heat_sigfj2, ncol=(length(subj.name)/2)))
 ```
 
-
+```{r save, echo = FALSE, include=FALSE}
+save.image(file = "DoubCent_simattack_4rows_11_HMFA-edgeteyp.RData")
+```
 

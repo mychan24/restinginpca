@@ -21,4 +21,8 @@ superheat that enables reversing of axis when plotting suqare matrices are on MC
 
 	- The original version extracted both levels of singular values from the original data table. However, these two levels of singular values should be extracted hierarchically: extract delta for edges -> weight the edge tables -> extract delta for subject -> weight the subject tables
 
+- 2019.9.25: Contribution fixed
+
+	- This was only fixed for the HMFA-edgetype (7 and 11) in MuSu_4rows
+
 
