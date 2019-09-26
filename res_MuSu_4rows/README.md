@@ -25,4 +25,10 @@
  > MFA_sub is essential.
 
  > Can we leverage how HMFA should be done based on research questions (e.g., blocked by important edge 1, important edge 2, important edge 3, and not important ones) or how researchers think the edges should be normalized (e.g., by edge type)?
+
+ ## Next step
+
+ 1. HMFA with edge type > subject
+
+ 2. HMFA with hypothesized networks
  
