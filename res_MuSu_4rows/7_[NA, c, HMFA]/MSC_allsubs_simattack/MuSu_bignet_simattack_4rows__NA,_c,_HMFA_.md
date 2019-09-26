@@ -1,5 +1,5 @@
-MuSu\_(NA, c, HMFA) - MSC All Subjects (N=10) Big Networks 4 Sessions (rows)- Sim
-Attack
+MuSu\_(NA, c, HMFA) - MSC All Subjects (N=10) Big Networks 4 Sessions
+(rows)- Sim Attack
 ================
 
 > Reduce grandtable to have consistent networks only & only 4 sessions
@@ -104,7 +104,8 @@ different subjects are concatenated on the columns.*
 
   - Centering: across sessions (rows) (i.e., the columns are centered)
 
-  - Normalizing: hierarchical MFA normalized by network edges then subjects 
+  - Normalizing: hierarchical MFA normalized by network edges then
+    subjects
 
 First we compute the weights that are used to MFA-normalized each
 subject table. These weights are computed as the inverse of the first
@@ -119,8 +120,7 @@ Then, the preprocessed data are decomposed by the SVD:
 First, the scree plot illustrates the eigen value with percentage of
 explained variance of each component. The results showed that there are
 three important components with the percentage of explained variance
-more than average (i.e.,
-1/10).
+more than average (i.e., 1/10).
 
 ![](MuSu_bignet_simattack_4rows__NA,_c,_HMFA__files/figure-gfm/scree-1.png)<!-- -->
 
@@ -189,8 +189,7 @@ col4NS <- 'gray90' # set color for not significant edges to gray
 col4ImportantEdg[!importantEdg] <- col4NS # replace them in the color vector
 ```
 
-Then the contributions are shown in
-plots
+Then the contributions are shown in plots
 
 ![](MuSu_bignet_simattack_4rows__NA,_c,_HMFA__files/figure-gfm/grid_ciplot-1.png)<!-- -->
 
@@ -201,8 +200,7 @@ components.
 
 ###### Factor scores
 
-First, we plot the factor scores for the 4
-sessions
+First, we plot the factor scores for the 4 sessions
 
 ![](MuSu_bignet_simattack_4rows__NA,_c,_HMFA__files/figure-gfm/plot_f_sess-1.png)<!-- -->
 
@@ -213,14 +211,15 @@ contribute to different sesssions.
 # We can also compute the partial factor scores for each participant:
 subj.table <- gtlabel$subjects_label
 table2normalize <- subtab_i
+
 n_subj <- length(unique(gtlabel$subjects_label))
 n_table2normalize <- sapply(1:n_subj, function(x){
-  length(unique(table2normalize[which(subj.table == unique(subj.table)[x])]))})
+  length(unique(table2normalize[[1]][which(subj.table == unique(subj.table)[x])]))})
 
-# compute partial factor scores: K x sv[1] x X_k x Q_k
+# compute partial factor scores: K.sub x sv[1] x sv[2] x X_k x Q_k
 pFi <- sapply(1:n_subj, function(x){
   # weighted by the inverse of "the # of tables contributed for each subject"
-  (sum(n_table2normalize)/n_table2normalize[x])/(sv[[1]][x])*cgt[,which(subj.table == unique(subj.table)[x])] %*% (svd.res$ExPosition.Data$pdq$q[which(subj.table == unique(subj.table)[x]),])
+  (sum(n_table2normalize)/n_table2normalize[x])*gt_preproc[,which(subj.table == unique(subj.table)[x])] %*% (svd.res$ExPosition.Data$pdq$q[which(subj.table == unique(subj.table)[x]),])
 }, simplify = "array")
 
 # name the dimension of the array that stores partial F
@@ -228,12 +227,11 @@ dimnames(pFi) <- list(rownames(cgt),colnames(svd.res$ExPosition.Data$fi),unique(
 
 ## Check barycentric
 ch1 <- apply(pFi,c(1:2),mean)
-ch2 <- cgt %*% (svd.res$ExPosition.Data$pdq$q)
+ch2 <- gt_preproc %*% (svd.res$ExPosition.Data$pdq$q)
 ```
 
 Note that the EVEN subjects’ EVEN numbered sessions are induced with
-reduced connectivity in default, default-FP and
-default-VAN.
+reduced connectivity in default, default-FP and default-VAN.
 
 ![](MuSu_bignet_simattack_4rows__NA,_c,_HMFA__files/figure-gfm/plot_pf_sess-1.png)<!-- -->
 
@@ -254,7 +252,7 @@ BootCube.Comm <- Boot4Mean(svd.res$ExPosition.Data$fj,
 tictoc::toc()
 ```
 
-    ## 803.732 sec elapsed
+    ## 227.06 sec elapsed
 
 ``` r
 # compute mean factor scores for each edge and the partial factor scores of each subject for these factor scores
@@ -292,7 +290,7 @@ BootCube.Comm.edge <- Boot4Mean(mean.fj,
 tictoc::toc()
 ```
 
-    ## 4.541 sec elapsed
+    ## 5.36 sec elapsed
 
 ``` r
 # Compute means of factor scores for different types of edges
@@ -308,11 +306,10 @@ BootCube.Comm.bw <- Boot4Mean(svd.res$ExPosition.Data$fj,
 tictoc::toc()
 ```
 
-    ## 431.609 sec elapsed
+    ## 99.67 sec elapsed
 
 Next, we plot the factor scores for the subject x edges (a mess): Dim 1
-&
-2
+& 2
 
 ![](MuSu_bignet_simattack_4rows__NA,_c,_HMFA__files/figure-gfm/grid_f_netedge_plot-1.png)<!-- -->
 
@@ -324,26 +321,22 @@ compared to the total eigenvalues; this type of network edge might not
 be significant even when being far away from the origin. (This is shown
 in the chunk named `checkCtr` which is hidden/commented in the .rmd.)
 
-We can also add boostrap intervals for the factor
-    scores
+We can also add boostrap intervals for the factor scores
 
-    ## Warning: Removed 4 rows containing non-finite values (stat_ellipse).
+    ## Warning: Removed 3 rows containing non-finite values (stat_ellipse).
+    
+    ## Warning: Removed 3 rows containing non-finite values (stat_ellipse).
+
+    ## Warning: Removed 49 rows containing non-finite values (stat_ellipse).
 
     ## Warning: Removed 1 rows containing non-finite values (stat_ellipse).
-
-    ## Warning: Removed 2 rows containing non-finite values (stat_ellipse).
-
-    ## Warning: Removed 5 rows containing non-finite values (stat_ellipse).
-
-    ## Warning: Removed 4 rows containing non-finite values (stat_ellipse).
 
 ![](MuSu_bignet_simattack_4rows__NA,_c,_HMFA__files/figure-gfm/grid_f_netedgeCI_plot-1.png)<!-- -->
 
 We can also show the factor scores for network edges as square matrix of
 each subject.
 
-Node x Node Matrix of Factor Score: Dim 1 & Dim
-2
+Node x Node Matrix of Factor Score: Dim 1 & Dim 2
 
     ## [1] "Dimension 1"
 
