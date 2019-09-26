@@ -148,11 +148,11 @@ for (k in 1:n_lv){
   if (k == 1){
     mfa_preproc <- cgt
   }
-  sv[[k]] <- matrix(NA, 1, n_subtable[[k]])
-  colnames(sv[[k]]) <- unique(subtab_i[[k]])
+  sv[[k]] <- as.vector(matrix(NA, n_subtable[[k]]))
+  names(sv[[k]]) <- unique(subtab_i[[k]])
   
   for(i in 1:n_subtable[[k]]){
-    sv[[k]][i] <- (svd(cgt[,subtab_i[[k]]==unique(subtab_i[[k]])[i]])$d[1]) # singular value from svd 
+    sv[[k]][i] <- (svd(mfa_preproc[,subtab_i[[k]]==unique(subtab_i[[k]])[i]])$d[1]) # singular value from svd 
     
     # mfa-normalization
     mfa_preproc[,subtab_i[[k]]==unique(subtab_i[[k]])[i]] <- mfa_preproc[,subtab_i[[k]]==unique(subtab_i[[k]])[i]]/sv[[k]][i]
@@ -166,7 +166,7 @@ colnames(gt_preproc) <- gtlabel$subjects_edge_label
 dim(gt_preproc) # check dimension
 
 # show the weights for each table
-lapply(1:n_lv, function(x){1/sv[[x]]})
+# lapply(1:n_lv, function(x){1/sv[[x]]})
 ```
 
 Then, the preprocessed data are decomposed by the SVD:
@@ -310,14 +310,15 @@ We can also plot the partial factor scores that show how each subject contribute
 # We can also compute the partial factor scores for each participant:
 subj.table <- gtlabel$subjects_label
 table2normalize <- subtab_i
+
 n_subj <- length(unique(gtlabel$subjects_label))
 n_table2normalize <- sapply(1:n_subj, function(x){
-  length(unique(table2normalize[which(subj.table == unique(subj.table)[x])]))})
+  length(unique(table2normalize[[1]][which(subj.table == unique(subj.table)[x])]))})
 
-# compute partial factor scores: K x sv[1] x X_k x Q_k
+# compute partial factor scores: K.sub x sv[1] x sv[2] x X_k x Q_k
 pFi <- sapply(1:n_subj, function(x){
   # weighted by the inverse of "the # of tables contributed for each subject"
-  (sum(n_table2normalize)/n_table2normalize[x])/(sv[[1]][x])*cgt[,which(subj.table == unique(subj.table)[x])] %*% (svd.res$ExPosition.Data$pdq$q[which(subj.table == unique(subj.table)[x]),])
+  (sum(n_table2normalize)/n_table2normalize[x])*gt_preproc[,which(subj.table == unique(subj.table)[x])] %*% (svd.res$ExPosition.Data$pdq$q[which(subj.table == unique(subj.table)[x]),])
 }, simplify = "array")
 
 # name the dimension of the array that stores partial F
@@ -325,7 +326,7 @@ dimnames(pFi) <- list(rownames(cgt),colnames(svd.res$ExPosition.Data$fi),unique(
 
 ## Check barycentric
 ch1 <- apply(pFi,c(1:2),mean)
-ch2 <- cgt %*% (svd.res$ExPosition.Data$pdq$q)
+ch2 <- gt_preproc %*% (svd.res$ExPosition.Data$pdq$q)
 ```
 
 Note that the EVEN subjects' EVEN numbered sessions are induced with reduced connectivity in default, default-FP and default-VAN.
