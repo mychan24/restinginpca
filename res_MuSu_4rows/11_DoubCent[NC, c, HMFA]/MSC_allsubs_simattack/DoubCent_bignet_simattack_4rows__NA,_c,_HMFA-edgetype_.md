@@ -170,8 +170,8 @@ edgCtr12 <- (absCtrEdg[,1] + absCtrEdg[,2])/(svd.res$ExPosition.Data$eigs[1] + s
 
 #--- the important variables are the ones that contribute more than or equal to the average
 importantEdg <- (edgCtr12 >= 1/length(edgCtr12))
-importantEdg1 <- (cI[,1] >= 1/length(cJ[,1]))
-importantEdg2 <- (cI[,2] >= 1/length(cJ[,2]))
+importantEdg1 <- (absCtrEdg[,1] >= 1/length(cJ[,1]))
+importantEdg2 <- (absCtrEdg[,2] >= 1/length(cJ[,2]))
 
 #--- find the between/within description for each network edge
 net.edge <- matrix(NA, nrow = nrow(c_edge),ncol = 1)
@@ -254,7 +254,7 @@ BootCube.Comm <- Boot4Mean(svd.res$ExPosition.Data$fj,
 tictoc::toc()
 ```
 
-    ## 257.24 sec elapsed
+    ## 250.8 sec elapsed
 
 ``` r
 # compute mean factor scores for each edge and the partial factor scores of each subject for these factor scores
@@ -266,6 +266,26 @@ mean.fj.label <- strsplit(sub('(^[^_]+)_(.*)$', '\\1 \\2', rownames(mean.fj)), '
 
 ### compute means
 mean.edge.fj <- getMeans(mean.fj, mean.fj.label$edge)
+
+### identify important edge-------------------------------------------------------------------
+#--- get the sum of contribution for each edge
+c_commedge <- aggregate(cJ,by = list(commedge = gtlabel$edges_label),sum)
+rownames(c_commedge) <- c_commedge$commedge
+c_commedge <- c_commedge[,-1]
+
+## Find important commedges
+#--- compute the sums of squares of each variable for each component
+absCtrCommEdg <- as.matrix(c_commedge) %*% diag(svd.res$ExPosition.Data$eigs)
+
+#--- get the contribution for component 1 AND 2 by sum(SS from 1, SS from 2)/sum(eigs 1, eigs 2)
+CommedgCtr12 <- (absCtrCommEdg[,1] + absCtrCommEdg[,2])/(svd.res$ExPosition.Data$eigs[1] + svd.res$ExPosition.Data$eigs[2])
+
+#--- the important variables are the ones that contribute more than or equal to the average
+importantCommEdg <- (CommedgCtr12 >= 1/length(CommedgCtr12))
+importantCommEdg1 <- (absCtrCommEdg[,1] >= 1/length(cJ[,1]))
+importantCommEdg2 <- (absCtrCommEdg[,2] >= 1/length(cJ[,2]))
+
+## identify important edge-----------------------------------------------------------------
 
 ### create array for partial factor scores
 edge.pF <- array(data = NA, 
@@ -292,7 +312,7 @@ BootCube.Comm.edge <- Boot4Mean(mean.fj,
 tictoc::toc()
 ```
 
-    ## 5.72 sec elapsed
+    ## 5.62 sec elapsed
 
 ``` r
 # Compute means of factor scores for different types of edges
@@ -308,7 +328,7 @@ BootCube.Comm.bw <- Boot4Mean(svd.res$ExPosition.Data$fj,
 tictoc::toc()
 ```
 
-    ## 129.05 sec elapsed
+    ## 119.9 sec elapsed
 
 Next, we plot the factor scores for the subject x edges (a mess): Dim 1
 & 2
