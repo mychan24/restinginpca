@@ -65,16 +65,17 @@ dim(gt); dim(gtlabel)
 
 * In all *subjects* and Even-numbered *sessions* (2 & 4), Reduce within connectivity in Default Mode (Syslabel: 1), Default-FP (1_3) and Default_VAN (1_5).
     + identify within default connectivity, default-FP and default-VAN
-    + Identify edges that are in odd # subs
     + Simulate reduced connectivity by dividing edges that were identified by above and reduce 50% of connectivity (/2)
 
 ```{r simattack}
 
 i_edges <- which(is.element(gtlabel$edges_label, c("1","1_3","1_5"))) 
+
+## Commented out code that would be used to only manipulate even-# subjects
 # i_sub <- which(is.element(gtlabel$subjects_label, sprintf("sub%02d", seq(2,length(subj.name),2))))
 # i_attack <- intersect(i_edges, i_sub)
-
 # gt[seq(2, nrow(gt), 2), i_attack] <- gt[seq(2, nrow(gt), 2), i_attack]/2  # reduce 50%
+
 gt[seq(2, nrow(gt), 2), i_edges] <- gt[seq(2, nrow(gt), 2), i_edges]/2  # reduce 50%
 ```
 
