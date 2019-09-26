@@ -443,6 +443,7 @@ plot.f_edge4pF <- createFactorMap(mean.edge.fj,
 # partial factor scores for for subjects (subtables)
 plot.pf_edge <- createPartialFactorScoresMap(
   factorScores = mean.edge.fj,
+  colors4Blocks = unique(net.edge.col$gc),
   partialFactorScores = edge.pF,
   axis1 = 1, axis2 = 2,
   names4Partial = subj.name,
