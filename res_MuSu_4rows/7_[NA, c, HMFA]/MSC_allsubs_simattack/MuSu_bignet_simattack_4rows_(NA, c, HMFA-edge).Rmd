@@ -227,8 +227,8 @@ edgCtr12 <- (absCtrEdg[,1] + absCtrEdg[,2])/(svd.res$ExPosition.Data$eigs[1] + s
 
 #--- the important variables are the ones that contribute more than or equal to the average
 importantEdg <- (edgCtr12 >= 1/length(edgCtr12))
-importantEdg1 <- (cI[,1] >= 1/length(cJ[,1]))
-importantEdg2 <- (cI[,2] >= 1/length(cJ[,2]))
+importantEdg1 <- (absCtrEdg[,1] >= 1/length(absCtrEdg[,1]))
+importantEdg2 <- (absCtrEdg[,2] >= 1/length(absCtrEdg[,2]))
 
 #--- find the between/within description for each network edge
 net.edge <- matrix(NA, nrow = nrow(c_edge),ncol = 1)
@@ -710,6 +710,10 @@ for(i in 1:length(subj.name)){
 Smoothed Node x Node Matrix of Factor Score w/ Sig Contribution: Dim 2
 ```{r, grid_smheat_sigfj2, echo=F, fig.height=20, fig.width=40}
 do.call(grid.arrange, c(sm_heat_sigfj2, ncol=(length(subj.name)/2)))
+```
+
+```{r save, echo = FALSE, include=FALSE}
+save.image(file = "MuSu_simattack_4rows_7_HMFA-edge.RData")
 ```
 
 

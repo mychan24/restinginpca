@@ -1,5 +1,5 @@
-MuSu\_(NA, c, HMFA) - MSC All Subjects (N=10) Big Networks 4 Sessions
-(rows)- Sim Attack
+MuSu\_(NA, c, HMFA-edge) - MSC All Subjects (N=10) Big Networks 4
+Sessions (rows)- Sim Attack
 ================
 
 > Reduce grandtable to have consistent networks only & only 4 sessions
@@ -27,7 +27,6 @@ dim(gt); dim(gtlabel)
     within connectivity in Default Mode (Syslabel: 1), Default-FP (1\_3)
     and Default\_VAN (1\_5).
       - identify within default connectivity, default-FP and default-VAN
-      - Identify edges that are in odd \# subs
       - Simulate reduced connectivity by dividing edges that were
         identified by above and reduce 50% of connectivity (/2)
 
@@ -35,10 +34,12 @@ dim(gt); dim(gtlabel)
 
 ``` r
 i_edges <- which(is.element(gtlabel$edges_label, c("1","1_3","1_5"))) 
+
+## Commented out code that would be used to only manipulate even-# subjects
 # i_sub <- which(is.element(gtlabel$subjects_label, sprintf("sub%02d", seq(2,length(subj.name),2))))
 # i_attack <- intersect(i_edges, i_sub)
-
 # gt[seq(2, nrow(gt), 2), i_attack] <- gt[seq(2, nrow(gt), 2), i_attack]/2  # reduce 50%
+
 gt[seq(2, nrow(gt), 2), i_edges] <- gt[seq(2, nrow(gt), 2), i_edges]/2  # reduce 50%
 ```
 
@@ -122,7 +123,7 @@ explained variance of each component. The results showed that there are
 three important components with the percentage of explained variance
 more than average (i.e., 1/10).
 
-![](MuSu_bignet_simattack_4rows__NA,_c,_HMFA__files/figure-gfm/scree-1.png)<!-- -->
+![](MuSu_bignet_simattack_4rows__NA,_c,_HMFA-edge__files/figure-gfm/scree-1.png)<!-- -->
 
 ###### Contributions
 
@@ -168,8 +169,8 @@ edgCtr12 <- (absCtrEdg[,1] + absCtrEdg[,2])/(svd.res$ExPosition.Data$eigs[1] + s
 
 #--- the important variables are the ones that contribute more than or equal to the average
 importantEdg <- (edgCtr12 >= 1/length(edgCtr12))
-importantEdg1 <- (cI[,1] >= 1/length(cJ[,1]))
-importantEdg2 <- (cI[,2] >= 1/length(cJ[,2]))
+importantEdg1 <- (absCtrEdg[,1] >= 1/length(absCtrEdg[,1]))
+importantEdg2 <- (absCtrEdg[,2] >= 1/length(absCtrEdg[,2]))
 
 #--- find the between/within description for each network edge
 net.edge <- matrix(NA, nrow = nrow(c_edge),ncol = 1)
@@ -191,7 +192,7 @@ col4ImportantEdg[!importantEdg] <- col4NS # replace them in the color vector
 
 Then the contributions are shown in plots
 
-![](MuSu_bignet_simattack_4rows__NA,_c,_HMFA__files/figure-gfm/grid_ciplot-1.png)<!-- -->
+![](MuSu_bignet_simattack_4rows__NA,_c,_HMFA-edge__files/figure-gfm/grid_ciplot-1.png)<!-- -->
 
 The contribution for each network edge is computed by dividing its total
 SS across region edges and dimensions (i.e., the cross product of
@@ -202,7 +203,7 @@ components.
 
 First, we plot the factor scores for the 4 sessions
 
-![](MuSu_bignet_simattack_4rows__NA,_c,_HMFA__files/figure-gfm/plot_f_sess-1.png)<!-- -->
+![](MuSu_bignet_simattack_4rows__NA,_c,_HMFA-edge__files/figure-gfm/plot_f_sess-1.png)<!-- -->
 
 We can also plot the partial factor scores that show how each subject
 contribute to different sesssions.
@@ -230,10 +231,10 @@ ch1 <- apply(pFi,c(1:2),mean)
 ch2 <- gt_preproc %*% (svd.res$ExPosition.Data$pdq$q)
 ```
 
-Note that the EVEN subjects’ EVEN numbered sessions are induced with
-reduced connectivity in default, default-FP and default-VAN.
+Note that ALL subjects’ EVEN numbered sessions are induced with reduced
+connectivity in default, default-FP and default-VAN.
 
-![](MuSu_bignet_simattack_4rows__NA,_c,_HMFA__files/figure-gfm/plot_pf_sess-1.png)<!-- -->
+![](MuSu_bignet_simattack_4rows__NA,_c,_HMFA-edge__files/figure-gfm/plot_pf_sess-1.png)<!-- -->
 
 To have a clearer view of the factor scores for the subject x edges, we
 first compute the mean factor scores for the each network edge.
@@ -252,7 +253,7 @@ BootCube.Comm <- Boot4Mean(svd.res$ExPosition.Data$fj,
 tictoc::toc()
 ```
 
-    ## 227.06 sec elapsed
+    ## 206.42 sec elapsed
 
 ``` r
 # compute mean factor scores for each edge and the partial factor scores of each subject for these factor scores
@@ -290,7 +291,7 @@ BootCube.Comm.edge <- Boot4Mean(mean.fj,
 tictoc::toc()
 ```
 
-    ## 5.36 sec elapsed
+    ## 5.22 sec elapsed
 
 ``` r
 # Compute means of factor scores for different types of edges
@@ -306,12 +307,12 @@ BootCube.Comm.bw <- Boot4Mean(svd.res$ExPosition.Data$fj,
 tictoc::toc()
 ```
 
-    ## 99.67 sec elapsed
+    ## 94.27 sec elapsed
 
 Next, we plot the factor scores for the subject x edges (a mess): Dim 1
 & 2
 
-![](MuSu_bignet_simattack_4rows__NA,_c,_HMFA__files/figure-gfm/grid_f_netedge_plot-1.png)<!-- -->
+![](MuSu_bignet_simattack_4rows__NA,_c,_HMFA-edge__files/figure-gfm/grid_f_netedge_plot-1.png)<!-- -->
 
 Note that a network edge with its region edges significantly contribute
 to the components both positively and negatively results in a
@@ -323,15 +324,11 @@ in the chunk named `checkCtr` which is hidden/commented in the .rmd.)
 
 We can also add boostrap intervals for the factor scores
 
-    ## Warning: Removed 3 rows containing non-finite values (stat_ellipse).
-    
-    ## Warning: Removed 3 rows containing non-finite values (stat_ellipse).
+    ## Warning: Removed 4 rows containing non-finite values (stat_ellipse).
 
-    ## Warning: Removed 49 rows containing non-finite values (stat_ellipse).
+    ## Warning: Removed 32 rows containing non-finite values (stat_ellipse).
 
-    ## Warning: Removed 1 rows containing non-finite values (stat_ellipse).
-
-![](MuSu_bignet_simattack_4rows__NA,_c,_HMFA__files/figure-gfm/grid_f_netedgeCI_plot-1.png)<!-- -->
+![](MuSu_bignet_simattack_4rows__NA,_c,_HMFA-edge__files/figure-gfm/grid_f_netedgeCI_plot-1.png)<!-- -->
 
 We can also show the factor scores for network edges as square matrix of
 each subject.
@@ -340,30 +337,30 @@ Node x Node Matrix of Factor Score: Dim 1 & Dim 2
 
     ## [1] "Dimension 1"
 
-![](MuSu_bignet_simattack_4rows__NA,_c,_HMFA__files/figure-gfm/grid_heat_fi-1.png)<!-- -->
+![](MuSu_bignet_simattack_4rows__NA,_c,_HMFA-edge__files/figure-gfm/grid_heat_fi-1.png)<!-- -->
 
     ## [1] "Dimension 2"
 
-![](MuSu_bignet_simattack_4rows__NA,_c,_HMFA__files/figure-gfm/grid_heat_fi-2.png)<!-- -->
+![](MuSu_bignet_simattack_4rows__NA,_c,_HMFA-edge__files/figure-gfm/grid_heat_fi-2.png)<!-- -->
 
 Factor score (Dim 1) in square matrix that have significant contribution
 only
 
 Node x Node Matrix of Factor Score w/ Sig Contribution: Dim 1
-![](MuSu_bignet_simattack_4rows__NA,_c,_HMFA__files/figure-gfm/grid_heat_sigfj1-1.png)<!-- -->
+![](MuSu_bignet_simattack_4rows__NA,_c,_HMFA-edge__files/figure-gfm/grid_heat_sigfj1-1.png)<!-- -->
 
 Smoothed Sig Factor Score (Dim 1)
 
 Smoothed Node x Node Matrix of Factor Score w/ Sig Contribution: Dim 1
-![](MuSu_bignet_simattack_4rows__NA,_c,_HMFA__files/figure-gfm/grid_smheat_sigfj1-1.png)<!-- -->
+![](MuSu_bignet_simattack_4rows__NA,_c,_HMFA-edge__files/figure-gfm/grid_smheat_sigfj1-1.png)<!-- -->
 
 Factor score (Dim 2) in square matrix that have significant contribution
 only
 
 Node x Node Matrix of Factor Score w/ Sig Contribution: Dim 2
-![](MuSu_bignet_simattack_4rows__NA,_c,_HMFA__files/figure-gfm/grid_heat_sigfj2-1.png)<!-- -->
+![](MuSu_bignet_simattack_4rows__NA,_c,_HMFA-edge__files/figure-gfm/grid_heat_sigfj2-1.png)<!-- -->
 
 Smoothed Sig Factor Score (Dim 2)
 
 Smoothed Node x Node Matrix of Factor Score w/ Sig Contribution: Dim 2
-![](MuSu_bignet_simattack_4rows__NA,_c,_HMFA__files/figure-gfm/grid_smheat_sigfj2-1.png)<!-- -->
+![](MuSu_bignet_simattack_4rows__NA,_c,_HMFA-edge__files/figure-gfm/grid_smheat_sigfj2-1.png)<!-- -->

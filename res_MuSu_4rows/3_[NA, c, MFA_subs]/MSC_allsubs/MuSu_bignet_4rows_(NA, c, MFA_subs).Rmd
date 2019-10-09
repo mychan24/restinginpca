@@ -130,7 +130,7 @@ for (k in 1:n_lv){
   colnames(sv[[k]]) <- unique(subtab_i[[k]])
   
   for(i in 1:n_subtable[[k]]){
-    sv[[k]][i] <- (svd(cgt[,subtab_i[[k]]==unique(subtab_i[[k]])[i]])$d[1]) # singular value from svd 
+    sv[[k]][i] <- (svd(mfa_preproc[,subtab_i[[k]]==unique(subtab_i[[k]])[i]])$d[1]) # singular value from svd 
     
     # mfa-normalization
     mfa_preproc[,subtab_i[[k]]==unique(subtab_i[[k]])[i]] <- mfa_preproc[,subtab_i[[k]]==unique(subtab_i[[k]])[i]]/sv[[k]][i]
@@ -202,8 +202,8 @@ edgCtr12 <- (absCtrEdg[,1] + absCtrEdg[,2])/(svd.res$ExPosition.Data$eigs[1] + s
 
 #--- the important variables are the ones that contribute more than or equal to the average
 importantEdg <- (edgCtr12 >= 1/length(edgCtr12))
-importantEdg1 <- (cI[,1] >= 1/length(cJ[,1]))
-importantEdg2 <- (cI[,2] >= 1/length(cJ[,2]))
+importantEdg1 <- (absCtrEdg[,1] >= 1/length(absCtrEdg[,1]))
+importantEdg2 <- (absCtrEdg[,2] >= 1/length(absCtrEdg[,2]))
 
 #--- find the between/within description for each network edge
 net.edge <- matrix(NA, nrow = nrow(c_edge),ncol = 1)
@@ -431,6 +431,7 @@ plot.f_edge4pF <- createFactorMap(mean.edge.fj,
 # partial factor scores for for subjects (subtables)
 plot.pf_edge <- createPartialFactorScoresMap(
   factorScores = mean.edge.fj,
+  colors4Blocks = unique(net.edge.col$gc),
   partialFactorScores = edge.pF,
   axis1 = 1, axis2 = 2,
   names4Partial = subj.name,
@@ -683,5 +684,8 @@ Smoothed Node x Node Matrix of Factor Score w/ Sig Contribution: Dim 2
 do.call(grid.arrange, c(sm_heat_sigfj2, ncol=(length(subj.name)/2)))
 ```
 
+```{r save, echo = FALSE, include=FALSE}
+save.image(file = "MuSu_bignetwork_4rows_3_MFA_subs.RData")
+```
 
 

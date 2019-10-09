@@ -229,8 +229,8 @@ edgCtr12 <- (absCtrEdg[,1] + absCtrEdg[,2])/(svd.res$ExPosition.Data$eigs[1] + s
 
 #--- the important variables are the ones that contribute more than or equal to the average
 importantEdg <- (edgCtr12 >= 1/length(edgCtr12))
-importantEdg1 <- (cI[,1] >= 1/length(cJ[,1]))
-importantEdg2 <- (cI[,2] >= 1/length(cJ[,2]))
+importantEdg1 <- (cJ[,1] >= 1/length(cJ[,1]))
+importantEdg2 <- (cJ[,2] >= 1/length(cJ[,2]))
 
 #--- find the between/within description for each network edge
 net.edge <- matrix(NA, nrow = nrow(c_edge),ncol = 1)

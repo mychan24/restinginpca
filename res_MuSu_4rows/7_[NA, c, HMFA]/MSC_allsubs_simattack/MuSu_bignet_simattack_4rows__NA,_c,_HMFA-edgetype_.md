@@ -169,8 +169,8 @@ edgCtr12 <- (absCtrEdg[,1] + absCtrEdg[,2])/(svd.res$ExPosition.Data$eigs[1] + s
 
 #--- the important variables are the ones that contribute more than or equal to the average
 importantEdg <- (edgCtr12 >= 1/length(edgCtr12))
-importantEdg1 <- (absCtrEdg[,1] >= 1/length(cJ[,1]))
-importantEdg2 <- (absCtrEdg[,2] >= 1/length(cJ[,2]))
+importantEdg1 <- (absCtrEdg[,1] >= 1/length(absCtrEdg[,1]))
+importantEdg2 <- (absCtrEdg[,2] >= 1/length(absCtrEdg[,2]))
 
 #--- find the between/within description for each network edge
 net.edge <- matrix(NA, nrow = nrow(c_edge),ncol = 1)
@@ -273,7 +273,7 @@ BootCube.Comm <- Boot4Mean(svd.res$ExPosition.Data$fj,
 tictoc::toc()
 ```
 
-    ## 277.26 sec elapsed
+    ## 234.41 sec elapsed
 
 ``` r
 # compute mean factor scores for each edge and the partial factor scores of each subject for these factor scores
@@ -311,7 +311,7 @@ BootCube.Comm.edge <- Boot4Mean(mean.fj,
 tictoc::toc()
 ```
 
-    ## 6.3 sec elapsed
+    ## 6.1 sec elapsed
 
 ``` r
 # Compute means of factor scores for different types of edges
@@ -327,7 +327,7 @@ BootCube.Comm.bw <- Boot4Mean(svd.res$ExPosition.Data$fj,
 tictoc::toc()
 ```
 
-    ## 137.89 sec elapsed
+    ## 111.53 sec elapsed
 
 Next, we plot the factor scores for the subject x edges (a mess): Dim 1
 & 2

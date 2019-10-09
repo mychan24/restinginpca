@@ -147,11 +147,11 @@ for (k in 1:n_lv){
   if (k == 1){
     mfa_preproc <- cgt
   }
-  sv[[k]] <- matrix(NA, 1, n_subtable[[k]])
-  colnames(sv[[k]]) <- unique(subtab_i[[k]])
+  sv[[k]] <- as.vector(matrix(NA, n_subtable[[k]]))
+  names(sv[[k]]) <- unique(subtab_i[[k]])
   
   for(i in 1:n_subtable[[k]]){
-    sv[[k]][i] <- (svd(cgt[,subtab_i[[k]]==unique(subtab_i[[k]])[i]])$d[1]) # singular value from svd 
+    sv[[k]][i] <- (svd(mfa_preproc[,subtab_i[[k]]==unique(subtab_i[[k]])[i]])$d[1]) # singular value from svd 
     
     # mfa-normalization
     mfa_preproc[,subtab_i[[k]]==unique(subtab_i[[k]])[i]] <- mfa_preproc[,subtab_i[[k]]==unique(subtab_i[[k]])[i]]/sv[[k]][i]
@@ -163,7 +163,7 @@ gt_preproc[is.nan(gt_preproc)] <- 0       # replace NaN with zero
 colnames(gt_preproc) <- gtlabel$subjects_edge_label
 dim(gt_preproc)                           # check dimension
 
-lapply(1:n_lv, function(x){1/sv[[x]]})    # show the weights for each table
+#lapply(1:n_lv, function(x){1/sv[[x]]})    # show the weights for each table
 ```
 
 Then, the preprocessed data are decomposed by the SVD:
@@ -223,8 +223,8 @@ edgCtr12 <- (absCtrEdg[,1] + absCtrEdg[,2])/(svd.res$ExPosition.Data$eigs[1] + s
 
 #--- the important variables are the ones that contribute more than or equal to the average
 importantEdg <- (edgCtr12 >= 1/length(edgCtr12))
-importantEdg1 <- (cI[,1] >= 1/length(cJ[,1]))
-importantEdg2 <- (cI[,2] >= 1/length(cJ[,2]))
+importantEdg1 <- (absCtrEdg[,1] >= 1/length(absCtrEdg[,1]))
+importantEdg2 <- (absCtrEdg[,2] >= 1/length(absCtrEdg[,2]))
 
 #--- find the between/within description for each network edge
 net.edge <- matrix(NA, nrow = nrow(c_edge),ncol = 1)
@@ -455,6 +455,7 @@ plot.f_edge4pF <- createFactorMap(mean.edge.fj,
 # partial factor scores for for subjects (subtables)
 plot.pf_edge <- createPartialFactorScoresMap(
   factorScores = mean.edge.fj,
+  colors4Blocks = unique(net.edge.col$gc),
   partialFactorScores = edge.pF,
   axis1 = 1, axis2 = 2,
   names4Partial = subj.name,
@@ -707,5 +708,8 @@ Smoothed Node x Node Matrix of Factor Score w/ Sig Contribution: Dim 2
 do.call(grid.arrange, c(sm_heat_sigfj2, ncol=(length(subj.name)/2)))
 ```
 
+```{r save, echo = FALSE, include=FALSE}
+save.image(file = "MuSu_simattack_4rows_3_MFA_subs.RData")
+```
 
 
