@@ -30,15 +30,23 @@
 
  > Can we leverage how HMFA should be done based on research questions (e.g., blocked by important edge 1, important edge 2, important edge 3, and not important ones) or how researchers think the edges should be normalized (e.g., by edge type)?
 
- ## Next step
-
- 1. HMFA with edge type > subject
+ + HMFA with edge type > subject
 
  	+ Smaller simulated between-network edges are filtered out due to smaller contribution.
 
- 	> This might be fixed by the a-priori approach.
+ 	+ The factor scores make more sense compared to the HMFA_edge, and the results are not very far from the MFA_sub one but with the between-network edges contributing more to the components.
 
- 2. HMFA with a-priori hypothesized networks
 
- 3. HMFA with wrong a-priori hypothesized networks	
+ > + HMFA with a-priori hypothesized networks
+ > + HMFA with wrong a-priori hypothesized networks
+ 	
+ 	> These would be difficult to justify given the possiblity of double-dipping. Also, with an a-priori networks of interest, it might be better to select them at the very beginning of the analysis (just as the standard ROI analysis), instead of actively weighting them more to generate the component space.
+
+### Next step:
+
++ What is the data that we put into SVD look like after HMFA?
+
++ How do we examine the network edges that are small? 
+
+	+ They tend to be excluded from the factor map, because they contribute less inertia overall (with less edges in total compared to other networks). This doesn't necessarily mean that they are not important and should be excluded from the results. 	
  
