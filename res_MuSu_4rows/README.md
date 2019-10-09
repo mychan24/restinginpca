@@ -37,9 +37,9 @@
  	+ The factor scores make more sense compared to the HMFA_edge, and the results are not very far from the MFA_sub one but with the between-network edges contributing more to the components.
 
 
- > + HMFA with a-priori hypothesized networks OR HMFA with wrong a-priori hypothesized networks
+ + HMFA with a-priori hypothesized networks OR HMFA with wrong a-priori hypothesized networks
  
- >		+ These would be difficult to justify given the possiblity of double-dipping. Also, with an a-priori networks of interest, it might be better to select them at the very beginning of the analysis (just as the standard ROI analysis), instead of actively weighting them more to generate the component space.
+ > These would be difficult to justify given the possiblity of double-dipping. Also, with an a-priori networks of interest, it might be better to select them at the very beginning of the analysis (just as the standard ROI analysis), instead of actively weighting them more to generate the component space.
 
 ### Next steps:
 
