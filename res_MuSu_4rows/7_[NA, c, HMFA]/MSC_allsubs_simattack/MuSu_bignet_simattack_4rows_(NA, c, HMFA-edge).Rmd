@@ -237,6 +237,27 @@ for (i in 1:nrow(c_edge)){
   net.edge[i,1] <- unique(gtlabel[which(gtlabel$subjects_edge_label == edge2check),"subjects_wb"])
 }
 
+### identify important common edge------------------------------------------------------
+#--- get the sum of contribution for each edge
+c_commedge <- aggregate(cJ,by = list(commedge = gtlabel$edges_label),sum)
+rownames(c_commedge) <- c_commedge$commedge
+c_commedge <- c_commedge[,-1]
+
+## Find important commedges
+#--- compute the sums of squares of each variable for each component
+absCtrCommEdg <- as.matrix(c_commedge) %*% diag(svd.res$ExPosition.Data$eigs)
+
+#--- get the contribution for component 1 AND 2 by sum(SS from 1, SS from 2)/sum(eigs 1, eigs 2)
+CommedgCtr12 <- (absCtrCommEdg[,1] + absCtrCommEdg[,2])/(svd.res$ExPosition.Data$eigs[1] + svd.res$ExPosition.Data$eigs[2])
+
+#--- the important variables are the ones that contribute more than or equal to the average
+importantCommEdg <- (CommedgCtr12 >= 1/length(CommedgCtr12))
+importantCommEdg1 <- (absCtrCommEdg[,1] >= 1/length(cJ[,1]))
+importantCommEdg2 <- (absCtrCommEdg[,2] >= 1/length(cJ[,2]))
+
+## ------------------------------------------------------------------------------------
+
+
 #--- create color based on the between/within description for network edges
 net.edge.col <- list(oc = as.matrix(plyr::mapvalues(net.edge,from = unique(net.edge), to = rep(cols25(10),each = 2))),
                      gc = as.matrix(rep(cols25(10),each = 2)))
@@ -454,18 +475,19 @@ plot.f_bw_imp <- createFactorMap(mean.fj.bw, axis1 = 1, axis2 = 2,
 f_netedge_plot04 <- plot.f_bw_imp$zeMap_background + plot.f_bw_imp$zeMap_dots + plot.f_bw_imp$zeMap_text + f.labels
 # plot mean factor scores of network edges
 ### plot the mean factor scores for network edges
-plot.f_edge4pF <- createFactorMap(mean.edge.fj,
+plot.f_edge4pF <- createFactorMap(mean.edge.fj[importantCommEdg,],
                                   constraints = minmaxHelper4Partial(mean.edge.fj,edge.pF),
                                   text.cex = 3) # with t(gt)
-# partial factor scores for for subjects (subtables)
-plot.pf_edge <- createPartialFactorScoresMap(
-  factorScores = mean.edge.fj,
-  partialFactorScores = edge.pF,
-  axis1 = 1, axis2 = 2,
-  names4Partial = subj.name,
-  font.labels = "bold"
-)
-f_netedge_plot05 <- plot.f_edge4pF$zeMap + f.labels + plot.pf_edge$mapColByBlocks
+# # partial factor scores for for subjects (subtables)
+# plot.pf_edge <- createPartialFactorScoresMap(
+#   factorScores = mean.edge.fj,
+#   partialFactorScores = edge.pF,
+#   colors4Blocks = unique(net.edge.col$gc),
+#   axis1 = 1, axis2 = 2,
+#   names4Partial = subj.name,
+#   font.labels = "bold"
+# )
+f_netedge_plot05 <- plot.f_edge4pF$zeMap + f.labels
 ```
 
 
@@ -514,12 +536,26 @@ plot.CI.f_bw <- MakeCIEllipses(getBoot2plot_edge_bw,
 f_CInetedge_plot03 <- plot.f_bw_imp$zeMap + 
                         plot.CI.f_bw + 
                         f.labels
+
+# get the bootstrap data for each edge
+getBoot2plot_commedge <- BootCube.Comm.edge$BootCube[importantCommEdg,c(1,2),]
+
+# plot the CI ellipses
+plot.CI.f_commedge <- MakeCIEllipses(getBoot2plot_commedge,
+                                     names.of.factors = c(sprintf("Factor %s", 1),sprintf("Factor %s", 2)),
+                                     col = adjustcolor("blueviolet",alpha.f = 0.5)
+                                     )
+# create plot
+f_CInetedge_plot04 <- plot.f_edge4pF$zeMap_background + plot.CI.f_commedge + plot.f_edge4pF$zeMap_dots + plot.f_edge4pF$zeMap_text + f.labels
+f_CInetedge_plot04
+
 ```
 
 ```{r grid_f_netedgeCI_plot, echo=F, fig.height=12, fig.width=12, message=FALSE}
 gridExtra::grid.arrange(as.grob(f_CInetedge_plot01), 
                         as.grob(f_CInetedge_plot02), 
                         as.grob(f_CInetedge_plot03),
+                        as.grob(f_CInetedge_plot04),
                         ncol=2,
                         top = textGrob("Mean factor scores with CIs for significantly contributed edges",
                                        gp=gpar(fontsize=18,font=3)))

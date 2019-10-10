@@ -156,6 +156,26 @@ for (i in 1:nrow(c_edge)){
   net.edge[i,1] <- unique(gtlabel[which(gtlabel$subjects_edge_label == edge2check),"subjects_wb"])
 }
 
+### identify important common edge------------------------------------------------------
+#--- get the sum of contribution for each edge
+c_commedge <- aggregate(cJ,by = list(commedge = gtlabel$edges_label),sum)
+rownames(c_commedge) <- c_commedge$commedge
+c_commedge <- c_commedge[,-1]
+
+## Find important commedges
+#--- compute the sums of squares of each variable for each component
+absCtrCommEdg <- as.matrix(c_commedge) %*% diag(svd.res$ExPosition.Data$eigs)
+
+#--- get the contribution for component 1 AND 2 by sum(SS from 1, SS from 2)/sum(eigs 1, eigs 2)
+CommedgCtr12 <- (absCtrCommEdg[,1] + absCtrCommEdg[,2])/(svd.res$ExPosition.Data$eigs[1] + svd.res$ExPosition.Data$eigs[2])
+
+#--- the important variables are the ones that contribute more than or equal to the average
+importantCommEdg <- (CommedgCtr12 >= 1/length(CommedgCtr12))
+importantCommEdg1 <- (absCtrCommEdg[,1] >= 1/length(cJ[,1]))
+importantCommEdg2 <- (absCtrCommEdg[,2] >= 1/length(cJ[,2]))
+
+## ------------------------------------------------------------------------------------
+
 #--- create color based on the between/within description for network edges
 net.edge.col <- list(oc = as.matrix(plyr::mapvalues(net.edge,from = unique(net.edge), to = rep(cols25(10),each = 2))),
                      gc = as.matrix(rep(cols25(10),each = 2)))
@@ -228,7 +248,7 @@ BootCube.Comm <- Boot4Mean(svd.res$ExPosition.Data$fj,
 tictoc::toc()
 ```
 
-    ## 227.58 sec elapsed
+    ## 211.28 sec elapsed
 
 ``` r
 # compute mean factor scores for each edge and the partial factor scores of each subject for these factor scores
@@ -266,7 +286,7 @@ BootCube.Comm.edge <- Boot4Mean(mean.fj,
 tictoc::toc()
 ```
 
-    ## 5.14 sec elapsed
+    ## 5.25 sec elapsed
 
 ``` r
 # Compute means of factor scores for different types of edges
@@ -282,7 +302,7 @@ BootCube.Comm.bw <- Boot4Mean(svd.res$ExPosition.Data$fj,
 tictoc::toc()
 ```
 
-    ## 98.11 sec elapsed
+    ## 99.68 sec elapsed
 
 Next, we plot the factor scores for the subject x edges (a mess): Dim 1
 & 2
