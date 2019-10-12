@@ -20,6 +20,7 @@ load("C:/Users/juchi/Box Sync/Abdi_lab/Colaborations/restinginpca/res_MuSu_4rows
 # session
 mfa_preproc %*% t(mfa_preproc)
 mfa.check_bwsq <- scale(mfa_preproc %*% t(mfa_preproc))
+dev.new()
 superheat(mfa.check_bwsq, 
           y.axis.reverse = T,
           heat.lim = c(-2,2),
@@ -30,6 +31,7 @@ superheat(mfa.check_bwsq,
 # edgetype
 mfa.check <- mfa_preproc %*% makeNominalData(as.matrix(gtlabel$subjects_wb))
 mfa.check_bwsq <- t(mfa.check) %*% mfa.check
+dev.new()
 superheat(mfa.check_bwsq, 
           y.axis.reverse = T,
           heat.lim = c(-6000,6000),
@@ -40,6 +42,7 @@ superheat(mfa.check_bwsq,
           bottom.label.text.size = 3)
 
 # arranged with pretty columns/rows
+dev.new()
 superheat(mfa.check_bwsq, 
           pretty.order.rows = T,
           pretty.order.cols = T,
@@ -94,6 +97,7 @@ superheat(mfa.check_bwsq.scale,
           pretty.order.rows = T)
 
 # scaled XtX with pretty order for columns and rows
+dev.new()
 superheat(mfa.check_bwsq.scale, 
           heat.lim = c(-1*max(mfa.check_bwsq.scale), max(mfa.check_bwsq.scale)),
           heat.pal = kovesi.diverging_bwr_40_95_c42(200),
