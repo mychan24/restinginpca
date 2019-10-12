@@ -51,7 +51,7 @@
 
 1. MFA-normalized subj-edgetype blocks.
 
-1. 5. Normalized subj-edgetype blocks to SS = 1.
+	1. Normalized subj-edgetype blocks to SS = 1.
 
 2. Maybe use within as ACTIVE and between as SUPP.
 
