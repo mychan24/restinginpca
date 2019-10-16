@@ -1,5 +1,5 @@
 ---
-title: "MuSu_(NA, c, HMFA-edgetype) - MSC All Subjects (N=10) Big Networks 4 Sessions (rows)- Sim Attack"
+title: "MuSu_(NA, c, MFA_subXedgetype) - MSC All Subjects (N=10) Big Networks 4 Sessions (rows)- Sim Attack"
 output: github_document
 ---
 
@@ -129,7 +129,7 @@ _Note: The data was transformed from the upper triangle of the correlation matri
 
 + Centering: across sessions (rows) (i.e., the columns are centered)
 
-+ Normalizing: hierarchical MFA normalized by network edge types then subjects 
++ Normalizing: MFA-normalized by network edge types of subjects (e.g., between-sub01, within-sub01, ...)
 
 First we compute the weights that are used to MFA-normalized each subject table. These weights are computed as the inverse of the first singular value:
 
@@ -140,8 +140,8 @@ cgt[is.nan(cgt)] <- 0   # replace NaN with zero
 
 # Different levels of tables
 ## First
-subtab_i <- list(gtlabel$subjects_wb, gtlabel$subjects_label)  # Use subjects_wb as mini table
-n_subtable <- list(length(unique(subtab_i[[1]])), length(unique(subtab_i[[2]])))  # Number of mini tables
+subtab_i <- list(gtlabel$subjects_wb)  # Use subjects_wb as mini table
+n_subtable <- list(length(unique(subtab_i[[1]])))  # Number of mini tables
 n_lv <- length(subtab_i)
 sv <- list()
 
@@ -747,6 +747,6 @@ do.call(grid.arrange, c(sm_heat_sigfj2, ncol=(length(subj.name)/2)))
 
 
 ```{r save, echo = FALSE, include=FALSE}
-save.image(file = "MuSu_simattack_4rows_7_HMFA-edgeteyp.RData")
+save.image(file = "MuSu_simattack_4rows_7_MFA_subXedgetype.RData")
 ```
 
