@@ -20,3 +20,7 @@ This folder stores the archived attempts of normalization and analysis, but they
 	- The original data is ROI\*ROI\*10 sessions correlation data (r)
 	- Only the positive correlations are kept
 	- Analyze with SVD without centering and normalizing rows and/or coloumns
+
+4. MuSu_preliminaryCode"
+	- First pass of MuSu analysis.
+	- A preliminary version of the code.
