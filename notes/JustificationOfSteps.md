@@ -159,6 +159,8 @@
 
 	_Note_: We can check the alpha of MFA to see if we need to move on with STATIS. If the alphas are roughly the same, then STATIS is probably not worth doing.
 
+
+
 ### Filtering factor scores based on their contributions:
 
 + How--

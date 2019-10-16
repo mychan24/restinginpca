@@ -1,6 +1,6 @@
 This folder stores the archived attempts of normalization and analysis, but they are not used anymore.
 
->Updated: 03/05/2019 by Ju-Chi
+>Updated: 10/16/2019 by Ju-Chi
 
 1. Demo_STATISnorm4r\*: 
 	- Use FakeData: Big5 questionnaire responses that give blocks of correlations
