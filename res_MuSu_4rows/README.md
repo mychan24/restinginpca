@@ -64,4 +64,4 @@ The components are mostly driven by the within-network edges, because the betwee
 
 2. Maybe use within as ACTIVE and between as SUPP. (7-2)
 
-3. (HMFA-normalize edgetype then subject) (7-3)
+3. (HMFA-normalize subject then edgetype) (7-3)
