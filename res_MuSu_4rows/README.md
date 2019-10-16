@@ -43,7 +43,15 @@
 
 + What is the data that we put into SVD look like after HMFA?
 
-### Next steps:
+### Conclusion:
+
+*Centered columns with HMFA-normalization first by edge-type (b/w) then by subject* is the best one so far.
+
+### Problem:
+
+The components are mostly driven by the within-network edges, because the between-network edges have much weaker connectivity compared to within-network ones. This could be problematic for the TMS study because we are also interested in the difference in the between-network connectivity across conditions.
+
+### Next steps--possible solutions:
 
 + How do we examine the network edges that are small? 
 
