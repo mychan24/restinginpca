@@ -46,6 +46,7 @@
 ### Conclusion:
 
 *Centered columns with HMFA-normalization first by edge-type (b/w) then by subject* is the best one so far.
+(Other results were archived.)
 
 ### Problem:
 
@@ -57,10 +58,10 @@ The components are mostly driven by the within-network edges, because the betwee
 
 	+ They tend to be excluded from the factor map, because they contribute less inertia overall (with less edges in total compared to other networks). This doesn't necessarily mean that they are not important and should be excluded from the results. 	
 
-1. MFA-normalized subj-edgetype blocks.
+1. MFA-normalized subj-edgetype blocks. (7-1)
 
 	1. Normalized subj-edgetype blocks to SS = 1.
 
-2. Maybe use within as ACTIVE and between as SUPP.
+2. Maybe use within as ACTIVE and between as SUPP. (7-2)
 
-3. (HMFA-normalize edgetype then subject)
+3. (HMFA-normalize edgetype then subject) (7-3)
