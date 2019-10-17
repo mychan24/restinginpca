@@ -58,10 +58,10 @@ The components are mostly driven by the within-network edges, because the betwee
 
 	+ They tend to be excluded from the factor map, because they contribute less inertia overall (with less edges in total compared to other networks). This doesn't necessarily mean that they are not important and should be excluded from the results. 	
 
-1. MFA-normalized subj-edgetype blocks. (7-1)
+1. MFA-normalized subj-edgetype blocks. (14)
 
-	1. Normalized subj-edgetype blocks to SS = 1.
+	1. Normalized subj-edgetype blocks to SS = 1. (15)
 
-2. Maybe use within as ACTIVE and between as SUPP. (7-2)
+2. Maybe use within as ACTIVE and between as SUPP. (16)
 
-3. (HMFA-normalize subject then edgetype) (7-3)
+3. (HMFA-normalize subject then edgetype) (17-18)
