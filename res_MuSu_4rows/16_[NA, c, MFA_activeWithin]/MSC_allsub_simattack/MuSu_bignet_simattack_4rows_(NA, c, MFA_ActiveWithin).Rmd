@@ -591,9 +591,20 @@ plot.f_bw_imp.supp <- createFactorMap(mean.fj.bw.supp, axis1 = 1, axis2 = 2,
                                  col.points = net.edge.col.bysub.supp$gc[rownames(mean.fj.bw.supp),],
                                  col.labels = net.edge.col.bysub.supp$gc[rownames(mean.fj.bw.supp),],
                                  text.cex = 3,
+                                 pch = "\u25D6",
                                  force = 0.5,
                                  title = "Mean factor scores for subject_x_edge types")
+
+gg <- ggplot(mean.fj.bw.supp) + 
+  geom_point(aes(`Factor 1`, `Factor 2`), shape="\u25D6", colour="red", size=3) +
+geom_point(aes(`Factor 1`, `Factor 2`), shape="\u25D7", colour="blue", size=3) +
+  theme(text = element_text(family = "Arial Unicode MS"))
+
+
 f_netedge_plot04.5 <- plot.f_bw_imp$zeMap_background + plot.f_bw_imp$zeMap_dots + plot.f_bw_imp$zeMap_text + plot.f_bw_imp.supp$zeMap_dots + plot.f_bw_imp.supp$zeMap_text + f.labels
+
+f_netedge_plot04.5 + theme(text = element_text(family = "Arial Unicode MS")) + geom_point(aes(mean.fj.bw.supp[,1], mean.fj.bw.supp[,2]), shape="\u25D6", colour="red", size=3) +
+geom_point(aes(mean.fj.bw.supp[,1], mean.fj.bw.supp[,2]), shape="\u25D7", colour="blue", size=3)
 
 # plot mean factor scores of network edges
 ### plot the mean factor scores for network edges
