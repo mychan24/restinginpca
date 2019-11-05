@@ -436,7 +436,31 @@ plot.pf_sess <- createPartialFactorScoresMap(
 
 # add it to the factor map ** MYC this broke when there is 3 subjects, ask JC 20190410
 plot.f_sess4pF$zeMap + f.labels + plot.pf_sess$mapColByBlocks
+
 ```
+
+
+```{r pF.third}
+f.labels.23 <- createxyLabels.gen(x_axis = 2, y_axis = 3,
+                               lambda = svd.res$ExPosition.Data$eigs,
+                               tau = svd.res$ExPosition.Data$t,
+                               axisName = "Dimension ")
+plot.f_sess.23 <- createFactorMap(svd.res$ExPosition.Data$fi,
+                                  axis1 = 2, axis2 = 3,
+                                  constraints = minmaxHelper(apply(pFi,2,rbind), axis1 = 2, axis2 = 3))
+# plot 3rd component
+plot.pf_sess.23 <- createPartialFactorScoresMap(
+  colors4Blocks = rep(c("red","blue"),5),
+  factorScores = svd.res$ExPosition.Data$fi,
+  partialFactorScores = pFi,
+  axis1 = 2, axis2 = 3,
+  names4Partial = subj.name,
+  font.labels = "bold"
+)
+plot.f_sess.23$zeMap + f.labels.23 + plot.pf_sess.23$mapColByBlocks
+
+```
+
 
 To have a clearer view of the factor scores for the subject x edges, we first compute the mean factor scores for the each network edge.
 
@@ -587,7 +611,7 @@ plot.f_bw_imp <- createFactorMap(mean.fj.bw, axis1 = 1, axis2 = 2,
                                  title = "Mean factor scores for subject_x_edge types")
 f_netedge_plot04 <- plot.f_bw_imp$zeMap_background + plot.f_bw_imp$zeMap_dots + plot.f_bw_imp$zeMap_text + f.labels
 
-plot.f_bw_imp.supp <- createFactorMap(mean.fj.bw.supp, axis1 = 1, axis2 = 2,
+plot.f_bw_imp.supp <- createFactorMap(cbind(mean.fj.bw.supp[,1]-0.00003, mean.fj.bw.supp[,2]), axis1 = 1, axis2 = 2,
                                  col.points = net.edge.col.bysub.supp$gc[rownames(mean.fj.bw.supp),],
                                  col.labels = net.edge.col.bysub.supp$gc[rownames(mean.fj.bw.supp),],
                                  text.cex = 3,
@@ -595,16 +619,28 @@ plot.f_bw_imp.supp <- createFactorMap(mean.fj.bw.supp, axis1 = 1, axis2 = 2,
                                  force = 0.5,
                                  title = "Mean factor scores for subject_x_edge types")
 
+plot.f_bw_imp.supp.r <- createFactorMap(cbind(mean.fj.bw.supp[,1]+0.00003, mean.fj.bw.supp[,2]), axis1 = 1, axis2 = 2,
+                                 col.points = net.edge.col.bysub.supp$gc[rownames(mean.fj.bw.supp),],
+                                 col.labels = net.edge.col.bysub.supp$gc[rownames(mean.fj.bw.supp),],
+                                 text.cex = 3,
+                                 pch = "\u25D6",
+                                 force = 0.5,
+                                 title = "Mean factor scores for subject_x_edge types")
+
+
 gg <- ggplot(mean.fj.bw.supp) + 
-  geom_point(aes(`Factor 1`, `Factor 2`), shape="\u25D6", colour="red", size=3) +
-geom_point(aes(`Factor 1`, `Factor 2`), shape="\u25D7", colour="blue", size=3) +
-  theme(text = element_text(family = "Arial Unicode MS"))
+  geom_text(aes(`Factor 1`, `Factor 2`), label = "\u25D6", colour="red", size=3) +
+geom_text(aes(`Factor 1`, `Factor 2`), label = "\u25D7", colour="blue", size=3)
 
++
+  geom_text(label = "\u25D2", aes(color = as.character(gear)),  
+            size=10, family = "Arial Unicode MS Regular") +
+  geom_text(label = "\u25D3", colour="blue", 
+            size=10, family = "Arial Unicode MS Regular") + 
+ 
 
-f_netedge_plot04.5 <- plot.f_bw_imp$zeMap_background + plot.f_bw_imp$zeMap_dots + plot.f_bw_imp$zeMap_text + plot.f_bw_imp.supp$zeMap_dots + plot.f_bw_imp.supp$zeMap_text + f.labels
-
-f_netedge_plot04.5 + theme(text = element_text(family = "Arial Unicode MS")) + geom_point(aes(mean.fj.bw.supp[,1], mean.fj.bw.supp[,2]), shape="\u25D6", colour="red", size=3) +
-geom_point(aes(mean.fj.bw.supp[,1], mean.fj.bw.supp[,2]), shape="\u25D7", colour="blue", size=3)
+f_netedge_plot04.5 <- plot.f_bw_imp$zeMap_background + plot.f_bw_imp$zeMap_dots + plot.f_bw_imp.supp.r$zeMap_dots + plot.f_bw_imp$zeMap_text + plot.f_bw_imp.supp$zeMap_dots + plot.f_bw_imp.supp$zeMap_text + f.labels
+f_netedge_plot04.5
 
 # plot mean factor scores of network edges
 ### plot the mean factor scores for network edges
