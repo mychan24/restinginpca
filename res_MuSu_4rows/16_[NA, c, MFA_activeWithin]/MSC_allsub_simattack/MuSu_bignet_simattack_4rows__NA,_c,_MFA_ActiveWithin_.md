@@ -321,7 +321,7 @@ BootCube.Comm <- Boot4Mean(svd.res$ExPosition.Data$fj,
 tictoc::toc()
 ```
 
-    ## 17.97 sec elapsed
+    ## 34.83 sec elapsed
 
 ``` r
 tictoc::tic()
@@ -333,7 +333,7 @@ BootCube.Comm.supp <- Boot4Mean(svd.res.supp$fjj,
 tictoc::toc()
 ```
 
-    ## 165.48 sec elapsed
+    ## 259.48 sec elapsed
 
 ``` r
 # compute mean factor scores for each edge and the partial factor scores of each subject for these factor scores
@@ -395,7 +395,7 @@ BootCube.Comm.edge.supp <- Boot4Mean(mean.fj.supp,
 tictoc::toc()
 ```
 
-    ## 9.67 sec elapsed
+    ## 20.2 sec elapsed
 
 ``` r
 # Compute means of factor scores for different types of edges
@@ -418,7 +418,7 @@ BootCube.Comm.bw.supp <- Boot4Mean(svd.res.supp$fjj,
 tictoc::toc()
 ```
 
-    ## 99.75 sec elapsed
+    ## 174.28 sec elapsed
 
 Next, we plot the factor scores for the subject x edges (a mess): Dim 1
 & 2
@@ -428,6 +428,27 @@ Next, we plot the factor scores for the subject x edges (a mess): Dim 1
 Check dispersion of between-network edges for all subjects
 
 ![](MuSu_bignet_simattack_4rows__NA,_c,_MFA_ActiveWithin__files/figure-gfm/fj.supp.print-1.png)<!-- -->
+
+``` r
+sub.idx <- gtlabel.supp$subjects_label == "sub01"
+alledge.des <- gtlabel.supp$edges_label[sub.idx]
+all.edge.color <- createColorVectorsByDesign(makeNominalData(as.matrix(alledge.des)))
+f.sub.alledges <- createFactorMap(svd.res.supp$fjj[sub.idx,], axis1 = 1, axis2 = 2,
+                               col.points = all.edge.color$oc,
+                               col.labels = all.edge.color$oc,
+                               constraints = minmaxHelper(mean.fj.supp),
+                               text.cex = 1,
+                               force = 0.5,
+                               title = "sub01")
+
+
+f.sub.alledges$zeMap_background + f.sub.alledges$zeMap_dots + 
+  theme(legend.position = "topright")
+```
+
+    ## Warning: Removed 14920 rows containing missing values (geom_point).
+
+![](MuSu_bignet_simattack_4rows__NA,_c,_MFA_ActiveWithin__files/figure-gfm/alledges-1.png)<!-- -->
 
 Note that a network edge with its region edges significantly contribute
 to the components both positively and negatively results in a
@@ -440,3 +461,145 @@ in the chunk named `checkCtr` which is hidden/commented in the .rmd.)
 We can also add boostrap intervals for the factor scores
 
 ![](MuSu_bignet_simattack_4rows__NA,_c,_MFA_ActiveWithin__files/figure-gfm/grid_f_netedgeCI_plot-1.png)<!-- -->
+
+## Component 3
+
+``` r
+# #--- get the contribution of each component
+# cI <- svd.res$ExPosition.Data$ci
+# cJ <- svd.res$ExPosition.Data$cj
+# 
+# #--- get the sum of contribution for each edge
+# c_edge <- aggregate(cJ,list(edge = gtlabel.act$subjects_edge_label),sum)
+# rownames(c_edge) <- c_edge$edge
+# c_edge <- c_edge[,-1]
+# rownames(cI) <- c(1:nrow(gt))
+# 
+## Find important sessions
+#--- get the contribution for component 1 AND 2 by sum(SS from 1, SS from 2)/sum(eigs 1, eigs 2)
+sesCtr <- (cI[,1]+cI[,2]+cI[,3])/sum((svd.res$ExPosition.Data$eigs[1:3]))
+
+#--- the important sessions are the ones that contribute more than or equal to the average
+importantSes <- (sesCtr >= 1/length(sesCtr))
+importantSes1 <- (cI[,1] >= 1/length(cI[,1]))
+importantSes2 <- (cI[,2] >= 1/length(cI[,2]))
+importantSes3 <- (cI[,3] >= 1/length(cI[,3]))
+
+#--- color for sessions
+col4ImportantSes <- as.matrix(rep("mediumorchid4",nrow(cI)))  # get colors
+col4NS <- 'gray48'                                            # set color for not significant edges to gray
+col4ImportantSes[!importantSes] <- col4NS                     # replace them in the color vector
+
+## Find important edges
+#--- compute the sums of squares of each variable for each component
+absCtrEdg <- as.matrix(c_edge) %*% diag(svd.res$ExPosition.Data$eigs)
+
+#--- get the contribution for component 1 AND 2 by sum(SS from 1, SS from 2)/sum(eigs 1, eigs 2)
+edgCtr <- (absCtrEdg[,1] + absCtrEdg[,2] + absCtrEdg[,3])/sum(svd.res$ExPosition.Data$eigs[1:3])
+
+#--- the important variables are the ones that contribute more than or equal to the average
+importantEdg <- (edgCtr >= 1/length(edgCtr))
+importantEdg1 <- (absCtrEdg[,1] >= 1/length(absCtrEdg[,1]))
+importantEdg2 <- (absCtrEdg[,2] >= 1/length(absCtrEdg[,2]))
+importantEdg3 <- (absCtrEdg[,3] >= 1/length(absCtrEdg[,3]))
+
+#--- find the between/within description for each network edge
+net.edge <- matrix(NA, nrow = nrow(c_edge),ncol = 2) %>% data.frame
+for (i in 1:nrow(c_edge)){
+  edge2check <- rownames(c_edge)[i]
+  net.edge[i,1] <- unique(gtlabel.act[which(gtlabel.act$subjects_edge_label == edge2check),"subjects_wb"])
+  net.edge[i,2] <- as.character(unique(gtlabel.act[which(gtlabel.act$subjects_edge_label == edge2check),"edges_label"]))
+}
+colnames(net.edge) <- c("subjects_wb", "network")
+rownames(net.edge) <- rownames(c_edge)
+
+# for supplementary between edges
+supp.edge <- unique(gtlabel.supp$subjects_edge_label)
+net.edge.supp <- matrix(NA, nrow = length(supp.edge),ncol = 2) %>% data.frame
+for (i in 1:length(supp.edge)){
+  edge2check <- supp.edge[i]
+  net.edge.supp[i,1] <- unique(gtlabel.supp[which(gtlabel.supp$subjects_edge_label == edge2check),"subjects_wb"])
+  net.edge.supp[i,2] <- as.character(unique(gtlabel.supp[which(gtlabel.supp$subjects_edge_label == edge2check),"edges_label"]))
+}
+colnames(net.edge.supp) <- c("subjects_wb", "network")
+rownames(net.edge.supp) <- supp.edge
+
+### identify important common edge------------------------------------------------------
+#--- get the sum of contribution for each edge
+c_commedge <- aggregate(cJ,by = list(commedge = gtlabel.act$edges_label),sum)
+rownames(c_commedge) <- c_commedge$commedge
+c_commedge <- c_commedge[,-1]
+
+## Find important commedges
+#--- compute the sums of squares of each variable for each component
+absCtrCommEdg <- as.matrix(c_commedge) %*% diag(svd.res$ExPosition.Data$eigs)
+
+#--- get the contribution for component 1 AND 2 by sum(SS from 1, SS from 2)/sum(eigs 1, eigs 2)
+CommedgCtr <- rowSums(absCtrCommEdg[,1:3])/sum(svd.res$ExPosition.Data$eigs[1:3])
+
+#--- the important variables are the ones that contribute more than or equal to the average
+importantCommEdg <- (CommedgCtr >= 1/length(CommedgCtr))
+importantCommEdg1 <- (absCtrCommEdg[,1] >= 1/length(cJ[,1]))
+importantCommEdg2 <- (absCtrCommEdg[,2] >= 1/length(cJ[,2]))
+importantCommEdg3 <- (absCtrCommEdg[,3] >= 1/length(cJ[,3]))
+## ------------------------------------------------------------------------------------
+
+#--- create color based on the between/within description for network edges
+## color by subject
+net.edge.col.bysub <- list(oc = as.matrix(plyr::mapvalues(net.edge$subjects_wb,from = unique(net.edge$subjects_wb), to = cols25(10))),
+                     gc = as.matrix(cols25(10)))
+rownames(net.edge.col.bysub$oc) <- rownames(c_edge)
+rownames(net.edge.col.bysub$gc) <- unique(net.edge$subjects_wb)
+
+## color by network
+net.edge.col.bynet <- list(oc = as.matrix(plyr::mapvalues(net.edge$network,from = unique(net.edge$network), to = parcel.list[[1]]$Comm.col$gc)),
+                     gc = as.matrix(parcel.list[[1]]$Comm.col$gc))
+rownames(net.edge.col.bynet$oc) <- rownames(c_edge)
+rownames(net.edge.col.bynet$gc) <- unique(net.edge$network)
+
+## color by subject of supplementary
+net.edge.col.bysub.supp <- list(oc = as.matrix(plyr::mapvalues(net.edge.supp$subjects_wb,from = unique(net.edge.supp$subjects_wb), to = cols25(10))),
+                     gc = as.matrix(cols25(10)))
+rownames(net.edge.col.bysub.supp$oc) <- supp.edge
+rownames(net.edge.col.bysub.supp$gc) <- unique(net.edge.supp$subjects_wb)
+
+#--- color for networks by subjects
+col4ImportantEdg <- net.edge.col.bysub$oc # get colors
+col4NS <- 'gray90' # set color for not significant edges to gray
+col4ImportantEdg[!importantEdg] <- col4NS # replace them in the color vector
+#--- color for networks by networks
+col4ImportantEdg.bynet <- net.edge.col.bynet$oc # get colors
+col4NS.bynet <- 'gray90' # set color for not significant edges to gray
+col4ImportantEdg.bynet[!importantEdg] <- col4NS.bynet # replace them in the color vector
+```
+
+### Plots:
+
+#### Row factor scores with partial factor scores:
+
+``` r
+f.labels.23 <- createxyLabels.gen(x_axis = 2, y_axis = 3,
+                               lambda = svd.res$ExPosition.Data$eigs,
+                               tau = svd.res$ExPosition.Data$t,
+                               axisName = "Dimension ")
+
+plot.f_sess.23 <- createFactorMap(svd.res$ExPosition.Data$fi,
+                                  axis1 = 2, axis2 = 3,
+                                  constraints = minmaxHelper(apply(pFi,2,rbind), axis1 = 2, axis2 = 3))
+# plot 3rd component
+plot.pf_sess.23 <- createPartialFactorScoresMap(
+  colors4Blocks = rep(c("red","blue"),5),
+  factorScores = svd.res$ExPosition.Data$fi,
+  partialFactorScores = pFi,
+  axis1 = 2, axis2 = 3,
+  names4Partial = subj.name,
+  font.labels = "bold"
+)
+plot.f_sess.23$zeMap + f.labels.23 + plot.pf_sess.23$mapColByBlocks
+```
+
+![](MuSu_bignet_simattack_4rows__NA,_c,_MFA_ActiveWithin__files/figure-gfm/plot_session_cp3-1.png)<!-- -->
+
+#### Column factor scores:
+
+![](MuSu_bignet_simattack_4rows__NA,_c,_MFA_ActiveWithin__files/figure-gfm/grid_f_netedge_plot_cp3-1.png)<!-- -->

@@ -591,14 +591,13 @@ plot.f_bw_imp <- createFactorMap(mean.fj.bw, axis1 = 1, axis2 = 2,
                                  title = "Mean factor scores for subject_x_edge types")
 f_netedge_plot04 <- plot.f_bw_imp$zeMap_background + plot.f_bw_imp$zeMap_dots + plot.f_bw_imp$zeMap_text + f.labels
 
-# plot.f_bw_imp.supp <- createFactorMap(cbind(mean.fj.bw.supp[,1]-0.00003, mean.fj.bw.supp[,2]), axis1 = 1, axis2 = 2,
-#                                  col.points = net.edge.col.bysub.supp$gc[rownames(mean.fj.bw.supp),],
-#                                  col.labels = net.edge.col.bysub.supp$gc[rownames(mean.fj.bw.supp),],
-#                                  text.cex = 3,
-#                                  pch = "\u25D6",
-#                                  force = 0.5,
-#                                  title = "Mean factor scores for subject_x_edge types")
-# 
+plot.f_bw_imp.supp <- createFactorMap(mean.fj.bw.supp, axis1 = 1, axis2 = 2,
+                                 col.points = net.edge.col.bysub.supp$gc[rownames(mean.fj.bw.supp),],
+                                 col.labels = net.edge.col.bysub.supp$gc[rownames(mean.fj.bw.supp),],
+                                 text.cex = 3,
+                                 force = 0.5,
+                                 title = "Mean factor scores for subject_x_edge types")
+
 # plot.f_bw_imp.supp.r <- createFactorMap(cbind(mean.fj.bw.supp[,1]+0.00003, mean.fj.bw.supp[,2]), axis1 = 1, axis2 = 2,
 #                                  col.points = net.edge.col.bysub.supp$gc[rownames(mean.fj.bw.supp),],
 #                                  col.labels = net.edge.col.bysub.supp$gc[rownames(mean.fj.bw.supp),],
@@ -964,7 +963,12 @@ plot.f_bw_imp.cp3 <- createFactorMap(mean.fj.bw, axis1 = 2, axis2 = 3,
                                  force = 0.5,
                                  title = "Mean factor scores for subject_x_edge types")
 
- 
+plot.f_bw_imp.supp.cp3 <- createFactorMap(mean.fj.bw.supp, axis1 = 2, axis2 = 3,
+                                 col.points = net.edge.col.bysub.supp$gc[rownames(mean.fj.bw.supp),],
+                                 col.labels = net.edge.col.bysub.supp$gc[rownames(mean.fj.bw.supp),],
+                                 text.cex = 3,
+                                 force = 0.5,
+                                 title = "Mean factor scores for subject_x_edge types")
 
 f_netedge_plot04.5.cp3 <- plot.f_bw_imp.cp3$zeMap_background + plot.f_bw_imp.cp3$zeMap_dots + plot.f_bw_imp.cp3$zeMap_text + plot.f_bw_imp.supp.cp3$zeMap_dots + plot.f_bw_imp.supp.cp3$zeMap_text + f.labels
 # f_netedge_plot04.5
