@@ -1,5 +1,10 @@
 # How is our method better?
+---
+*FINAL: HMFA with subject first then edgetype (within/between network) next.*
+	
+	- Justification: subject has to be normalized. This step would be especially essential for a more inhomogeneous group (e.g., aging, lesion, developmental population).
 
+	- Connectivity in within and between have different characteristics. For example, the between network connectivity are always weaker than within network connectivity. Therefore, these two types should be normalized to ensure that the between network connectivity was not under-represented in the factor space.
 ---
 
 ## Step one --
