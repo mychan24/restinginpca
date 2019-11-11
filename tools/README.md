@@ -18,6 +18,9 @@ This folder stores functions we wrote for this project.
 ---Load a vector (e.g., factor scores) and map it back into a symmetrical square matrix
 * *getVoxDes*:
 ---Generate the design matrix for regions and color matrix from the parcellation of each subject's correlation matrix
+* *getMeanCube.R*:
+---Compute mean connectivity of each edge and generate a cube of means from the original cubes
+
 ---
 
 ### Script:
@@ -30,3 +33,6 @@ This folder stores functions we wrote for this project.
 
 * *gt_bignetworks_allsubs*:
 ---Get the grand data table that only have the common networks across subjects
+
+* *cube_allsubs_bignet*:
+---Generate cubes with only the common networks
