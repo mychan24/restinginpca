@@ -7,7 +7,8 @@
 #                         e.g., comm_paths <- list.files("./data/parcel_community/", pattern = "comm.txt", full.names = T)#       
 #       syslabel_paths,   paths to systemlabel.txt
 #                         e.g., syslabel_paths <- "./data/parcel_community/bignetwork/systemlabel_bigcomm.txt"
-#           out_file,     Rdata to save gt and gtlabel to. Default = NULL (won't save a file)
+#             out_file,   Rdata to save gt and gtlabel to. Default = NULL (won't save a file)
+#             show.res,   if the result should be printed
 #
 # Ouput:    mean.cube,    a network x network x session array of mean z-transformed connectivity
 # #########################################################################
@@ -20,7 +21,7 @@
 # comm_paths <- sapply(X = 1, FUN=function(x){sprintf("./data/parcel_community/bignetwork/sub-MSC%02d_node_parcel_bigcomm.txt",x)})
 # syslabel_paths <- "./data/parcel_community/bignetwork/systemlabel_bigcomm.txt"
 # #########################################################################
-getMeanCube <- function(cube_paths, comm_paths, syslabel_paths, out_file=NULL, subj_list=NULL){
+getMeanCube <- function(cube_paths, comm_paths, syslabel_paths, out_file=NULL, subj_list=NULL, show.res = FALSE){
   
   if(!exists("label_edges")){
     stop("Source label_edges.R (in ./tools)")
@@ -55,12 +56,12 @@ getMeanCube <- function(cube_paths, comm_paths, syslabel_paths, out_file=NULL, s
   
   
   # Initialize mean.cube
-  mean.cube <- array(NA, dim = c(n.comm, n.comm, dim(s)[3]), dimnames = list(all.edge$V1, all.edge$V1,c())) # An network x network x session array
+  mean.zcube <- array(NA, dim = c(n.comm, n.comm, dim(s)[3]), dimnames = list(all.edge$V1, all.edge$V1,c())) # An network x network x session array
   # loop to create the mean correlation matrix
   for(j in 1:dim(s)[3]){
     ss <- s[,,j]
     ss.vec <- ss[upper.tri(s[,,1])]
-    tab2save <- mean.cube[,,j]
+    tab2save <- mean.zcube[,,j]
     
     # compute mean connectivity of edges
     EdgeMean <- aggregate(ss.vec, by = list(l), FUN = mean) # get means
@@ -73,14 +74,21 @@ getMeanCube <- function(cube_paths, comm_paths, syslabel_paths, out_file=NULL, s
     for (run.mean in 1:length(EdgeMean$x)){
       first_net <- as.character(netlist$N1[run.mean])
       second_net <- as.character(netlist$N2[run.mean])
-      tab2save[first_net,second_net,j] <- EdgeMean$x[run.mean]
+      tab2save[first_net,second_net] <- EdgeMean$x[run.mean]
     }
     tab2save[lower.tri(tab2save)] <- t(tab2save)[lower.tri(tab2save)]
-    mean.cube[,,j] <- tab2save
+    mean.zcube[,,j] <- tab2save
   }
   
+  
   if(!is.null(out_file)){
-    stop("Please specify the destination directory of the output")
+    save(mean.zcube, file = out_file)
+  }else{
+    stop("Please specify the directory of the output")
   }
-  return(mean.cube)
+  
+  if (show.res == TRUE){
+    return(mean.zcube)
+  }
+ 
 }

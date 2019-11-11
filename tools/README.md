@@ -1,6 +1,6 @@
 This folder stores functions we wrote for this project.
 
->Edited by JCY, 08/07/2019
+>Edited by JCY, 11/10/2019
 
 ---
 
@@ -34,5 +34,11 @@ This folder stores functions we wrote for this project.
 * *gt_bignetworks_allsubs*:
 ---Get the grand data table that only have the common networks across subjects
 
+* *cube_allsubs*:
+---Generate cubes for each participant
+
 * *cube_allsubs_bignet*:
 ---Generate cubes with only the common networks
+
+* *mean.zcube_allsubs*:
+---Generate cubes with mean connectivity of edges (of common networks) for all sessions of all participants
