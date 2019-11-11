@@ -1,0 +1,282 @@
+---
+title: "DiSTATIS on mean connectivity of edges derived from indivisual parcellation"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,collapse=TRUE, comment="##")
+```
+
+## Objectives
+This attempt perform DiSTATIS on mean connectivity of edges (e.g., mean connectivity between DMN and FPN, mean connectivity within DMN) of common networks across participants. The results from this analysis can be compared to regular DiSTATIS of rs*f*MRI. 
+
+```{r cars, echo = FALSE, include = FALSE}
+suppressMessages(library(psych))
+suppressMessages(library(DistatisR))
+suppressMessages(library(tidyr))
+suppressMessages(library(magrittr))
+suppressMessages(library(DistatisR))
+suppressMessages(library(PTCA4CATA))
+suppressMessages(library(ExPosition))
+suppressMessages(library(InPosition))
+suppressMessages(library(superheat))
+suppressMessages(library(gridExtra))
+suppressMessages(library(ggplotify))
+suppressMessages(library(grid))
+suppressMessages(library(viridis))
+suppressMessages(library(pals))
+# Read functions
+tool.path <- "../tools/"
+```
+
+## Read data
+
+```{r data, echo = FALSE, include = FALSE}
+zmat.path <- "../../data/zmat/bignetwork_mean"
+parcelfile2read <- sapply(X = 1:10, FUN=function(x){sprintf("/sub-MSC%02d_node_parcel_bigcomm_mean.RData",x)})
+subj.name <- paste("sub", sprintf("%02d",1:10), sep="")
+
+load(paste0(zmat.path,"/sub-MSC01_node_parcel_bigcomm_mean.RData"))
+matdim <- dim(mean.zcube)
+
+# rename communities
+parcel.comm.path <- "../../data/parcel_community/bignetwork"
+CommName <- read.csv(paste0(parcel.comm.path,"/systemlabel_bigcomm.txt"),sep = ",",header = FALSE)
+colnames(CommName) <- c("Comm","CommLabel","CommColor","CommLabel.short")
+
+tab.design <- data.frame(subject = rep(subj.name, each = 4), session = rep(sprintf("sess%01d", 1:4), 10))
+
+# create empty array
+all.cubes <- array(dim = c(matdim[1:2], matdim[3]*4), dimnames = list(CommName$CommLabel.short[rownames(mean.zcube) == CommName$Comm], CommName$CommLabel.short[rownames(mean.zcube) == CommName$Comm], paste(tab.design$subject,tab.design$session, sep = ".")))
+
+# read data
+for (i in 1:length(subj.name)){
+  load(paste0(zmat.path, parcelfile2read[i]))
+  all.cubes[,,(4*(i-1)+1):(4*i)] <- mean.zcube[1:11,1:11,2:5]
+}
+```
+
+This is a data cube of mean correlations: networks x networks x 4 sessions (2-5)
+
+```{r check, echo = TRUE, include = TRUE}
+# Dimensions
+dim(all.cubes)
+```
+
+Create colors based on design
+
+```{r color, include = FALSE}
+#--- create colors for participants
+table.color <- list(oc = as.matrix(rep(cols25(10),each = 4)),
+                     gc = as.matrix(rep(cols25(10))))
+rownames(table.color$oc) <- dimnames(all.cubes)[[3]]
+rownames(table.color$gc) <- subj.name
+
+#--- create colors for sessions
+session.color <- list(oc = as.matrix(rep(magma(10)[c(3,5,7,8)],10)),
+                       gc = as.matrix(rep(magma(10)[c(3,5,7,8)])))
+# plot(x = 1:10, y = rep(1,10), col = magma(10), pch = 19)
+rownames(session.color$oc) <- dimnames(all.cubes)[[3]]
+rownames(session.color$gc) <- paste0("sess",1:4,sep = "")
+```
+
+
+Run DiSTATIS with the negative z-transformed correlation matrix (seen as covariance matrix) is equivalent to run DiSTATIS with distance matrices
+
+```{r distatis}
+distatis.res <- distatis(all.cubes, Distance = FALSE)
+```
+
+## Plot results
+
+### Rv space
+
+This results show how similar the tables are to one another.
+
+#### Eigenvalues
+
+```{r Rv.scree, echo = FALSE}
+PlotScree(ev = distatis.res$res4Cmat$eigValues,
+          title = "RV-map: Expained variance per dimension")
+```
+
+#### Factor scores
+
+```{r Rv.f}
+### Rv factor scores
+rv.graph <- createFactorMap(distatis.res$res4Cmat$G,
+                axis1 = 1, axis2 = 2,
+                col.points = table.color$oc,
+                col.labels = table.color$oc,
+                text.cex = 2)
+### Dimension labels for the Rv map
+rv.labels <- createxyLabels.gen(lambda = distatis.res$res4Cmat$eigValues,
+                                tau = distatis.res$res4Cmat$tau,
+                                axisName = "Dimension ")
+### Show plot
+Rvmap <- rv.graph$zeMap + rv.labels
+print(Rvmap)
+```
+
+### Compromise space
+
+#### Eigenvalues
+
+```{r scree, echo = FALSE}
+PlotScree(ev = distatis.res$res4Splus$eigValues,
+          title = "Compromise: Explained variance per dimension")
+```
+
+Set the components of interest
+```{r set.coi}
+x_cp <- 1
+y_cp <- 2
+```
+
+#### Factor scores
+
+```{r f, echo = FALSE}
+f.graph <- createFactorMap(distatis.res$res4Splus$F,
+                           axis1 = x_cp, axis2 = y_cp,
+                           title = "Compromise - Factor scores (nodes): cp 1 & 2",
+                           col.points = CommName$CommColor,
+                           col.labels = CommName$CommColor,
+                           alpha.points = .4, cex = 5, text.cex = 5)
+f.graph.23 <- createFactorMap(distatis.res$res4Splus$F,
+                           axis1 = 2, axis2 = 3,
+                           title = "Compromise - Factor scores (nodes): cp 2 & 3",
+                           col.points = CommName$CommColor,
+                           col.labels = CommName$CommColor,
+                           alpha.points = .4, cex = 5, text.cex = 5)
+f.labels <- createxyLabels.gen(x_axis = x_cp, y_axis = y_cp,
+                               lambda = distatis.res$res4Splus$eigValues,
+                               tau = distatis.res$res4Splus$tau,
+                               axisName = "Dimension ")
+f.labels.23 <- createxyLabels.gen(x_axis = 2, y_axis = 3,
+                               lambda = distatis.res$res4Splus$eigValues,
+                               tau = distatis.res$res4Splus$tau,
+                               axisName = "Dimension ")
+# Show plot
+f01.F <- f.graph$zeMap + f.labels
+f01.F.cp3 <- f.graph.23$zeMap + f.labels.23
+```
+
+```{r plot_fig_f, echo=F, fig.height=8, fig.width= 16}
+gridExtra::grid.arrange(as.grob(f01.F), as.grob(f01.F.cp3), ncol=2)
+```
+
+#### Partial factor scores
+
+Component 1 & 2
+
+```{r pf, include = FALSE}
+pF <- distatis.res$res4Splus$PartialF
+
+# mean pF for each subject
+sub.pF <- apply(pF, c(1,2), function(y){
+  aggregate(y, by = list(tab.design$subject), mean)$x
+}) %>% aperm(c(2,3,1))
+dimnames(sub.pF)[[3]] <- subj.name
+
+# mean pF for each session
+sess.pF <- apply(pF, c(1,2), function(y){
+  aggregate(y, by = list(tab.design$session), mean)$x
+}) %>% aperm(c(2,3,1))
+dimnames(sess.pF)[[3]] <- sprintf("sess%01d", 1:4)
+
+f.graph4sub <- createFactorMap(distatis.res$res4Splus$F,
+                           axis1 = x_cp, axis2 = y_cp,
+                           title = "Compromise - Factor scores (nodes): cp 1 & 2",
+                           col.points = CommName$CommColor,
+                           col.labels = CommName$CommColor,
+                           pch = 17,
+                           alpha.points = 0.7, cex = 4, text.cex = 4,
+                           constraints = minmaxHelper4Partial(distatis.res$res4Splus$F,
+                                                              sub.pF))
+
+pf.sub <- createPartialFactorScoresMap(distatis.res$res4Splus$F,
+                                       sub.pF,
+                                       axis1 = x_cp, axis2 = y_cp,
+                                       colors4Blocks = table.color$gc,
+                                       size.points = 3, size.labels = 3,
+                                       alpha.points = .8, alpha.lines = .8, alpha.labels = .8,
+                                       names4Partial = rownames(table.color$gc))
+
+f.graph4sess <- createFactorMap(distatis.res$res4Splus$F,
+                           axis1 = x_cp, axis2 = y_cp,
+                           title = "Compromise - Factor scores (nodes): cp 1 & 2",
+                           col.points = CommName$CommColor,
+                           col.labels = CommName$CommColor,
+                           pch = 17,
+                           alpha.points = 0.7, cex = 4, text.cex = 4,
+                           constraints = minmaxHelper4Partial(distatis.res$res4Splus$F,
+                                                              sess.pF))
+
+pf.sess <- createPartialFactorScoresMap(distatis.res$res4Splus$F,
+                                       sess.pF,
+                                       axis1 = x_cp, axis2 = y_cp,
+                                       colors4Blocks = session.color$gc,
+                                       size.points = 3, size.labels = 4,
+                                       alpha.points = .8, alpha.lines = .8, alpha.labels = 1,
+                                       names4Partial = rownames(session.color$gc))
+
+
+f02.FpF.sub <- f.graph4sub$zeMap_background + pf.sub$mapColByBlocks + f.graph4sub$zeMap_dots + f.graph4sub$zeMap_text + f.labels
+# f02.FpF.sub
+f02.FpF.sess <- f.graph4sess$zeMap_background + pf.sess$mapColByBlocks + f.graph4sess$zeMap_dots + f.graph4sess$zeMap_text + f.labels
+# f02.FpF.sub
+# f02.FpF.sess
+```
+```{r plot_fig_pF, echo=F, fig.height=8, fig.width= 16}
+gridExtra::grid.arrange(as.grob(f02.FpF.sub), as.grob(f02.FpF.sess), ncol=2)
+```
+
+Component 2 & 3
+
+```{r pf_cp3, include = FALSE}
+f.graph4sub.cp3 <- createFactorMap(distatis.res$res4Splus$F,
+                           axis1 = 2, axis2 = 3,
+                           title = "Compromise - Factor scores (nodes): cp 2 & 3",
+                           col.points = CommName$CommColor,
+                           col.labels = CommName$CommColor,
+                           pch = 17,
+                           alpha.points = 0.7, cex = 4, text.cex = 4,
+                           constraints = minmaxHelper4Partial(distatis.res$res4Splus$F,
+                                                              sub.pF, axis1 = 2, axis2 = 3))
+
+pf.sub.cp3 <- createPartialFactorScoresMap(distatis.res$res4Splus$F,
+                                       sub.pF,
+                                       axis1 = 2, axis2 = 3,
+                                       colors4Blocks = table.color$gc,
+                                       size.points = 3, size.labels = 3,
+                                       alpha.points = .8, alpha.lines = .8, alpha.labels = .8,
+                                       names4Partial = rownames(table.color$gc))
+
+f.graph4sess.cp3 <- createFactorMap(distatis.res$res4Splus$F,
+                           axis1 = 2, axis2 = 3,
+                           title = "Compromise - Factor scores (nodes): cp 2 & 3",
+                           col.points = CommName$CommColor,
+                           col.labels = CommName$CommColor,
+                           pch = 17,
+                           alpha.points = 0.7, cex = 4, text.cex = 4,
+                           constraints = minmaxHelper4Partial(distatis.res$res4Splus$F,
+                                                              sess.pF, axis1 = 2, axis2 = 3))
+
+pf.sess.cp3 <- createPartialFactorScoresMap(distatis.res$res4Splus$F,
+                                       sess.pF,
+                                       axis1 = 2, axis2 = 3,
+                                       colors4Blocks = session.color$gc,
+                                       size.points = 3, size.labels = 4,
+                                       alpha.points = .8, alpha.lines = .8, alpha.labels = 1,
+                                       names4Partial = rownames(session.color$gc))
+
+
+f03.FpF.sub.cp3 <- f.graph4sub.cp3$zeMap_background + pf.sub.cp3$mapColByBlocks + f.graph4sub.cp3$zeMap_dots + f.graph4sub.cp3$zeMap_text + f.labels.23
+# f02.FpF.sub
+f03.FpF.sess.cp3 <- f.graph4sess.cp3$zeMap_background + pf.sess.cp3$mapColByBlocks + f.graph4sess.cp3$zeMap_dots + f.graph4sess.cp3$zeMap_text + f.labels.23
+# f02.FpF.sub
+# f02.FpF.sess
+```
+```{r plot_fig_pF_cp3, echo=F, fig.height=8, fig.width= 16}
+gridExtra::grid.arrange(as.grob(f03.FpF.sub.cp3), as.grob(f03.FpF.sess.cp3), ncol=2)
+```
