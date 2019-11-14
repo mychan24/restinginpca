@@ -1,9 +1,9 @@
 ---
-  title: "DiSTATIS on edges derived from Gordon Group parcellation (n nodes = 333) simmulations"
+title: "DiSTATIS on edges derived from Gordon Group parcellation (n nodes = 333) simmulations"
 output: github_document
 ---
   
-  ```{r setup, include=FALSE}
+```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE,collapse=TRUE, comment="##")
 ```
 

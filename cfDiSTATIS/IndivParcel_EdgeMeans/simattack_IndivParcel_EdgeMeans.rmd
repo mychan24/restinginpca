@@ -249,10 +249,11 @@ pf.sess <- createPartialFactorScoresMap(distatis.res$res4Splus$F,
 
 f02.FpF.sub <- f.graph4sub$zeMap_background + pf.sub$mapColByBlocks + f.graph4sub$zeMap_dots + f.graph4sub$zeMap_text + f.labels
 # f02.FpF.sub
-f02.FpF.sess <- f.graph4sess$zeMap_background + pf.sess$mapColByBlocks + f.graph4sess$zeMap_dots + f.graph4sess$zeMap_text + f.labels
+f02.FpF.sess <- f.graph4sess$zeMap_background + pf.sess$pointsColByBlocks + pf.sess$linesColByBlocks + f.graph4sess$zeMap_dots + f.labels
 # f02.FpF.sub
 # f02.FpF.sess
 ```
+
 ```{r plot_fig_pF, echo=F, fig.height=8, fig.width= 16}
 gridExtra::grid.arrange(as.grob(f02.FpF.sub), as.grob(f02.FpF.sess), ncol=2)
 ```
@@ -299,10 +300,11 @@ pf.sess.cp3 <- createPartialFactorScoresMap(distatis.res$res4Splus$F,
 
 f03.FpF.sub.cp3 <- f.graph4sub.cp3$zeMap_background + pf.sub.cp3$mapColByBlocks + f.graph4sub.cp3$zeMap_dots + f.graph4sub.cp3$zeMap_text + f.labels.23
 # f02.FpF.sub
-f03.FpF.sess.cp3 <- f.graph4sess.cp3$zeMap_background + pf.sess.cp3$mapColByBlocks + f.graph4sess.cp3$zeMap_dots + f.graph4sess.cp3$zeMap_text + f.labels.23
+f03.FpF.sess.cp3 <- f.graph4sess.cp3$zeMap_background + pf.sess.cp3$pointsColByBlocks + pf.sess.cp3$linesColByBlocks + f.graph4sess.cp3$zeMap_dots + f.labels.23
 # f02.FpF.sub
 # f02.FpF.sess
 ```
+
 ```{r plot_fig_pF_cp3, echo=F, fig.height=8, fig.width= 16}
 gridExtra::grid.arrange(as.grob(f03.FpF.sub.cp3), as.grob(f03.FpF.sess.cp3), ncol=2)
 ```
