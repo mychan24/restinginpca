@@ -280,3 +280,7 @@ f03.FpF.sess.cp3 <- f.graph4sess.cp3$zeMap_background + pf.sess.cp3$mapColByBloc
 ```{r plot_fig_pF_cp3, echo=F, fig.height=8, fig.width= 16}
 gridExtra::grid.arrange(as.grob(f03.FpF.sub.cp3), as.grob(f03.FpF.sess.cp3), ncol=2)
 ```
+
+```{r save, echo = FALSE, include=FALSE}
+save.image(file = "cfDiSTATIS_IndivParcel_EdgeMeans.RData")
+```
