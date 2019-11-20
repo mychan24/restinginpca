@@ -75,6 +75,36 @@ y_cp <- 2
 
 ![](GordonParcel_DisTATIS_files/figure-gfm/plot_fig_f-1.png)<!-- -->
 
+``` r
+fi <- distatis.res$res4Splus$F
+
+# mean factor scores for each network
+net.fi <- getMeans(fi, factor = CommName$Community)
+# network colors
+CommColor.gc <- unique((CommName[,c("Community", "CommColor")]))
+rownames(CommColor.gc) <- CommColor.gc$Community
+
+# plot
+netf.graph <- createFactorMap(net.fi,
+                           axis1 = x_cp, axis2 = y_cp,
+                           title = "Compromise - Factor scores (networks): cp 1 & 2",
+                           col.points = CommColor.gc[rownames(net.fi), "CommColor"],
+                           col.labels = CommColor.gc[rownames(net.fi), "CommColor"],
+                           alpha.points = .4, cex = 5, text.cex = 5)
+netf.graph.23 <- createFactorMap(net.fi,
+                           axis1 = 2, axis2 = 3,
+                           title = "Compromise - Factor scores (networks): cp 2 & 3",
+                           col.points = CommColor.gc[rownames(net.fi), "CommColor"],
+                           col.labels = CommColor.gc[rownames(net.fi), "CommColor"],
+                           alpha.points = .4, cex = 5, text.cex = 5)
+
+# Show plot
+f01.netF <- netf.graph$zeMap + f.labels
+f01.netF.cp3 <- netf.graph.23$zeMap + f.labels.23
+```
+
+![](GordonParcel_DisTATIS_files/figure-gfm/plot_fig_netf-1.png)<!-- -->
+
 #### Partial factor scores
 
 Component 1 & 2
@@ -84,3 +114,13 @@ Component 1 & 2
 Component 2 & 3
 
 ![](GordonParcel_DisTATIS_files/figure-gfm/plot_fig_pF_cp3-1.png)<!-- -->
+
+#### Mean partial factor scores
+
+Component 1 & 2
+
+![](GordonParcel_DisTATIS_files/figure-gfm/plot_fig_netpF-1.png)<!-- -->
+
+Component 2 & 3
+
+![](GordonParcel_DisTATIS_files/figure-gfm/plot_fig_pF_cp3_net-1.png)<!-- -->
