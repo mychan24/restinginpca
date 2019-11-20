@@ -323,12 +323,138 @@ pf.sess.cp3 <- createPartialFactorScoresMap(distatis.res$res4Splus$F,
                                             names4Partial = rownames(session.color$gc))
 
 
-f03.FpF.sub.cp3 <- f.graph4sub.cp3$zeMap_background + pf.sub.cp3$mapColByBlocks + f.graph4sub.cp3$zeMap_dots + f.graph4sub.cp3$zeMap_text + f.labels.23
-# f02.FpF.sub
-f03.FpF.sess.cp3 <- f.graph4sess.cp3$zeMap_background + pf.sess.cp3$mapColByBlocks + f.graph4sess.cp3$zeMap_dots + f.graph4sess.cp3$zeMap_text + f.labels.23
-# f02.FpF.sub
-# f02.FpF.sess
+f03.FpF.sub.cp3 <- f.graph4sub.cp3$zeMap_background + pf.sub.cp3$mapColByBlocks + f.graph4sub.cp3$zeMap_dots + f.labels.23
+f03.FpF.sess.cp3 <- f.graph4sess.cp3$zeMap_background + pf.sess.cp3$mapColByBlocks + f.graph4sess.cp3$zeMap_dots + f.labels.23
+
 ```
+
 ```{r plot_fig_pF_cp3, echo=F, fig.height=8, fig.width= 16}
 gridExtra::grid.arrange(as.grob(f03.FpF.sub.cp3), as.grob(f03.FpF.sess.cp3), ncol=2)
+```
+
+
+
+#### Mean partial factor scores
+
+Component 1 & 2
+
+```{r net.pf, include = FALSE}
+fi <- distatis.res$res4Splus$F
+
+# mean factor scores for each network
+net.fi <- getMeans(fi, factor = CommName$Community)
+
+# network colors
+CommColor.gc <- unique((CommName[,c("Community", "CommColor")]))
+rownames(CommColor.gc) <- CommColor.gc$Community
+
+# get mean subjects' partial factor scores of each network
+get.subpF.net <- apply(sub.pF, 3, function(x){
+  getMeans(x, CommName$Community)
+})
+sub.pF.net <- array(unlist(get.subpF.net), dim = c(dim(get.subpF.net[[1]]), length(get.subpF.net)), dimnames = list(rownames(get.subpF.net$sub01), colnames(get.subpF.net$sub01), names(get.subpF.net))) 
+
+# get mean sessions' partial factor scores of each network
+get.sesspF.net <- apply(sess.pF, 3, function(x){
+  getMeans(x, CommName$Community)
+})
+sess.pF.net <- array(unlist(get.sesspF.net), dim = c(dim(get.sesspF.net[[1]]), length(get.sesspF.net)), dimnames = list(rownames(get.sesspF.net$sess1), colnames(get.sesspF.net$sess1), names(get.sesspF.net)))
+
+netf.graph4sub <- createFactorMap(net.fi,
+                           axis1 = x_cp, axis2 = y_cp,
+                           title = "Compromise - Factor scores (networks): cp 1 & 2",
+                           col.points = CommColor.gc[rownames(net.fi), "CommColor"],
+                           col.labels = CommColor.gc[rownames(net.fi), "CommColor"],
+                           pch = 17,
+                           alpha.points = 0.7, cex = 4, text.cex = 4,
+                           constraints = minmaxHelper4Partial(net.fi,
+                                                              sub.pF.net))
+
+netpf.sub <- createPartialFactorScoresMap(net.fi,
+                                       sub.pF.net,
+                                       axis1 = x_cp, axis2 = y_cp,
+                                       colors4Blocks = table.color$gc,
+                                       size.points = 3, size.labels = 3,
+                                       alpha.points = .8, alpha.lines = .8, alpha.labels = .8,
+                                       names4Partial = rownames(table.color$gc))
+
+netf.graph4sess <- createFactorMap(net.fi,
+                           axis1 = x_cp, axis2 = y_cp,
+                           title = "Compromise - Factor scores (networks): cp 1 & 2",
+                           col.points = CommColor.gc[rownames(net.fi), "CommColor"],
+                           col.labels = CommColor.gc[rownames(net.fi), "CommColor"],
+                           pch = 17,
+                           alpha.points = 0.7, cex = 4, text.cex = 4,
+                           constraints = minmaxHelper4Partial(net.fi,
+                                                              sess.pF.net))
+
+netpf.sess <- createPartialFactorScoresMap(net.fi,
+                                       sess.pF.net,
+                                       axis1 = x_cp, axis2 = y_cp,
+                                       colors4Blocks = session.color$gc,
+                                       size.points = 3, size.labels = 4,
+                                       alpha.points = .8, alpha.lines = .8, alpha.labels = 1,
+                                       names4Partial = rownames(session.color$gc))
+
+
+f02.netFpF.sub <- netf.graph4sub$zeMap_background + netpf.sub$mapColByBlocks + netf.graph4sub$zeMap_dots + f.labels
+# f02.netFpF.sub
+f02.netFpF.sess <- netf.graph4sess$zeMap_background + netpf.sess$mapColByBlocks + netf.graph4sess$zeMap_dots + f.labels
+# f02.netFpF.sub
+# f02.netFpF.sess
+```
+
+```{r plot_fig_netpF, echo=F, fig.height=8, fig.width= 16}
+gridExtra::grid.arrange(as.grob(f02.netFpF.sub), as.grob(f02.netFpF.sess), ncol=2)
+```
+
+Component 2 & 3
+
+```{r net.pf_cp3, include = FALSE}
+netf.graph4sub.cp3 <- createFactorMap(net.fi,
+                           axis1 = 2, axis2 = 3,
+                           title = "Compromise - Factor scores (networks): cp 1 & 2",
+                           col.points = CommColor.gc[rownames(net.fi), "CommColor"],
+                           col.labels = CommColor.gc[rownames(net.fi), "CommColor"],
+                           pch = 17,
+                           alpha.points = 0.7, cex = 4, text.cex = 4,
+                           constraints = minmaxHelper4Partial(net.fi,
+                                                              sub.pF.net, 
+                                                              axis1 = 2, axis2 = 3))
+
+netpf.sub.cp3 <- createPartialFactorScoresMap(net.fi,
+                                       sub.pF.net,
+                                       axis1 = 2, axis2 = 3,
+                                       colors4Blocks = table.color$gc,
+                                       size.points = 3, size.labels = 3,
+                                       alpha.points = .8, alpha.lines = .8, alpha.labels = .8,
+                                       names4Partial = rownames(table.color$gc))
+
+netf.graph4sess.cp3 <- createFactorMap(net.fi,
+                           axis1 = 2, axis2 = 3,
+                           title = "Compromise - Factor scores (networks): cp 1 & 2",
+                           col.points = CommColor.gc[rownames(net.fi), "CommColor"],
+                           col.labels = CommColor.gc[rownames(net.fi), "CommColor"],
+                           pch = 17,
+                           alpha.points = 0.7, cex = 4, text.cex = 4,
+                           constraints = minmaxHelper4Partial(net.fi,
+                                                              sess.pF.net, 
+                                                              axis1 = 2, axis2 = 3))
+
+netpf.sess.cp3 <- createPartialFactorScoresMap(net.fi,
+                                       sess.pF.net,
+                                       axis1 = 2, axis2 = 3,
+                                       colors4Blocks = session.color$gc,
+                                       size.points = 3, size.labels = 4,
+                                       alpha.points = .8, alpha.lines = .8, alpha.labels = 1,
+                                       names4Partial = rownames(session.color$gc))
+
+
+f03.netFpF.sub.cp3 <- netf.graph4sub.cp3$zeMap_background + netpf.sub.cp3$mapColByBlocks + netf.graph4sub.cp3$zeMap_dots + f.labels.23
+# f02.netFpF.sub
+f03.netFpF.sess.cp3 <- netf.graph4sess.cp3$zeMap_background + netpf.sess.cp3$mapColByBlocks + netf.graph4sess.cp3$zeMap_dots + f.labels.23
+```
+
+```{r plot_fig_pF_cp3_net, echo=F, fig.height=8, fig.width= 16}
+gridExtra::grid.arrange(as.grob(f03.netFpF.sub.cp3), as.grob(f03.netFpF.sess.cp3), ncol=2)
 ```

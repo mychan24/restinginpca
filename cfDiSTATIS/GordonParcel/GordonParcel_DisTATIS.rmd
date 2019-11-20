@@ -333,6 +333,7 @@ f03.FpF.sess.cp3 <- f.graph4sess.cp3$zeMap_background + pf.sess.cp3$pointsColByB
 # f02.FpF.sub
 # f02.FpF.sess
 ```
+
 ```{r plot_fig_pF_cp3, echo=F, fig.height=8, fig.width= 16}
 gridExtra::grid.arrange(as.grob(f03.FpF.sub.cp3), as.grob(f03.FpF.sess.cp3), ncol=2)
 ```

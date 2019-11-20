@@ -113,3 +113,13 @@ Component 1 & 2
 Component 2 & 3
 
 ![](simattack_GordonParcel_DisTATIS_files/figure-gfm/plot_fig_pF_cp3-1.png)<!-- -->
+
+#### Mean partial factor scores
+
+Component 1 & 2
+
+![](simattack_GordonParcel_DisTATIS_files/figure-gfm/plot_fig_netpF-1.png)<!-- -->
+
+Component 2 & 3
+
+![](simattack_GordonParcel_DisTATIS_files/figure-gfm/plot_fig_pF_cp3_net-1.png)<!-- -->
