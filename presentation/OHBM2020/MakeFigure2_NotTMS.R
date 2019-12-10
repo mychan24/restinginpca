@@ -5,7 +5,7 @@
 #===================================================
 rm(list = ls())
 # Read data ----
-load("././MuSu_simattack_4rows_18_HMFA_sub-edgetype.RData")
+load("./res_MuSu_4rows/18_[NA, c, HMFA_sub-edgetype]/MSC_allsub_simattack_NOT_TMS/MuSu_simattack_NOTMS_4rows_7_HMFA_sub-edgetype.RData")
 library(RColorBrewer)
 library(pals)
 library(PTCA4CATA)
@@ -43,7 +43,7 @@ f_sess <- plot.f_sess4pF$zeMap_background + f.labels + plot.pf$mapColByBlocks + 
 Fig2A <- f_sess
 Fig2A
 
-# Fig 2B
+# --- Fig 2B --- #
 
 # Loadings
 bar.edge <- mean.edge.fj[importantCommEdg,1]
@@ -54,40 +54,57 @@ lookup.tab <- CommName[,c(1,4)]
 colnames(lookup.tab) <- c("Num","Short")
 lookup.tab$Short <- gsub('[[:digit:]]+', '', lookup.tab$Short)
 
-name.bar <- c("Within DMN", 
-              "Between DMN & Aud", 
-              "Between DMN & FPN", 
-              "Within hSMN", 
-              "Between hSMN & Aud", 
-              "Within Aud", 
-              "Within lVis", 
-              "Between lVis & hSMN", 
-              "Between lVis & Aud", 
-              "Between lVis & CON", 
-              "Within FPN", 
-              "Between FPN & DAN", 
-              "Between FPN & CON", 
-              "Within DAN", 
-              "Between DAN & hSMN", 
-              "Within CON",
-              "Between CON & hSMN",
-              "Between CON & Aud")
+# generalize name.bar
+name.bar <- matrix(NA,1,length(edge.show))
+for(i in 1:length(edge.show)){
+  if(grepl("_", edge.show[i])){
+    labels <- as.numeric(strsplit(edge.show[i], "_")[[1]])
+    lab1 <- lookup.tab$Short[lookup.tab$Num==labels[1]]
+    lab2 <- lookup.tab$Short[lookup.tab$Num==labels[2]]
+    
+    name.bar[i] <- sprintf("Between %s & %s", lab1, lab2)
+    
+  }else{
+    name.bar[i] <- sprintf("Within %s", lookup.tab$Short[lookup.tab$Num==as.numeric(edge.show[i])])
+  }
+  
+}
+
+## comment out hard-coded name.bar - myc 
+# name.bar <- c("Within DMN", 
+#               "Between DMN & Aud", 
+#               "Between DMN & FPN", 
+#               "Within hSMN", 
+#               "Between hSMN & Aud", 
+#               "Within Aud", 
+#               "Within lVis", 
+#               "Between lVis & hSMN", 
+#               "Between lVis & Aud", 
+#               "Between lVis & CON", 
+#               "Within FPN", 
+#               "Between FPN & DAN", 
+#               "Between FPN & CON", 
+#               "Within DAN", 
+#               "Between DAN & hSMN", 
+#               "Within CON",
+#               "Between CON & hSMN",
+#               "Between CON & Aud")
 names(bar.edge) <- name.bar
 
 
-Fig2b <- PrettyBarPlot2(bar.edge,horizontal = F,
+Fig2b <- PrettyBarPlot2(bar.edge,horizontal = F, angle.text = T,
                threshold = 0,
                color.bar = c("darkslateblue","maroon4","gray"),
                color.bord = c("darkslateblue","maroon4","gray"),
                color.letter = c("darkslateblue","maroon4","gray"),
-               ylim = c(min(mean.edge.fj[importantCommEdg,1]),
-                        0.01+max(mean.edge.fj[importantCommEdg,1])),
+               ylim = c(min(mean.edge.fj[importantCommEdg,1])-0.005,
+                        0.005+max(mean.edge.fj[importantCommEdg,1])),
                main = "\n Mean significant loadings on Component 1")
 
 Fig2b
 
 # Fig 2C
-load("././cfDiSTATIS_simattack_NOTTMS_GordonParcel.RData")
+load("./cfDiSTATIS/GordonParcel/cfDiSTATIS_simattack_NOTTMS_GordonParcel.RData")
 
 f.labels <- createxyLabels.gen(x_axis = x_cp, y_axis = y_cp,
                                lambda = distatis.res$res4Splus$eigValues,
@@ -125,7 +142,7 @@ Fig2c
 
 library(ggpubr)
 
-png("Figure2.png", width = 400, height = 120, units = 'mm', res = 500)
+png("./presentation/OHBM2020/Figure2_nonTMS.png", width = 400, height = 120, units = 'mm', res = 500)
 ggarrange(Fig2A,Fig2b,Fig2c,
           labels = c("A","B","C"),
           ncol = 3, nrow = 1)
