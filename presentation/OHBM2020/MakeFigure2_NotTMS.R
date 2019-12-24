@@ -94,9 +94,9 @@ names(bar.edge) <- name.bar
 
 Fig2b <- PrettyBarPlot2(bar.edge,horizontal = F, angle.text = T,
                threshold = 0,
-               color.bar = c("darkslateblue","maroon4","gray"),
-               color.bord = c("darkslateblue","maroon4","gray"),
-               color.letter = c("darkslateblue","maroon4","gray"),
+               color.bar = c("maroon4","darkslateblue","gray"),
+               color.bord = c("maroon4","darkslateblue","gray"),
+               color.letter = c("maroon4","darkslateblue","gray"),
                ylim = c(min(mean.edge.fj[importantCommEdg,1])-0.005,
                         0.005+max(mean.edge.fj[importantCommEdg,1])),
                main = "\n Mean significant loadings on Component 1")
@@ -146,4 +146,10 @@ png("./presentation/OHBM2020/Figure2_nonTMS.png", width = 400, height = 120, uni
 ggarrange(Fig2A,Fig2b,Fig2c,
           labels = c("A","B","C"),
           ncol = 3, nrow = 1)
+dev.off()
+
+png("./presentation/OHBM2020/Figure2_nonTMS_partAB.png", width = 266.66, height = 120, units = 'mm', res = 500)
+ggarrange(Fig2A,Fig2b,
+          labels = c("A","B"),
+          ncol = 2, nrow = 1)
 dev.off()
