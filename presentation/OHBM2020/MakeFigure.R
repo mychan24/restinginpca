@@ -22,10 +22,11 @@ plot.f_sess4pF <- createFactorMap(svd.res$ExPosition.Data$fi,
                                   constraints = pF.constraints,
                                   col.points = c("maroon4","darkslateblue","maroon4","darkslateblue"),
                                   col.labels = c("maroon4","darkslateblue","maroon4","darkslateblue"),
-                                  text.cex = 5,
+                                  text.cex = 7,
                                   alpha.points = 1,
                                   col.background = adjustcolor('white',alpha.f = .2),
-                                  title = "Mean Factor Score of Sessions & \nPartial Factor Scores of Subjects")
+                                  title = "Mean Factor Score of Sessions & \nPartial Factor Scores of Subjects",
+                                  cex = 5)
                                    # with t(gt)
 plot.pf <- createPartialFactorScoresMap(
   factorScores = svd.res$ExPosition.Data$fi,
@@ -75,7 +76,7 @@ name.bar <- c("Within DMN",
 names(bar.edge) <- name.bar
 
 
-Fig2b <- PrettyBarPlot2(bar.edge,horizontal = F,
+Fig2b <- PrettyBarPlot2(bar.edge,horizontal = F, font.size = 5,
                threshold = 0,
                color.bar = c("darkslateblue","maroon4","gray"),
                color.bord = c("darkslateblue","maroon4","gray"),
@@ -104,7 +105,7 @@ netf.graph4sess <- createFactorMap(net.fi2plot,
                                    col.points = CommColor.gc[rownames(net.fi2plot), "CommColor"],
                                    col.labels = CommColor.gc[rownames(net.fi2plot), "CommColor"],
                                    pch = 17,
-                                   alpha.points = 1, cex = 2, text.cex = 3,
+                                   alpha.points = 0.8, cex = 4, text.cex = 4.5,
                                    constraints = minmaxHelper4Partial(net.fi,
                                                                       sess.pF.net))
 
@@ -114,7 +115,7 @@ netpf.sess <- createPartialFactorScoresMap(net.fi2plot,
                                            axis1 = x_cp, axis2 = y_cp,
                                            colors4Blocks = c("maroon4","darkslateblue","maroon4","darkslateblue"),
                                            shape.points = 20,
-                                           size.points = 2, size.labels = 2,
+                                           size.points = 3, size.labels = 4,
                                            alpha.points = 1, alpha.lines = .8, alpha.labels = 1,
                                            names4Partial = dimnames(sess.pF.net2plot)[[3]])
 
